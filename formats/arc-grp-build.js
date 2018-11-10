@@ -54,6 +54,8 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			files: [],
 		};
 
+		const lenArchive = content.length;
+
 		let buffer = new BufferWalk(content);
 		let header = buffer.readRecord(recordTypes.header);
 
@@ -69,6 +71,10 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 				getRaw: () => buffer.sliceBlock(offset, file.diskSize),
 			});
 			nextOffset += file.diskSize;
+			if (nextOffset > lenArchive) {
+				console.error('Archive truncated, returning partial content');
+				break;
+			}
 		}
 
 		return archive;
