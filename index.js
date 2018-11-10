@@ -10,8 +10,8 @@ class GameArchive
 	 * @param string type
 	 *   Identifier of desired file format.
 	 *
-	 * @return Type from formats/*.js matching requested code, or null if the code
-	 *   is invalid.
+	 * @return Type from formats/*.js matching requested code, or null
+	 *   if the code is invalid.
 	 */
 	static getHandler(type)
 	{
@@ -20,38 +20,28 @@ class GameArchive
 
 	/// Get a handler by examining the file content.
 	/**
-	 * @param BufferWalk content
+	 * @param Buffer content
 	 *   Archive file content.
 	 *
-	 * @return Type from formats/*.js that can handle the format, or null if the
-	 *   format could not be identified.
+	 * @return Array of types from formats/*.js that can handle the
+	 *   format, or an empty array if the format could not be identified.
 	 */
 	static findHandler(content)
 	{
-		let handler = null;
-		console.log('Autodetecting archive format...');
+		let handlers = [];
 		fileTypes.some(x => {
 			const metadata = x.metadata();
 			const confidence = x.identify(content);
 			if (confidence === true) {
-				console.log('Found definite match:', metadata.id);
-				handler = x;
+				handlers = [x];
 				return true; // exit loop early
 			}
 			if (confidence === undefined) {
-				if (!handler) {
-					console.log('Found possible match:', metadata.id);
-					handler = x;
-				} else {
-					console.log('Skipping possible match:', metadata.id);
-				}
+				handlers.push(x);
 				// keep going to look for a better match
 			}
 		});
-		if (!handler) {
-			console.log('Unrecognised format.');
-		}
-		return handler;
+		return handlers;
 	}
 
 	/// Get a list of all the available handlers.

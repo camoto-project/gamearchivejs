@@ -102,11 +102,19 @@ class Operations
 
 		let content = await fs.readFile(params.target);
 		if (!handler) {
-			handler = GameArchive.findHandler(content);
-		}
-		if (!handler) {
-			throw new OperationsError('Unable to identify this archive format.');
-			return;
+			let handlers = GameArchive.findHandler(content);
+			if (handlers.length === 0) {
+				throw new OperationsError('Unable to identify this archive format.');
+			}
+			if (handlers.length > 1) {
+				console.error('This file format could not be unambiguously identified.  It could be:');
+				handlers.forEach(h => {
+					const m = h.metadata();
+					console.error(` * ${m.id} (${m.title})`);
+				});
+				throw new OperationsError('open: please use the -f option to specify the format.');
+			}
+			handler = handlers[0];
 		}
 
 		this.archive = handler.parse(content);
