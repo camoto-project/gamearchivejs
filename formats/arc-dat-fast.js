@@ -109,28 +109,37 @@ class Archive_DAT_FAST extends ArchiveHandler
 		return archive;
 	}
 
-	static generate(files)
+	static generate(archive)
 	{
-		const header = {
-			signature: 'KenSilverman',
-			fileCount: archive.files.length,
-		};
-
 		// Calculate the size up front so we don't have to keep reallocating
 		// the buffer, improving performance.
 		const finalSize = archive.files.reduce(
 			(a, b) => a + b.diskSize,
-			16 * (header.fileCount + 1)
+			FAT_HEADER_LEN * archive.files.length
 		);
 
 		let buffer = new GrowableBuffer(finalSize);
-		buffer.writeRecord(recordTypes.header, header);
 
 		archive.files.forEach(file => {
-			buffer.writeRecord(recordTypes.fatEntry, file);
-		});
-
-		archive.files.forEach(file => {
+			const entry = {...file};
+			entry.typeCode = 32;
+			const ext = entry.name.substr(-4).toLowerCase();
+			if (ext === '.snd') { // special case
+				entry.typeCode = 8;
+				// extension isn't removed
+			} else {
+				Object.keys(FASTTypes).some(typeCode => {
+					if (FASTTypes[typeCode][0] === '') return false;
+					if (ext === FASTTypes[typeCode][0]) {
+						entry.typeCode = typeCode;
+						// Remove filename extension
+						entry.name = entry.name.substr(0, entry.name.length-4);
+						return true;
+					}
+					return false; // keep going
+				});
+			}
+			buffer.writeRecord(recordTypes.fatEntry, entry);
 			buffer.put(file.getRaw());
 		});
 
