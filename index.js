@@ -53,6 +53,17 @@ class GameArchive
 		}
 		return handler;
 	}
+
+	/// Get a list of all the available handlers.
+	/**
+	 * This is probably only useful when testing the library.
+	 *
+	 * @return Array of file format handlers, with each element being
+	 *   just like getHandler() returns.
+	 */
+	static listHandlers() {
+		return fileTypes;
+	}
 }
 
 module.exports = GameArchive;

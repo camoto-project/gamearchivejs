@@ -4,7 +4,7 @@
   "description": "Read and write archive files used by DOS games",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -27,5 +27,8 @@
   "homepage": "https://github.com/Malvineous/gamearchivejs#readme",
   "dependencies": {
     "command-line-args": "^5.0.2"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
   }
 }
