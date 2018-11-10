@@ -2,6 +2,9 @@
   "name": "gamearchive",
   "version": "1.0.0",
   "description": "Read and write archive files used by DOS games",
+  "bin": {
+    "gamearch": "./bin/gamearch"
+  },
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha"
