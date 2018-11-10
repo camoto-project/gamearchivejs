@@ -1,4 +1,5 @@
 const ArchiveHandler = require('./archive.js');
+const BufferWalk = require('../util/utl-buffer_walk.js');
 const GrowableBuffer = require('../util/utl-growable_buffer.js');
 const Type = require('../util/utl-record_types.js');
 
@@ -46,8 +47,9 @@ class Archive_DAT_FAST extends ArchiveHandler
 		};
 	}
 
-	static identify(buffer) {
-		buffer.seekAbs(0);
+	static identify(content) {
+		let buffer = new BufferWalk(content);
+
 		for (let i = 0; i < MAX_FILES; i++) {
 			// If we're exactly at the EOF then we're done.
 			if (buffer.distFromEnd() === 0) return true;
@@ -73,13 +75,13 @@ class Archive_DAT_FAST extends ArchiveHandler
 		return false;
 	}
 
-	static parse(buffer) {
+	static parse(content) {
 		let archive = {
 			metadata: {},
 			files: [],
 		};
 
-		buffer.seekAbs(0);
+		let buffer = new BufferWalk(content);
 
 		let nextOffset = FAT_HEADER_LEN;
 		for (let i = 0; i < MAX_FILES; i++) {
@@ -132,7 +134,7 @@ class Archive_DAT_FAST extends ArchiveHandler
 			buffer.put(file.getRaw());
 		});
 
-		return buffer;
+		return buffer.getBuffer();
 	}
 
 };

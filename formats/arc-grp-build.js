@@ -1,4 +1,5 @@
 const ArchiveHandler = require('./archive.js');
+const BufferWalk = require('../util/utl-buffer_walk.js');
 const GrowableBuffer = require('../util/utl-growable_buffer.js');
 const Type = require('../util/utl-record_types.js');
 
@@ -28,20 +29,21 @@ class Archive_GRP_Build extends ArchiveHandler
 		};
 	}
 
-	static identify(buffer) {
-		buffer.seekAbs(0);
+	static identify(content) {
+		let buffer = new BufferWalk(content);
+
 		const sig = recordTypes.header.signature.read(buffer);
 		if (sig === 'KenSilverman') return true;
 		return false;
 	}
 
-	static parse(buffer) {
+	static parse(content) {
 		let archive = {
 			metadata: {},
 			files: [],
 		};
 
-		buffer.seekAbs(0);
+		let buffer = new BufferWalk(content);
 		let header = buffer.readRecord(recordTypes.header);
 
 		let nextOffset = 16 * (header.fileCount + 1);
@@ -86,7 +88,7 @@ class Archive_GRP_Build extends ArchiveHandler
 			buffer.put(file.getRaw());
 		});
 
-		return buffer;
+		return buffer.getBuffer();
 	}
 
 };
