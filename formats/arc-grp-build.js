@@ -2,13 +2,16 @@ const ArchiveHandler = require('./archive.js');
 const BufferWalk = require('../util/utl-buffer_walk.js');
 const GrowableBuffer = require('../util/utl-growable_buffer.js');
 const Type = require('../util/utl-record_types.js');
+const Debug = require('../util/utl-debug.js');
+
+const FORMAT_ID = 'arc-grp-build';
 
 const recordTypes = {
 	header: {
 		signature: Type.string.fixed.withNulls(12),
 		fileCount: Type.int.u32le,
 	},
-	fatEntry: { // todo better name
+	fatEntry: {
 		name: Type.string.fixed.optNullTerm(12),
 		diskSize: Type.int.u32le,
 	},
@@ -18,7 +21,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 {
 	static metadata() {
 		return {
-			id: 'arc-grp-build',
+			id: FORMAT_ID,
 			title: 'BUILD Group File',
 			glob: [
 				'*.grp',
@@ -30,11 +33,19 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 	}
 
 	static identify(content) {
-		let buffer = new BufferWalk(content);
+		try {
+			Debug.push(FORMAT_ID, 'identify');
 
-		const sig = recordTypes.header.signature.read(buffer);
-		if (sig === 'KenSilverman') return true;
-		return false;
+			let buffer = new BufferWalk(content);
+
+			const sig = recordTypes.header.signature.read(buffer);
+			if (sig === 'KenSilverman') return true;
+			Debug.log(`Wrong signature => false`);
+			return false;
+
+		} finally {
+			Debug.pop();
+		}
 	}
 
 	static parse(content) {

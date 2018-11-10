@@ -1,6 +1,10 @@
 const fs = require('fs').promises;
 const commandLineArgs = require('command-line-args');
 const GameArchive = require('../index.js');
+const Debug = require('../util/utl-debug.js');
+
+// Uncomment to enable debugging messages
+//Debug.mute(false);
 
 // https://stackoverflow.com/a/20732091/308237
 function humanFileSize(size) {
@@ -133,7 +137,7 @@ class Operations
 			await fs.writeFile(params.target, outBuffer.getBuffer());
 		}
 
-		console.log('Saving to', params.target, 'as', params.format);
+		console.warn('Saving to', params.target, 'as', params.format);
 		const outBuffer = handler.generate(this.archive);
 		await fs.writeFile(params.format, outBuffer);
 	}
@@ -203,13 +207,13 @@ async function processCommands()
 				await proc[cmd.name](runOptions);
 			} catch (e) {
 				if (e instanceof OperationsError) {
-					console.log(e.message);
+					console.error(e.message);
 					process.exit(2);
 				}
 				throw e;
 			}
 		} else {
-			console.log(`Unknown command: ${cmd.name}`);
+			console.error(`Unknown command: ${cmd.name}`);
 			process.exit(1);
 		}
 	}

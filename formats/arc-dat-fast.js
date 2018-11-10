@@ -2,6 +2,9 @@ const ArchiveHandler = require('./archive.js');
 const BufferWalk = require('../util/utl-buffer_walk.js');
 const GrowableBuffer = require('../util/utl-growable_buffer.js');
 const Type = require('../util/utl-record_types.js');
+const Debug = require('../util/utl-debug.js');
+
+const FORMAT_ID = 'arc-dat-fast';
 
 const recordTypes = {
 	fatEntry: {
@@ -39,7 +42,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 {
 	static metadata() {
 		return {
-			id: 'arc-dat-fast',
+			id: FORMAT_ID,
 			title: 'F.A.S.T. Data File',
 			glob: [
 				'*.dat',
@@ -48,31 +51,38 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 	}
 
 	static identify(content) {
-		let buffer = new BufferWalk(content);
+		try {
+			Debug.push(FORMAT_ID, 'identify');
 
-		for (let i = 0; i < MAX_FILES; i++) {
-			// If we're exactly at the EOF then we're done.
-			if (buffer.distFromEnd() === 0) return true;
-			const file = buffer.readRecord(recordTypes.fatEntry);
-			if ([...file.name].some(c => {
-				const cc = c.charCodeAt(0);
-				return (cc <= 32) || (cc > 126);
-			})) {
-				// One or more filenames contain invalid chars, so they probably aren't
-				// filenames.
-				console.log(`File ${i} contains invalid char [${file.name}] => false`);
-				return false;
+			let buffer = new BufferWalk(content);
+
+			for (let i = 0; i < MAX_FILES; i++) {
+				// If we're exactly at the EOF then we're done.
+				if (buffer.distFromEnd() === 0) return true;
+				const file = buffer.readRecord(recordTypes.fatEntry);
+				if ([...file.name].some(c => {
+					const cc = c.charCodeAt(0);
+					return (cc <= 32) || (cc > 126);
+				})) {
+					// One or more filenames contain invalid chars, so they probably aren't
+					// filenames.
+					Debug.log(`File ${i} contains invalid char [${file.name}] => false`);
+					return false;
+				}
+				if (buffer.distFromEnd() < file.diskSize) {
+					// This file apparently goes past the end of the archive
+					Debug.log(`File ${i} would go past EOF => false`);
+					return false;
+				}
+				buffer.seekRel(file.diskSize);
 			}
-			if (buffer.distFromEnd() < file.diskSize) {
-				// This file apparently goes past the end of the archive
-				console.log(`File ${i} would go past EOF => false`);
-				return false;
-			}
-			buffer.seekRel(file.diskSize);
+			// Too many files
+			Debug.log(`Too many files => false`);
+			return false;
+
+		} finally {
+			Debug.pop();
 		}
-		// Too many files
-		console.log(`Too many files => false`);
-		return false;
 	}
 
 	static parse(content) {
