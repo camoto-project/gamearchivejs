@@ -149,6 +149,20 @@ class Operations
 		const outBuffer = handler.generate(this.archive);
 		await fs.writeFile(params.format, outBuffer);
 	}
+
+	type(params) {
+		if (!params.target) {
+			throw new OperationsError('extract: missing filename');
+		}
+
+		const targetName = params.target.toUpperCase(); // nearly always ASCII
+		const targetFile = this.archive.files.find(file => file.name.toUpperCase() == targetName);
+		if (!targetFile) {
+			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
+		}
+		const data = targetFile.getRaw();
+		process.stdout.write(data);
+	}
 };
 
 Operations.names = {
@@ -172,12 +186,16 @@ Operations.names = {
 		{ name: 'format', alias: 'f' },
 		{ name: 'target', defaultOption: true },
 	],
+	type: [
+		{ name: 'target', defaultOption: true },
+	],
 };
 
 // Make some alises
 const aliases = {
 	list: ['dir', 'ls'],
 	del: ['rm'],
+	type: ['cat'],
 };
 Object.keys(aliases).forEach(cmd => {
 	aliases[cmd].forEach(alias => {
