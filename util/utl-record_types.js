@@ -3,7 +3,7 @@ const charset = {
 	utf8: 'utf8',
 };
 
-const type = {
+module.exports = {
 	string: {
 		fixed: {
 			withNulls: len => ({
@@ -83,5 +83,3 @@ const type = {
 		},
 	},
 };
-
-module.exports = type;

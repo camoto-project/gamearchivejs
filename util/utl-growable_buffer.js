@@ -1,4 +1,4 @@
-class GrowableBuffer
+module.exports = class GrowableBuffer
 {
 	constructor(initialSize) {
 		this.buffer = Buffer.alloc(initialSize || 1048576);
@@ -41,5 +41,3 @@ class GrowableBuffer
 		return this.buffer.slice(0, this.pos);
 	}
 };
-
-module.exports = GrowableBuffer;

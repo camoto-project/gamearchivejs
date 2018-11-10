@@ -1,4 +1,4 @@
-class ArchiveHandler
+module.exports = class ArchiveHandler
 {
 	/// Identify any problems writing the given archive in the current format.
 	/**
@@ -23,5 +23,3 @@ class ArchiveHandler
 		return issues;
 	}
 }
-
-module.exports = ArchiveHandler;

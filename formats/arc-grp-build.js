@@ -14,7 +14,7 @@ const recordTypes = {
 	},
 };
 
-class Archive_GRP_Build extends ArchiveHandler
+module.exports = class Archive_GRP_Build extends ArchiveHandler
 {
 	static metadata() {
 		return {
@@ -92,5 +92,3 @@ class Archive_GRP_Build extends ArchiveHandler
 	}
 
 };
-
-module.exports = Archive_GRP_Build;

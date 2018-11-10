@@ -35,7 +35,7 @@ const FASTTypes = {
 	64: ['.spr', 'image/fast-sprite'],
 };
 
-class Archive_DAT_FAST extends ArchiveHandler
+module.exports = class Archive_DAT_FAST extends ArchiveHandler
 {
 	static metadata() {
 		return {
@@ -147,5 +147,3 @@ class Archive_DAT_FAST extends ArchiveHandler
 	}
 
 };
-
-module.exports = Archive_DAT_FAST;
