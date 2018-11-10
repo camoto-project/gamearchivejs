@@ -162,6 +162,17 @@ Operations.names = {
 	],
 };
 
+// Make some alises
+const aliases = {
+	list: ['dir', 'ls'],
+	del: ['rm'],
+};
+Object.keys(aliases).forEach(cmd => {
+	aliases[cmd].forEach(alias => {
+		Operations.names[alias] = Operations.names[cmd];
+		Operations.prototype[alias] = Operations.prototype[cmd];
+	});
+});
 
 async function processCommands()
 {
@@ -204,5 +215,4 @@ async function processCommands()
 	}
 }
 
-//run();
 processCommands();
