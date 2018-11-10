@@ -25,12 +25,11 @@ class Operations
 	}
 
 	async add(params) {
-		//let content = new BufferWalk(await fs.readFile(params.target));
 		let content = await fs.readFile(params.target);
 		this.archive.files.push({
 			name: params.name || params.target,
 			nativeSize: 0,
-			size: content.length,
+			diskSize: content.length,
 			type: undefined,
 			getRaw: () => content,
 		});
