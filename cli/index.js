@@ -201,9 +201,21 @@ Object.keys(aliases).forEach(cmd => {
 	});
 });
 
+function listFormats()
+{
+	GameArchive.listHandlers().forEach(handler => {
+		const md = handler.metadata();
+		console.log(`${md.id}: ${md.title}`);
+		if (md.params) Object.keys(md.params).forEach(p => {
+			console.log(`  * ${p}: ${md.params[p]}`);
+		});
+	});
+}
+
 async function processCommands()
 {
 	let cmdDefinitions = [
+		{ name: 'formats', type: Boolean },
 		{ name: 'name', defaultOption: true },
 	];
 	let argv = process.argv;
@@ -221,6 +233,11 @@ async function processCommands()
 
 		const cmd = commandLineArgs(cmdDefinitions, { argv, stopAtFirstUnknown: true });
 		argv = cmd._unknown || [];
+
+		if (cmd.formats) {
+			listFormats();
+			break;
+		}
 
 		const def = Operations.names[cmd.name];
 		if (def) {
