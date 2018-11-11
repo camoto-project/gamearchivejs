@@ -140,14 +140,11 @@ class Operations
 			}
 			console.log('\nPlease correct these issues and try again.\n');
 			throw new OperationsError('save: cannot save due to file format limitations.');
-		} else {
-			const outBuffer = handler.generate(this.archive);
-			await fs.writeFile(params.target, outBuffer.getBuffer());
 		}
 
 		console.warn('Saving to', params.target, 'as', params.format);
 		const outBuffer = handler.generate(this.archive);
-		await fs.writeFile(params.format, outBuffer);
+		await fs.writeFile(params.target, outBuffer);
 	}
 
 	type(params) {
