@@ -3,7 +3,7 @@ const fileTypes = [
 	require('./formats/arc-dat-fast.js'),
 ];
 
-class GameArchive
+module.exports = class GameArchive
 {
 	/// Get a handler by ID directly.
 	/**
@@ -55,5 +55,3 @@ class GameArchive
 		return fileTypes;
 	}
 }
-
-module.exports = GameArchive;
