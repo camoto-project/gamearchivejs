@@ -1,5 +1,5 @@
 {
-  "name": "gamearchive",
+  "name": "@malvineous/gamearchive",
   "version": "1.0.0",
   "description": "Read and write archive files used by DOS games",
   "bin": {
@@ -35,5 +35,8 @@
   },
   "devDependencies": {
     "mocha": "^5.2.0"
+  },
+  "directories": {
+    "test": "test"
   }
 }
