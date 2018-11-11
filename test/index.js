@@ -1,5 +1,4 @@
 const assert = require('assert');
-const fs = require('fs').promises;
 
 const TestUtil = require('./util.js');
 const GameArchive = require('../index.js');
@@ -53,19 +52,17 @@ GameArchive.listHandlers().forEach(handler => {
 	let testutil = new TestUtil(md.id);
 
 	describe(`Standard tests for ${md.title} [${md.id}]`, function() {
-		let contentDefault, contentEmpty;
-		it('should have test data present in the local filesystem', async function() {
-			contentDefault = testutil.loadData('default.bin');
-			//await fs.readFile(`${__dirname}/${md.id}/default.bin`);
-			contentEmpty = testutil.loadData('empty.bin');
-			//contentEmpty = await fs.readFile(`${__dirname}/${md.id}/empty.bin`);
+		let content = {};
+		before('load test data from local filesystem', function() {
+			content.default = testutil.loadData('default.bin');
+			content.empty = testutil.loadData('empty.bin');
 		});
 
 		describe('parse()', function() {
 			let archive;
 
 			it('should parse correctly', function() {
-				archive = handler.parse(contentDefault);
+				archive = handler.parse(content.default);
 			});
 
 			it('should have the standard number of files', function() {
@@ -76,12 +73,12 @@ GameArchive.listHandlers().forEach(handler => {
 		describe('generate()', function() {
 			it('should generate correctly', function() {
 				const contentGenerated = handler.generate(defaultArchive);
-				testutil.buffersEqual(contentDefault, contentGenerated);
+				testutil.buffersEqual(content.default, contentGenerated);
 			});
 
 			it('empty archives can be produced', function() {
 				const contentGenerated = handler.generate(emptyArchive);
-				testutil.buffersEqual(contentEmpty, contentGenerated);
+				testutil.buffersEqual(content.empty, contentGenerated);
 			});
 		});
 	});

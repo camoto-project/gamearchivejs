@@ -10,10 +10,14 @@ describe(`Extra tests for ${format}`, function() {
 	let testutil = new TestUtil(format);
 	const handler = GameArchive.getHandler(format);
 
+	let content = {};
+	before('load test data from local filesystem', function() {
+		content.typecode = testutil.loadData('typecode.bin');
+	});
+
 	describe('parse()', function() {
 		it('type codes are converted into filenames', function() {
-			const content = testutil.loadData('typecode.bin');
-			let archive = handler.parse(content);
+			let archive = handler.parse(content.typecode);
 			assert.equal(archive.files[0].name.toLowerCase(), 'level1.mif');
 			assert.equal(archive.files[1].name.toLowerCase(), 'level2.mif');
 			assert.equal(archive.files[2].name.toLowerCase(), 'test.tbg');
@@ -24,9 +28,6 @@ describe(`Extra tests for ${format}`, function() {
 
 	describe('generate()', function() {
 		it('filenames are converted into type codes', async function() {
-			let contentExpected = testutil.loadData('typecode.bin');
-			assert.notEqual(contentExpected, null);
-
 			const archive = {
 				metadata: {},
 				files: [
@@ -59,7 +60,7 @@ describe(`Extra tests for ${format}`, function() {
 			});
 
 			const contentGenerated = handler.generate(archive);
-			testutil.buffersEqual(contentExpected, contentGenerated);
+			testutil.buffersEqual(content.typecode, contentGenerated);
 		});
 	});
 });
