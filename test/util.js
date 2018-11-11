@@ -4,14 +4,26 @@ const path = require('path');
 
 function hexdump(d) {
 	let s = '', h = '', t = '';
-	for (let i = 0; i < d.length; i++) {
+	function addRow(i) {
+		s += (i - 15).toString(16).padStart(6, '0') + '  ' + h + '  ' + t + "\n";
+		h = t = '';
+	}
+	let i;
+	for (i = 0; i < d.length; i++) {
 		let v = d.readUInt8(i);
 		h += v.toString(16).padStart(2, '0') + ' ';
 		t += ((v < 32) || (v > 126)) ? '.' : String.fromCharCode(v);
 		if (i % 16 === 15) {
-			s += (i - 15).toString(16).padStart(6, '0') + '  ' + h + '  ' + t + "\n";
-			h = t = '';
+			addRow(i);
 		}
+	}
+	if (i % 16) {
+		// Need to pad out the final row
+		const end = d.length + 16 - (d.length % 16);
+		for (; i < end; i++) {
+			h += '   ';
+		}
+		addRow(i-1);
 	}
 	return s;
 }
