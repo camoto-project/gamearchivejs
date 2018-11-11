@@ -141,6 +141,9 @@ class Operations
 				throw new OperationsError('Invalid format code: ' + params.format);
 			}
 		}
+		if (!params.target) {
+			throw new OperationsError('open: missing filename');
+		}
 
 		let content = await fs.readFile(params.target);
 		if (!handler) {
@@ -169,7 +172,7 @@ class Operations
 		}
 		if (!params.format) params.format = this.origFormat;
 
-		let handler = GameArchive.getHandler(params.format);
+		const handler = GameArchive.getHandler(params.format);
 		if (!handler) {
 			throw new OperationsError('save: invalid format code: ' + params.format);
 		}
