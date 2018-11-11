@@ -6,9 +6,10 @@ const GameArchive = require('../index.js');
 
 const format = 'arc-dat-fast';
 
-describe(`Extra tests for ${format}`, function() {
-	let testutil = new TestUtil(format);
-	const handler = GameArchive.getHandler(format);
+const handler = GameArchive.getHandler(format);
+const md = handler.metadata();
+let testutil = new TestUtil(md.id);
+describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 	let content = {};
 	before('load test data from local filesystem', function() {
