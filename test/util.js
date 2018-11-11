@@ -21,10 +21,10 @@ module.exports = class TestUtil {
 		this.idHandler = idHandler;
 	}
 
-	buffersEqual(expected, actual) {
+	buffersEqual(expected, actual, msg) {
 		if ((expected.length != actual.length) || expected.compare(actual)) {
 			throw new assert.AssertionError({
-				message: 'Buffers are not equal',
+				message: 'Buffers are not equal' + (msg ? ': ' + msg : ''),
 				expected: hexdump(expected),
 				actual: hexdump(actual),
 			});
