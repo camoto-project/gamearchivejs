@@ -1,5 +1,5 @@
 const ArchiveHandler = require('./archive.js');
-const { BufferWalk, GrowableBuffer, RecordType } = require('record-io-buffer');
+const { BufferWalk, GrowableBuffer, RecordType } = require('@malvineous/record-io-buffer');
 const Debug = require('../util/utl-debug.js');
 
 const FORMAT_ID = 'arc-grp-build';
