@@ -17,6 +17,8 @@ const recordTypes = {
 	},
 };
 
+const FATENTRY_LEN = 16; // sizeof(fatEntry)
+
 module.exports = class Archive_GRP_Build extends ArchiveHandler
 {
 	static metadata() {
@@ -59,7 +61,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		let buffer = new BufferWalk(content);
 		let header = buffer.readRecord(recordTypes.header);
 
-		let nextOffset = 16 * (header.fileCount + 1);
+		let nextOffset = FATENTRY_LEN * (header.fileCount + 1);
 		for (let i = 0; i < header.fileCount; i++) {
 			const file = buffer.readRecord(recordTypes.fatEntry);
 			let offset = nextOffset; // copy inside closure for f.get()
@@ -91,7 +93,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		// the buffer, improving performance.
 		const finalSize = archive.files.reduce(
 			(a, b) => a + b.diskSize,
-			16 * (header.fileCount + 1)
+			FATENTRY_LEN * (header.fileCount + 1)
 		);
 
 		let buffer = new GrowableBuffer(finalSize);

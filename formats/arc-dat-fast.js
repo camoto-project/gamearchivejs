@@ -15,7 +15,7 @@ const recordTypes = {
 	},
 };
 
-const FAT_HEADER_LEN = 37; // sizeof(fatEntry)
+const FATENTRY_LEN = 37; // sizeof(fatEntry)
 
 /// Safety limit, actual format is unlimited
 const MAX_FILES = 1024;
@@ -93,7 +93,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 		let buffer = new BufferWalk(content);
 
-		let nextOffset = FAT_HEADER_LEN;
+		let nextOffset = FATENTRY_LEN;
 		for (let i = 0; i < MAX_FILES; i++) {
 			// If we're exactly at the EOF then we're done.
 			if (buffer.distFromEnd() === 0) break;
@@ -112,7 +112,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 				offset: offset,
 				getRaw: () => buffer.sliceBlock(offset, file.diskSize),
 			});
-			nextOffset += file.diskSize + FAT_HEADER_LEN;
+			nextOffset += file.diskSize + FATENTRY_LEN;
 			buffer.seekRel(file.diskSize);
 		}
 
@@ -125,7 +125,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 		// the buffer, improving performance.
 		const finalSize = archive.files.reduce(
 			(a, b) => a + b.diskSize,
-			FAT_HEADER_LEN * archive.files.length
+			FATENTRY_LEN * archive.files.length
 		);
 
 		let buffer = new GrowableBuffer(finalSize);
