@@ -2,6 +2,7 @@ const fileTypes = [
 	// These file formats all have signatures so the autodetection is
 	// fast and they are listed first.
 	require('./formats/arc-grp-build.js'),
+	...require('./formats/arc-rff-blood.js'),
 
 	// These formats require enumeration, sometimes all the way to the
 	// end of the file, so they are next.
