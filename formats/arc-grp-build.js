@@ -1,19 +1,17 @@
 const ArchiveHandler = require('./archive.js');
-const BufferWalk = require('../util/utl-buffer_walk.js');
-const GrowableBuffer = require('../util/utl-growable_buffer.js');
-const Type = require('../util/utl-record_types.js');
+const { BufferWalk, GrowableBuffer, RecordType } = require('record-io-buffer');
 const Debug = require('../util/utl-debug.js');
 
 const FORMAT_ID = 'arc-grp-build';
 
 const recordTypes = {
 	header: {
-		signature: Type.string.fixed.withNulls(12),
-		fileCount: Type.int.u32le,
+		signature: RecordType.string.fixed.withNulls(12),
+		fileCount: RecordType.int.u32le,
 	},
 	fatEntry: {
-		name: Type.string.fixed.optNullTerm(12),
-		diskSize: Type.int.u32le,
+		name: RecordType.string.fixed.optNullTerm(12),
+		diskSize: RecordType.int.u32le,
 	},
 };
 

@@ -1,17 +1,15 @@
 const ArchiveHandler = require('./archive.js');
-const BufferWalk = require('../util/utl-buffer_walk.js');
-const GrowableBuffer = require('../util/utl-growable_buffer.js');
-const Type = require('../util/utl-record_types.js');
+const { BufferWalk, GrowableBuffer, RecordType } = require('record-io-buffer');
 const Debug = require('../util/utl-debug.js');
 
 const FORMAT_ID = 'arc-dat-fast';
 
 const recordTypes = {
 	fatEntry: {
-		typeCode: Type.int.u16le,
-		diskSize: Type.int.u16le,
-		name: Type.string.fixed.nullTerm(31),
-		nativeSize: Type.int.u16le,
+		typeCode: RecordType.int.u16le,
+		diskSize: RecordType.int.u16le,
+		name: RecordType.string.fixed.nullTerm(31),
+		nativeSize: RecordType.int.u16le,
 	},
 };
 

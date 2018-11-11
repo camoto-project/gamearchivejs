@@ -1,32 +1,30 @@
 const GameCompression = require('gamecomp');
 
 const ArchiveHandler = require('./archive.js');
-const BufferWalk = require('../util/utl-buffer_walk.js');
-const GrowableBuffer = require('../util/utl-growable_buffer.js');
-const Type = require('../util/utl-record_types.js');
+const { BufferWalk, GrowableBuffer, RecordType } = require('record-io-buffer');
 const Debug = require('../util/utl-debug.js');
 
 const FORMAT_ID = 'arc-rff-blood';
 
 const recordTypes = {
 	header: {
-		signature: Type.string.fixed.withNulls(4),
-		version: Type.int.u16le,
-		pad: Type.int.u16le,
-		fatOffset: Type.int.u32le,
-		fileCount: Type.int.u32le,
-		pad2: Type.string.fixed.withNulls(16),
+		signature: RecordType.string.fixed.withNulls(4),
+		version: RecordType.int.u16le,
+		pad: RecordType.int.u16le,
+		fatOffset: RecordType.int.u32le,
+		fileCount: RecordType.int.u32le,
+		pad2: RecordType.string.fixed.withNulls(16),
 	},
 	fatEntry: {
-		cache: Type.string.fixed.withNulls(16),
-		offset: Type.int.u32le,
-		diskSize: Type.int.u32le,
-		packedSize: Type.int.u32le,
-		lastModified: Type.int.u32le,
-		flags: Type.int.u8,
-		ext: Type.string.fixed.optNullTerm(3),
-		basename: Type.string.fixed.optNullTerm(8),
-		id: Type.int.u32le,
+		cache: RecordType.string.fixed.withNulls(16),
+		offset: RecordType.int.u32le,
+		diskSize: RecordType.int.u32le,
+		packedSize: RecordType.int.u32le,
+		lastModified: RecordType.int.u32le,
+		flags: RecordType.int.u8,
+		ext: RecordType.string.fixed.optNullTerm(3),
+		basename: RecordType.string.fixed.optNullTerm(8),
+		id: RecordType.int.u32le,
 	},
 };
 
