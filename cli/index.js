@@ -73,7 +73,7 @@ class Operations
 			size += humanFileSize(file.diskSize);//.padStart(6);
 			const str =
 						size.padStart(16)
-						+ ' ' + file.name.padEnd(32)
+						+ ' ' + (file.name || '-').padEnd(32)
 						+ (file.type || '-')
 			;
 			console.log(str);
