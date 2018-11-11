@@ -70,6 +70,38 @@ class Operations
 		await fs.writeFile(params.name || params.target, data);
 	}
 
+	async identify(params) {
+		if (!params.target) {
+			throw new OperationsError('identify: missing filename');
+		}
+		Debug.mute(false);
+
+		console.log('Autodetecting file format...');
+		let content = await fs.readFile(params.target);
+		let handlers = GameArchive.findHandler(content);
+
+		console.log(handlers.length + ' format handler(s) matched');
+		if (handlers.length === 0) {
+			console.log('No file format handlers were able to identify this file format, sorry.');
+			return;
+		}
+		handlers.forEach(handler => {
+			const m = handler.metadata();
+			console.log(`\n>> Trying handler for ${m.id} (${m.title})`);
+
+			const tempArch = handler.parse(content);
+			console.log(' - Handler reports archive contains', tempArch.files.length, 'files.');
+			if (tempArch.files.length > 0) {
+				console.log(' - First filename is:', tempArch.files[0].name);
+				if (tempArch.files.length > 1) {
+					console.log(' - Second filename is:', tempArch.files[1].name);
+				}
+			}
+		});
+
+		Debug.mute(true);
+	}
+
 	list(params) {
 		let totalDiskSize = 0, totalNativeSize = 0;
 
@@ -182,6 +214,9 @@ Operations.names = {
 	],
 	extract: [
 		{ name: 'name', alias: 'n' },
+		{ name: 'target', defaultOption: true },
+	],
+	identify: [
 		{ name: 'target', defaultOption: true },
 	],
 	list: [],
