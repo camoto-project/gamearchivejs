@@ -23,6 +23,11 @@ module.exports = class TestUtil {
 
 	buffersEqual(expected, actual, msg) {
 		if ((expected.length != actual.length) || expected.compare(actual)) {
+			if (process.env.SAVE_FAILED_TEST == 1) {
+				console.log('Saving actual data to error.bin');
+				fs.writeFileSync('error.bin', actual);
+			}
+
 			throw new assert.AssertionError({
 				message: 'Buffers are not equal' + (msg ? ': ' + msg : ''),
 				expected: hexdump(expected),
