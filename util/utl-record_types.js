@@ -71,6 +71,11 @@ module.exports = {
 		len: len,
 	}),
 	int: {
+		u8: {
+			read: bw => bw.buffer.readUInt8(bw.pos),
+			write: (bw, val) => bw.buffer.writeUInt8(val, bw.pos),
+			len: 1,
+		},
 		u16le: {
 			read: bw => bw.buffer.readUInt16LE(bw.pos),
 			write: (bw, val) => bw.buffer.writeUInt16LE(val, bw.pos),
@@ -79,6 +84,21 @@ module.exports = {
 		u32le: {
 			read: bw => bw.buffer.readUInt32LE(bw.pos),
 			write: (bw, val) => bw.buffer.writeUInt32LE(val, bw.pos),
+			len: 4,
+		},
+		s8: {
+			read: bw => bw.buffer.readInt8(bw.pos),
+			write: (bw, val) => bw.buffer.writeInt8(val, bw.pos),
+			len: 1,
+		},
+		s16le: {
+			read: bw => bw.buffer.readInt16LE(bw.pos),
+			write: (bw, val) => bw.buffer.writeInt16LE(val, bw.pos),
+			len: 2,
+		},
+		s32le: {
+			read: bw => bw.buffer.readInt32LE(bw.pos),
+			write: (bw, val) => bw.buffer.writeInt32LE(val, bw.pos),
 			len: 4,
 		},
 	},
