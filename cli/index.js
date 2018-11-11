@@ -42,7 +42,17 @@ class Operations
 	}
 
 	del(params) {
-		this.log('deleting', params.target);
+		const targetName = params.target.toUpperCase(); // nearly always ASCII
+		for (let i = 0; i < this.archive.files.length; i++) {
+			if (this.archive.files[i].name.toUpperCase() == targetName) {
+				this.log('deleting', this.archive.files[i].name);
+				delete this.archive.files[i];
+				return;
+			}
+		}
+		if (!targetFile) {
+			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
+		}
 	}
 
 	async extract(params) {
