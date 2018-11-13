@@ -59,16 +59,17 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 
 		let nextOffset = FATENTRY_LEN * (header.fileCount + 1);
 		for (let i = 0; i < header.fileCount; i++) {
-			const file = buffer.readRecord(recordTypes.fatEntry);
+			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 			let offset = nextOffset; // copy inside closure for f.get()
-			archive.files.push({
-				...file,
-				nativeSize: 0, // uncompressed
-				type: undefined,
-				offset: offset,
-				getRaw: () => buffer.sliceBlock(offset, file.diskSize),
-			});
-			nextOffset += file.diskSize;
+
+			let file = new Archive.File();
+			file.diskSize = fatEntry.compressedSize;
+			file.offset = offset;
+			file.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
+
+			archive.files.push(file);
+
+			nextOffset += fatEntry.diskSize;
 			if (nextOffset > lenArchive) {
 				console.error('Archive truncated, returning partial content');
 				break;
@@ -85,25 +86,34 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			fileCount: archive.files.length,
 		};
 
+		// Work out where the FAT ends and the first file starts.
+		const offEndFAT = FATENTRY_LEN * (header.fileCount + 1);
+
 		// Calculate the size up front so we don't have to keep reallocating
 		// the buffer, improving performance.
 		const finalSize = archive.files.reduce(
 			(a, b) => a + b.diskSize,
-			FATENTRY_LEN * (header.fileCount + 1)
+			offEndFAT,
 		);
 
-		let buffer = new GrowableBuffer(finalSize);
+		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
+
+		// Write the files first so we can retrieve the sizes.
+		buffer.seekAbs(offEndFAT);
+
+		archive.files.forEach(file => {
+			const content = file.getContent();
+			file.diskSize = file.nativeSize = content.length;
+			buffer.put(content);
+		});
+
+		buffer.seekAbs(FATENTRY_LEN * 1);
 
 		archive.files.forEach(file => {
 			buffer.writeRecord(recordTypes.fatEntry, file);
 		});
 
-		archive.files.forEach(file => {
-			buffer.put(file.getRaw());
-		});
-
 		return buffer.getBuffer();
 	}
-
 };
