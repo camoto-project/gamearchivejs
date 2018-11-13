@@ -1,4 +1,4 @@
-const { BufferWalk, GrowableBuffer, RecordType } = require('@malvineous/record-io-buffer');
+const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
@@ -38,7 +38,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		try {
 			Debug.push(FORMAT_ID, 'identify');
 
-			let buffer = new BufferWalk(content);
+			let buffer = new RecordBuffer(content);
 
 			const sig = recordTypes.header.signature.read(buffer);
 			if (sig === 'KenSilverman') return true;
@@ -54,7 +54,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		let archive = new Archive();
 		const lenArchive = content.length;
 
-		let buffer = new BufferWalk(content);
+		let buffer = new RecordBuffer(content);
 		let header = buffer.readRecord(recordTypes.header);
 
 		let nextOffset = FATENTRY_LEN * (header.fileCount + 1);

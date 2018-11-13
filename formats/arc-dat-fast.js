@@ -1,4 +1,4 @@
-const { BufferWalk, GrowableBuffer, RecordType } = require('@malvineous/record-io-buffer');
+const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
@@ -54,7 +54,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 		try {
 			Debug.push(FORMAT_ID, 'identify');
 
-			let buffer = new BufferWalk(content);
+			let buffer = new RecordBuffer(content);
 
 			for (let i = 0; i < MAX_FILES; i++) {
 				// If we're exactly at the EOF then we're done.
@@ -88,7 +88,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 	static parse(content) {
 		let archive = new Archive();
 
-		let buffer = new BufferWalk(content);
+		let buffer = new RecordBuffer(content);
 
 		let nextOffset = FATENTRY_LEN;
 		for (let i = 0; i < MAX_FILES; i++) {
@@ -125,7 +125,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			FATENTRY_LEN * archive.files.length
 		);
 
-		let buffer = new GrowableBuffer(finalSize);
+		let buffer = new RecordBuffer(finalSize);
 
 		archive.files.forEach(file => {
 			const entry = {...file};

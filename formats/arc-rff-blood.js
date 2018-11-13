@@ -1,4 +1,4 @@
-const { BufferWalk, GrowableBuffer, RecordType } = require('@malvineous/record-io-buffer');
+const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 const GameCompression = require('@malvineous/gamecomp');
 
 const ArchiveHandler = require('./archiveHandler.js');
@@ -62,7 +62,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 			const md = this.metadata();
 			Debug.push(md.id, 'identify');
 
-			let buffer = new BufferWalk(content);
+			let buffer = new RecordBuffer(content);
 
 			let header = buffer.readRecord(recordTypes.header);
 			if (header.signature !== 'RFF\x1A') {
@@ -93,7 +93,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 			const lenArchive = content.length;
 
 
-			let buffer = new BufferWalk(content);
+			let buffer = new RecordBuffer(content);
 			let header = buffer.readRecord(recordTypes.header);
 
 			Debug.log(`Contains ${header.fileCount} files, version 0x`
@@ -108,7 +108,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 					limit: 0,
 				});
 			}
-			fat = new BufferWalk(fat);
+			fat = new RecordBuffer(fat);
 
 			for (let i = 0; i < header.fileCount; i++) {
 				const file = fat.readRecord(recordTypes.fatEntry);
@@ -175,11 +175,11 @@ class Archive_RFF_Blood extends ArchiveHandler
 
 		const crypto = this.getCrypto();
 
-		let buffer = new GrowableBuffer(finalSize);
+		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
 		let nextOffset = HEADER_LEN;
 
-		let fat = new GrowableBuffer(lenFAT);
+		let fat = new RecordBuffer(lenFAT);
 
 		archive.files.forEach(file => {
 			let content = file.getRaw();
