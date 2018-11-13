@@ -32,7 +32,7 @@ class Operations
 			nativeSize: 0,
 			diskSize: content.length,
 			type: undefined,
-			getRaw: () => content,
+			getContent: () => content,
 		});
 		this.log('adding', params.name || params.target,
 			params.name ? '(from ' + params.target + ')' : '');
@@ -62,7 +62,12 @@ class Operations
 		if (!targetFile) {
 			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
 		}
-		const data = targetFile.getRaw();
+		let data;
+		if (params.raw) {
+			data = targetFile.getRaw();
+		} else {
+			data = targetFile.getContent();
+		}
 		this.log('extracting', params.target, params.name ? 'as ' + params.name : '');
 		return fs.writeFile(params.name || params.target, data);
 	}
@@ -199,7 +204,7 @@ class Operations
 		if (!targetFile) {
 			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
 		}
-		const data = targetFile.getRaw();
+		const data = targetFile.getContent();
 		process.stdout.write(data);
 	}
 };
@@ -214,6 +219,7 @@ Operations.names = {
 	],
 	extract: [
 		{ name: 'name', alias: 'n' },
+		{ name: 'raw', alias: 'r', type: Boolean },
 		{ name: 'target', defaultOption: true },
 	],
 	identify: [
