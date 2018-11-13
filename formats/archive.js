@@ -32,6 +32,14 @@ module.exports.File = class File {
 		 * not counting any file-specific header that is not part of the file
 		 * content.  If the file is compressed, this is the compressed size.  If the
 		 * file is not compresed, this will be the same as nativeSize.
+		 *
+		 * This field is for information only after parsing an archive and is
+		 * unused when creating a new archive.  If the compressed size is needed
+		 * when creating an archive, the entire buffer returned by getContent() is
+		 * automatically compressed and the size gleaned from that.
+		 *
+		 * After creating an archive with generate(), this field may be populated to
+		 * reflect the newly written format.
 		 */
 		this.diskSize = undefined;
 
@@ -40,13 +48,20 @@ module.exports.File = class File {
 		 * This is the number of bytes in the file's native format, once extracted
 		 * from the archive.  If the file is compressed, this is the decompressed
 		 * size.  If the file is not compressed, this will be the same as diskSize.
+		 *
+		 * This field is for information only after parsing an archive and is
+		 * unused when creating a new archive.  Creating archives instead use the
+		 * length of the buffer returned by getContent().
+		 *
+		 * After creating an archive with generate(), this field may be populated to
+		 * reflect the newly written format.
 		 */
 		this.nativeSize = undefined;
 
-		// Default attributes for this file.
+		// Default attributes for this file are undefined, which means "don't care".
 		this.attributes = {
-			compressed: false,
-			encrypted: false,
+			compressed: undefined,
+			encrypted: undefined,
 		};
 
 		this.getContent = () => this.getRaw();
