@@ -92,7 +92,6 @@ class Archive_RFF_Blood extends ArchiveHandler
 			let archive = new Archive();
 			const lenArchive = content.length;
 
-
 			let buffer = new RecordBuffer(content);
 			let header = buffer.readRecord(recordTypes.header);
 
@@ -111,25 +110,25 @@ class Archive_RFF_Blood extends ArchiveHandler
 			fat = new RecordBuffer(fat);
 
 			for (let i = 0; i < header.fileCount; i++) {
-				const file = fat.readRecord(recordTypes.fatEntry);
-				if (file.offset > lenArchive) {
-					Debug.log(`File #${i} (${file.name}) has offset `
-						+ `${file.offset}, past archive EOF at ${lenArchive}`);
+				const fatEntry = fat.readRecord(recordTypes.fatEntry);
+				if (fatEntry.offset > lenArchive) {
+					Debug.log(`File #${i} (${fatEntry.name}) has offset `
+						+ `${fatEntry.offset}, past archive EOF at ${lenArchive}`);
 					console.error('Archive truncated, returning partial content');
 					break;
 				}
-				file.nativeSize = 0; // uncompressed
-				file.type = undefined;
-				file.name = file.basename;
-				file.attributes = {
-					encrypted: false,
-				};
-				if (file.ext) file.name += '.' + file.ext;
 
-				file.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
-				if (file.flags & RFFFlags.FILE_ENCRYPTED) {
-					if (crypto) {
-						file.getNative = () => {
+				let file = new Archive.File();
+				file.name = fatEntry.basename;
+				if (fatEntry.ext) file.name += '.' + fatEntry.ext;
+
+				fatEntry.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
+
+				if (crypto) {
+					if (fatEntry.flags & RFFFlags.FILE_ENCRYPTED) {
+						// Override the function to get the file content with one that
+						// decrypts the data first.
+						file.getContent = () => {
 							return crypto.reveal(file.getRaw(), {
 								seed: 0,
 								offset: this.getKeyOffset_File(),
@@ -138,7 +137,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 						};
 						file.attributes.encrypted = true;
 					} else {
-						Debug.log(`File #${i} is set to encrypted but this archive version doesn't support encryption`);
+						file.attributes.encrypted = false;
 					}
 				}
 				archive.files.push(file);
@@ -151,7 +150,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		}
 	}
 
-	static generate(archive, params)
+	static generate(archive)
 	{
 		const xor = GameCompression.getHandler('enc-xor-blood');
 
@@ -182,7 +181,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		let fat = new RecordBuffer(lenFAT);
 
 		archive.files.forEach(file => {
-			let content = file.getRaw();
+			let content = file.getContent();
 
 			let rffFile = {...file};
 			rffFile.cache = '';
@@ -194,7 +193,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 
 			if (crypto) {
 				// If encryption hasn't been specifically disabled, then encrypt
-				if (!file.attributes || (file.attributes.encrypted !== false)) {
+				if (file.attributes.encrypted !== false) {
 					rffFile.flags |= RFFFlags.FILE_ENCRYPTED;
 					content = crypto.obscure(content, {
 						seed: 0,
@@ -215,7 +214,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 			fat = crypto.obscure(fat.getBuffer(), {
 				seed: header.fatOffset & 0xFF,
 				offset: this.getKeyOffset_FAT(),
-				limit: 0,
+				limit: 0, // fully encrypted
 			});
 		} else {
 			fat = fat.getBuffer(); // for consistency
