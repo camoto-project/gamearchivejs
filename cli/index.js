@@ -3,9 +3,6 @@ const commandLineArgs = require('command-line-args');
 const GameArchive = require('../index.js');
 const Debug = require('../util/utl-debug.js');
 
-// Uncomment to enable debugging messages
-//Debug.mute(false);
-
 // https://stackoverflow.com/a/20732091/308237
 function humanFileSize(size) {
 	let i = (size == 0) ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -263,6 +260,7 @@ function listFormats()
 async function processCommands()
 {
 	let cmdDefinitions = [
+		{ name: 'debug', type: Boolean },
 		{ name: 'formats', type: Boolean },
 		{ name: 'name', defaultOption: true },
 	];
@@ -286,6 +284,8 @@ async function processCommands()
 			listFormats();
 			break;
 		}
+
+		if (cmd.debug) Debug.mute(false);
 
 		const def = Operations.names[cmd.name];
 		if (def) {
