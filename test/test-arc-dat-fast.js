@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 
 const TestUtil = require('./util.js');
 const GameArchive = require('../index.js');
+const Archive = require('../formats/archive.js');
 
 const format = 'arc-dat-fast';
 
@@ -29,36 +30,34 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 	describe('generate()', function() {
 		it('filenames are converted into type codes', async function() {
-			const archive = {
-				metadata: {},
-				files: [
-					{
-						name: 'level1.mif',
-						getRaw: () => Buffer.from('content1'),
-					},
-					{
-						name: 'LEVEL2.MIF',
-						getRaw: () => Buffer.from('content2'),
-					},
-					{
-						name: 'test.tbg',
-						getRaw: () => Buffer.from('content3'),
-					},
-					{
-						name: 'audio.snd',
-						getRaw: () => Buffer.from('content4'),
-					},
-					{
-						name: 'ega.pal',
-						getRaw: () => Buffer.from('content5'),
-					},
-				],
-			};
-			// Calculate the file lengths automatically
-			archive.files.forEach(file => {
-				file.diskSize = file.getRaw().length;
-				file.nativeSize = 0;
-			});
+			// This is what we expect the default archive in any given format to
+			// look like.
+			let archive = new Archive();
+
+			let file = new Archive.File();
+			file.name = 'level1.mif';
+			file.getRaw = () => Buffer.from('content1');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'LEVEL2.MIF';
+			file.getRaw = () => Buffer.from('content2');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'test.tbg';
+			file.getRaw = () => Buffer.from('content3');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'audio.snd';
+			file.getRaw = () => Buffer.from('content4');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'ega.pal';
+			file.getRaw = () => Buffer.from('content5');
+			archive.files.push(file);
 
 			const contentGenerated = handler.generate(archive);
 			testutil.buffersEqual(content.typecode, contentGenerated);

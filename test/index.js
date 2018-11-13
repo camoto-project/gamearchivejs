@@ -2,6 +2,7 @@ const assert = require('assert');
 
 const TestUtil = require('./util.js');
 const GameArchive = require('../index.js');
+const Archive = require('../formats/archive.js');
 
 // Override the default colours so we can actually see them
 var colors = require('mocha/lib/reporters/base').colors;
@@ -13,39 +14,31 @@ colors['error message'] = '1;31';
 colors['error stack'] = '1;37';
 
 // An archive with no content.
-const emptyArchive = {
-	metadata: {},
-	files: [],
-};
+const emptyArchive = new Archive();
 
 // This is what we expect the default archive in any given format to
 // look like.
-const defaultArchive = {
-	metadata: {},
-	files: [
-		{
-			name: 'ONE.TXT',
-			getRaw: () => Buffer.from('This is the first file'),
-		},
-		{
-			name: 'TWO.TXT',
-			getRaw: () => Buffer.from('This is the second file'),
-		},
-		{
-			name: 'THREE.TXT',
-			getRaw: () => Buffer.from('This is the third file'),
-		},
-		{
-			name: 'FOUR.TXT',
-			getRaw: () => Buffer.from('This is the fourth file'),
-		},
-	],
-};
-// Calculate the file lengths automatically
-defaultArchive.files.forEach(file => {
-	file.diskSize = file.getRaw().length;
-	file.nativeSize = 0;
-});
+let defaultArchive = new Archive();
+
+let file = new Archive.File();
+file.name = 'ONE.TXT';
+file.getRaw = () => Buffer.from('This is the first file');
+defaultArchive.files.push(file);
+
+file = new Archive.File();
+file.name = 'TWO.TXT';
+file.getRaw = () => Buffer.from('This is the second file');
+defaultArchive.files.push(file);
+
+file = new Archive.File();
+file.name = 'THREE.TXT';
+file.getRaw = () => Buffer.from('This is the third file');
+defaultArchive.files.push(file);
+
+file = new Archive.File();
+file.name = 'FOUR.TXT';
+file.getRaw = () => Buffer.from('This is the fourth file');
+defaultArchive.files.push(file);
 
 GameArchive.listHandlers().forEach(handler => {
 	const md = handler.metadata();

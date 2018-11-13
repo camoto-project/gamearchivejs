@@ -1,5 +1,7 @@
-const ArchiveHandler = require('./archive.js');
 const { BufferWalk, GrowableBuffer, RecordType } = require('@malvineous/record-io-buffer');
+
+const ArchiveHandler = require('./archiveHandler.js');
+const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
 
 const FORMAT_ID = 'arc-dat-fast';
@@ -84,10 +86,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 	}
 
 	static parse(content) {
-		let archive = {
-			metadata: {},
-			files: [],
-		};
+		let archive = new Archive();
 
 		let buffer = new BufferWalk(content);
 
