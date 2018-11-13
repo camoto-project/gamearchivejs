@@ -67,7 +67,7 @@ class Operations
 		}
 		const data = targetFile.getRaw();
 		this.log('extracting', params.target, params.name ? 'as ' + params.name : '');
-		await fs.writeFile(params.name || params.target, data);
+		return fs.writeFile(params.name || params.target, data);
 	}
 
 	async identify(params) {
@@ -189,7 +189,7 @@ class Operations
 
 		console.warn('Saving to', params.target, 'as', params.format);
 		const outBuffer = handler.generate(this.archive);
-		await fs.writeFile(params.target, outBuffer);
+		return fs.writeFile(params.target, outBuffer);
 	}
 
 	type(params) {
