@@ -1,4 +1,5 @@
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
+const GameCompression = require('@malvineous/gamecomp');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
@@ -9,9 +10,9 @@ const FORMAT_ID = 'arc-dat-fast';
 const recordTypes = {
 	fatEntry: {
 		typeCode: RecordType.int.u16le,
-		diskSize: RecordType.int.u16le,
+		compressedSize: RecordType.int.u16le,
 		name: RecordType.string.fixed.nullTerm(31),
-		nativeSize: RecordType.int.u16le,
+		decompressedSize: RecordType.int.u16le, // 0 if not compressed
 	},
 };
 
@@ -38,6 +39,15 @@ const FASTTypes = {
 	64: ['.spr', 'image/fast-sprite'],
 };
 
+const cmpDefaultParams = {
+	initialBits: 9,
+	maxBits: 12,
+	cwEOF: 256,
+	cwFirst: 257,
+	bigEndian: false,
+	flushOnReset: false,
+};
+
 module.exports = class Archive_DAT_FAST extends ArchiveHandler
 {
 	static metadata() {
@@ -58,7 +68,10 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 			for (let i = 0; i < MAX_FILES; i++) {
 				// If we're exactly at the EOF then we're done.
-				if (buffer.distFromEnd() === 0) return true;
+				if (buffer.distFromEnd() === 0) {
+					Debug.log(`EOF at correct place => true`);
+					return true;
+				}
 				const file = buffer.readRecord(recordTypes.fatEntry);
 				if ([...file.name].some(c => {
 					const cc = c.charCodeAt(0);
@@ -69,12 +82,12 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 					Debug.log(`File ${i} contains invalid char [${file.name}] => false`);
 					return false;
 				}
-				if (buffer.distFromEnd() < file.diskSize) {
+				if (buffer.distFromEnd() < file.compressedSize) {
 					// This file apparently goes past the end of the archive
 					Debug.log(`File ${i} would go past EOF => false`);
 					return false;
 				}
-				buffer.seekRel(file.diskSize);
+				buffer.seekRel(file.compressedSize);
 			}
 			// Too many files
 			Debug.log(`Too many files => false`);
@@ -87,6 +100,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 	static parse(content) {
 		let archive = new Archive();
+		const cmpAlgo = GameCompression.getHandler('cmp-lzw');
 
 		let buffer = new RecordBuffer(content);
 
@@ -95,22 +109,53 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			// If we're exactly at the EOF then we're done.
 			if (buffer.distFromEnd() === 0) break;
 			// TODO: Handle trailing data less than a FAT entry in size
-			const file = buffer.readRecord(recordTypes.fatEntry);
+			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 			let offset = nextOffset; // copy inside closure for f.get()
-			const tc = FASTTypes[file.typeCode];
+
+			let file = new Archive.File();
+			file.diskSize = fatEntry.compressedSize;
+			file.offset = offset;
+
+			// Convert the file type code into a filename extension if needed.
+			const tc = FASTTypes[fatEntry.typeCode];
 			if (tc) {
-				file.name += tc[0];
+				file.name = fatEntry.name + tc[0];
 				file.type = tc[1];
 			} else {
+				file.name = fatEntry.name;
 				file.type = undefined;
 			}
-			archive.files.push({
-				...file,
-				offset: offset,
-				getRaw: () => buffer.sliceBlock(offset, file.diskSize),
-			});
-			nextOffset += file.diskSize + FATENTRY_LEN;
-			buffer.seekRel(file.diskSize);
+
+			file.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
+			if (fatEntry.decompressedSize === 0) { // file is not compressed
+				file.nativeSize = file.diskSize;
+
+			} else { // file is compressed
+				file.nativeSize = fatEntry.decompressedSize;
+				file.attributes.compressed = true;
+
+				// Override getContent() to decompress the file first.
+				file.getContent = () => {
+					const fileParams = {
+						...cmpDefaultParams,
+						// Some files have trailing bytes so we'll allocate a little extra
+						// memory to avoid a buffer resize right at the end.
+						finalSize: fatEntry.nativeSize + 16,
+					};
+					const decomp = cmpAlgo.reveal(file.getRaw(), fileParams);
+
+					// Since the compression algorithm often leaves an extra null byte
+					// at the end of the data, we need to truncate it to the size given in
+					// the file header.
+					return decomp.slice(0, file.nativeSize);
+				};
+			}
+
+			archive.files.push(file);
+
+			// All done, go to the next file.
+			nextOffset += fatEntry.compressedSize + FATENTRY_LEN;
+			buffer.seekRel(fatEntry.compressedSize);
 		}
 
 		return archive;
@@ -118,6 +163,8 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 	static generate(archive)
 	{
+		const cmpAlgo = GameCompression.getHandler('cmp-lzw');
+
 		// Calculate the size up front so we don't have to keep reallocating
 		// the buffer, improving performance.
 		const finalSize = archive.files.reduce(
@@ -146,8 +193,27 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 					return false; // keep going
 				});
 			}
+
+			const nativeData = file.getContent();
+
+			let diskData;
+			if (file.attributes.compressed === false) { // compression not wanted
+				diskData = nativeData;
+
+				// Files that aren't compressed have the decompressed size set to 0 in
+				// this archive format.
+				entry.uncompressedSize = 0;
+			} else { // compression wanted or don't care/default
+				// Compress the file
+				diskData = cmpAlgo.obscure(nativeData, cmpDefaultParams);
+
+				// Set the size of the decompressed data in the header
+				entry.uncompressedSize = nativeData.length;
+			}
+			entry.compressedSize = diskData.length;
+
 			buffer.writeRecord(recordTypes.fatEntry, entry);
-			buffer.put(file.getRaw());
+			buffer.put(diskData);
 		});
 
 		return buffer.getBuffer();
