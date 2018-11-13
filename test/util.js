@@ -37,8 +37,14 @@ module.exports = class TestUtil {
 	buffersEqual(expected, actual, msg) {
 		if ((expected.length != actual.length) || expected.compare(actual)) {
 			if (process.env.SAVE_FAILED_TEST == 1) {
-				console.log('Saving actual data to error.bin');
-				fs.writeFileSync('error.bin', actual);
+				for (let i = 1; i <= 20; i++) {
+					const fn = `error${i}.bin`;
+					if (!fs.existsSync(fn)) {
+						console.warn(`** Saving actual data to ${fn}`);
+						fs.writeFileSync(fn, actual);
+						break;
+					}
+				}
 			}
 
 			throw new assert.AssertionError({
