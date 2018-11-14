@@ -101,6 +101,10 @@ class Operations
 		let totalDiskSize = 0, totalNativeSize = 0;
 
 		this.archive.files.forEach(file => {
+			const txt = (v, y, n) => (v === true) ? y : ((v === false) ? n : '-');
+			let attr = txt(file.attributes.encrypted, 'e', 'E')
+				+ txt(file.attributes.compressed, 'c', 'C');
+
 			let size = '';
 			if (file.nativeSize != 0) {
 				size += humanFileSize(file.nativeSize)/*.padStart(6)*/ + ' -> ';
@@ -108,8 +112,8 @@ class Operations
 				size += ''.padStart(6) + '    ';
 			}
 			size += humanFileSize(file.diskSize);//.padStart(6);
-			const str =
-						size.padStart(16)
+			const str = attr + ' '
+						+ size.padStart(16)
 						+ ' ' + (file.name || '-').padEnd(32)
 						+ (file.type || '-')
 			;
@@ -303,7 +307,12 @@ Commands:
     Read local <file> and try to work out what archive format it is in.
 
   list | ls | dir
-    Show all files in current archive.
+    Show all files in current archive.  Each line is:
+
+      <attr> <decompressed size> -> <compressed size> <filename>
+
+      attr: c = compressed, C = not compressed, - = not specified/supported
+            e = encrypted,  E = not encrypted,  - = not specified/supported
 
   open [-f format] <file>
     Open the local <file> as an archive, autodetecting the format unless -f is
