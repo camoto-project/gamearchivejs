@@ -122,8 +122,8 @@ class Archive_RFF_Blood extends ArchiveHandler
 			for (let i = 0; i < header.fileCount; i++) {
 				const fatEntry = fat.readRecord(recordTypes.fatEntry);
 				if (fatEntry.offset > lenArchive) {
-					Debug.log(`File #${i} (${fatEntry.name}) has offset `
-						+ `${fatEntry.offset}, past archive EOF at ${lenArchive}`);
+					Debug.log(`File #${i} (${fatEntry.basename}.${fatEntry.ext}) has `
+						+ `offset ${fatEntry.offset}, past archive EOF at ${lenArchive}`);
 					console.error('Archive truncated, returning partial content');
 					break;
 				}
