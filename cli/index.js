@@ -267,6 +267,7 @@ async function processCommands()
 {
 	let cmdDefinitions = [
 		{ name: 'debug', type: Boolean },
+		{ name: 'help', type: Boolean },
 		{ name: 'formats', type: Boolean },
 		{ name: 'name', defaultOption: true },
 	];
@@ -279,20 +280,64 @@ async function processCommands()
 		},
 	};
 
+	let cmd = commandLineArgs(cmdDefinitions, { argv, stopAtFirstUnknown: true });
+	argv = cmd._unknown || [];
+
+	if (cmd.formats) {
+		listFormats();
+		return;
+	}
+
+	if (cmd.debug) Debug.mute(false);
+
+	if (!cmd.name || cmd.help) {
+		// No params, show help.
+		console.log(`Use: gamearch --formats | [--debug] [command1 [command2...]]
+
+Commands:
+
+  add [-n name] <file>
+    Append <file> to archive, storing it as <name>.
+
+  del | rm <file>
+    Remove <file> from archive.
+
+  extract [-n name] [-r] <file>
+    Extract <file> from archive and save into current directory as <name>.  File
+    is decompressed and decrypted as needed, unless -r is given.
+
+  identify <file>
+    Read local <file> and try to work out what archive format it is in.
+
+  list | ls | dir
+    Show all files in current archive.
+
+  open [-f format] <file>
+    Open the local <file> as an archive, autodetecting the format unless -f is
+    given.  Use --formats for a list of possible values.  If other commands are
+    used without 'open', a new empty archive is used.
+
+  save [-f format] <file>
+    Save the current archive to local <file> in the given <format>.  -f defaults
+    to the value previously used by 'open', so it can be omitted when modifying
+    existing archive files.  Archives are written from memory, so the same file
+    can be passed to 'open' and then 'save' without issue.
+
+  type | cat <file>
+    Display contents of <file> inside archive on stdout after any decompression
+    or decryption.
+
+Examples:
+
+  gamearch open duke3d.grp extract stalker.mid
+  gamearch add stalker.mid save -f arc-grp-build music.grp
+`);
+		return;
+	}
+
 	let proc = new Operations();
-
-	while (argv.length > 0) {
-
-		const cmd = commandLineArgs(cmdDefinitions, { argv, stopAtFirstUnknown: true });
-		argv = cmd._unknown || [];
-
-		if (cmd.formats) {
-			listFormats();
-			break;
-		}
-
-		if (cmd.debug) Debug.mute(false);
-
+	//	while (argv.length > 2) {
+	while (cmd.name) {
 		const def = Operations.names[cmd.name];
 		if (def) {
 			const runOptions = commandLineArgs(def, { argv, stopAtFirstUnknown: true });
@@ -310,6 +355,8 @@ async function processCommands()
 			console.error(`Unknown command: ${cmd.name}`);
 			process.exit(1);
 		}
+		cmd = commandLineArgs(cmdDefinitions, { argv, stopAtFirstUnknown: true });
+		argv = cmd._unknown || [];
 	}
 }
 
