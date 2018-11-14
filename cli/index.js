@@ -106,7 +106,7 @@ class Operations
 				+ txt(file.attributes.compressed, 'c', 'C');
 
 			let size = '';
-			if (file.nativeSize != 0) {
+			if (file.attributes.compressed) {
 				size += humanFileSize(file.nativeSize)/*.padStart(6)*/ + ' -> ';
 			} else {
 				size += ''.padStart(6) + '    ';
