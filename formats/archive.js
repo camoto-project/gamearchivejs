@@ -26,6 +26,10 @@ module.exports.File = class File {
 		// metadata.
 		this.type = undefined;
 
+		// Date the file was last modified, if supported by the archive format.
+		// Either undefined or a Date object.
+		this.lastModified = undefined;
+
 		/// On-disk file size.
 		/**
 		 * This is the number of bytes the file takes up inside the archive file,

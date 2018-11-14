@@ -22,21 +22,25 @@ let defaultArchive = new Archive();
 
 let file = new Archive.File();
 file.name = 'ONE.TXT';
+file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 file.getRaw = () => Buffer.from('This is the first file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'TWO.TXT';
+file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
 file.getRaw = () => Buffer.from('This is the second file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'THREE.TXT';
+file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 file.getRaw = () => Buffer.from('This is the third file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'FOUR.TXT';
+file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 file.getRaw = () => Buffer.from('This is the fourth file');
 defaultArchive.files.push(file);
 
@@ -86,6 +90,17 @@ GameArchive.listHandlers().forEach(handler => {
 			it('should have the standard number of files', function() {
 				assert.equal(archive.files.length, 4);
 			});
+
+			if (md.caps.file.lastModified) {
+				it('should set the last modified date', function() {
+					assert.equal(archive.files[0].lastModified.getFullYear(), 1994, 'Wrong year');
+					assert.equal(archive.files[0].lastModified.getMonth(), 11, 'Wrong month');
+					assert.equal(archive.files[0].lastModified.getDate(), 31, 'Wrong day');
+					assert.equal(archive.files[0].lastModified.getHours(), 12, 'Wrong hour');
+					assert.equal(archive.files[0].lastModified.getMinutes(), 34, 'Wrong minute');
+					assert.equal(archive.files[0].lastModified.getSeconds(), 56, 'Wrong second');
+				});
+			}
 
 			describe('should not set any attributes unsupported by the format', function() {
 				Object.keys(md.caps.file.attributes).forEach(attr => {

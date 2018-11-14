@@ -115,9 +115,11 @@ class Operations
 			const str = attr + ' '
 						+ size.padStart(16)
 						+ ' ' + (file.name || '-').padEnd(32)
-						+ (file.type || '-')
+						+ (file.type || '-').padEnd(16)
+						+ (file.lastModified ? file.lastModified.toISOString().split('.')[0] : '')
 			;
 			console.log(str);
+
 			totalDiskSize += file.diskSize;
 			totalNativeSize += file.nativeSize;
 		});

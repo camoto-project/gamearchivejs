@@ -117,6 +117,8 @@ class Archive_RFF_Blood extends ArchiveHandler
 			}
 			fat = new RecordBuffer(fat);
 
+			const tzOffset = new Date().getTimezoneOffset() * 60;
+
 			for (let i = 0; i < header.fileCount; i++) {
 				const fatEntry = fat.readRecord(recordTypes.fatEntry);
 				if (fatEntry.offset > lenArchive) {
@@ -129,6 +131,12 @@ class Archive_RFF_Blood extends ArchiveHandler
 				let file = new Archive.File();
 				file.name = fatEntry.basename;
 				if (fatEntry.ext) file.name += '.' + fatEntry.ext;
+
+				// The file's last-modified time is in local time, but when we create
+				// a date object from a UNIX timestamp it's assumed to be in UTC.  So
+				// we have to add the local timezone onto it to keep it as local time.
+				const unixTimeUTC = fatEntry.lastModified + tzOffset;
+				file.lastModified = new Date(unixTimeUTC * 1000);
 
 				fatEntry.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
 
@@ -188,10 +196,25 @@ class Archive_RFF_Blood extends ArchiveHandler
 
 		let fat = new RecordBuffer(lenFAT);
 
+		// Since the archive does not store a timezone, we assume, like DOS, that
+		// the times are local time on the current PC.
+		// Since Date.now() returns time since UTC 1970, we need to add the local
+		// timezone onto that so that to convert it into seconds since 1970 local
+		// time.
+		const tzOffset = new Date().getTimezoneOffset() * 60;
+		let now = Math.round(Date.now() / 1000) - tzOffset;
+
 		archive.files.forEach(file => {
 			let content = file.getContent();
 
 			let rffFile = {...file};
+			if (file.lastModified) {
+				// Again we have to include the current timezone so that we are writing
+				// local time rather than UTC to the file.
+				rffFile.lastModified = file.lastModified.valueOf() / 1000 - tzOffset;
+			} else {
+				rffFile.lastModified = now;
+			}
 			rffFile.cache = '';
 			rffFile.offset = nextOffset;
 			rffFile.packedSize = 0;
