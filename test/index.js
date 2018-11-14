@@ -134,6 +134,53 @@ GameArchive.listHandlers().forEach(handler => {
 				const contentGenerated = handler.generate(emptyArchive);
 				testutil.buffersEqual(content.empty, contentGenerated);
 			});
+
+			it('maximum filename length is correct', function() {
+				let archive = new Archive();
+				let file = new Archive.File();
+
+				let expectedName;
+				if (md.limits.maxFilenameLen >= 5) {
+					expectedName = new String().padStart(md.limits.maxFilenameLen - 5, 'A') + '.BBB';
+				} else {
+					// Not enough space for an extension so leave it off
+					expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
+				}
+				file.name = expectedName;
+
+				file.getRaw = () => Buffer.from('longest filename');
+				archive.files.push(file);
+				const contentGenerated = handler.generate(archive);
+
+				const parsedArchive = handler.parse(contentGenerated);
+				assert.ok(parsedArchive.files, 'Incorrect archive returned');
+				assert.ok(parsedArchive.files[0], 'File did not get added to archive');
+				assert.equal(parsedArchive.files[0].name, expectedName, 'Name does not match');
+			});
+
+			it('filenames without extensions work', function() {
+				let archive = new Archive();
+
+				let file = new Archive.File();
+				file.name = 'TEST1';
+				file.getRaw = () => Buffer.from('test1');
+				archive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'TEST2';
+				file.getRaw = () => Buffer.from('test2');
+				archive.files.push(file);
+
+				const contentGenerated = handler.generate(archive);
+
+				const parsedArchive = handler.parse(contentGenerated);
+				assert.ok(parsedArchive.files, 'Incorrect archive returned');
+				assert.ok(parsedArchive.files[0], 'First file did not get added to archive');
+				assert.equal(parsedArchive.files[0].name.toUpperCase(), 'TEST1', 'Name does not match');
+
+				assert.ok(parsedArchive.files[1], 'Second file did not get added to archive');
+				assert.equal(parsedArchive.files[1].name.toUpperCase(), 'TEST2', 'Name does not match');
+			});
 		});
 
 	});

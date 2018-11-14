@@ -214,6 +214,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 			rffFile.flags = 0;
 			if (!rffFile.id) rffFile.id = 0;
 			[rffFile.basename, rffFile.ext] = file.name.split('.');
+			if (!rffFile.ext) rffFile.ext = '';
 
 			if (crypto) {
 				// If encryption hasn't been specifically disabled, then encrypt
