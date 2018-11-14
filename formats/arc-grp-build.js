@@ -65,7 +65,8 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			let offset = nextOffset; // copy inside closure for f.get()
 
 			let file = new Archive.File();
-			file.diskSize = fatEntry.compressedSize;
+			file.name = fatEntry.name;
+			file.diskSize = file.nativeSize = fatEntry.diskSize;
 			file.offset = offset;
 			file.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
 

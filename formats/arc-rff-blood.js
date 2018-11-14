@@ -130,6 +130,8 @@ class Archive_RFF_Blood extends ArchiveHandler
 
 				let file = new Archive.File();
 				file.name = fatEntry.basename;
+				file.diskSize = fatEntry.diskSize;
+				file.nativeSize = fatEntry.diskSize;
 				if (fatEntry.ext) file.name += '.' + fatEntry.ext;
 
 				// The file's last-modified time is in local time, but when we create
@@ -214,6 +216,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 			} else {
 				rffFile.lastModified = now;
 			}
+			rffFile.diskSize = content.length;
 			rffFile.cache = '';
 			rffFile.offset = nextOffset;
 			rffFile.packedSize = 0;

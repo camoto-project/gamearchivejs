@@ -91,6 +91,13 @@ GameArchive.listHandlers().forEach(handler => {
 				assert.equal(archive.files.length, 4);
 			});
 
+			it('should set the file size', function() {
+				assert.equal(archive.files[0].nativeSize, 22);
+				assert.equal(archive.files[1].nativeSize, 23);
+				assert.equal(archive.files[2].nativeSize, 22);
+				assert.equal(archive.files[3].nativeSize, 23);
+			});
+
 			if (md.caps.file.lastModified) {
 				it('should set the last modified date', function() {
 					assert.equal(archive.files[0].lastModified.getFullYear(), 1994, 'Wrong year');
