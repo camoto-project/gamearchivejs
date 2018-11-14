@@ -57,7 +57,7 @@ See `cli/index.js` for example use.  The quick start is:
     });
     
     // Extract a file
-    const data = archive.files[0].getRaw();
+    const data = archive.files[0].getContent();
     fs.writeFileSync(archive.files[0].name, data);
 
     // Rename a file
