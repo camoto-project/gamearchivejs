@@ -25,4 +25,8 @@ module.exports = class Debug {
 	static mute(m) {
 		state.mute = m;
 	}
+
+	static get enabled() {
+		return !state.mute;
+	}
 };
