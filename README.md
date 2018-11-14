@@ -13,7 +13,7 @@ If you wish to use the command-line `gamearch` utility to work with
 game archives directly, you can install the library globally on your
 system:
 
-    npm install -g gamearchive
+    npm install -g @malvineous/gamearch
 
 ### Command line interface
 
@@ -40,7 +40,7 @@ To get a list of supported file formats, run:
 If you wish to make use of the library in your own project, install it
 in the usual way:
 
-    npm install gamearchive
+    npm install @malvineous/gamearch
 
 See `cli/index.js` for example use.  The quick start is:
 
