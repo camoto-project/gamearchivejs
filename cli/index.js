@@ -1,4 +1,4 @@
-const fs = require('fs').promises;
+const fs = require('fs');
 const commandLineArgs = require('command-line-args');
 const GameArchive = require('../index.js');
 const Debug = require('../util/utl-debug.js');
@@ -72,14 +72,14 @@ class Operations
 		return fs.writeFile(params.name || params.target, data);
 	}
 
-	async identify(params) {
+	identify(params) {
 		if (!params.target) {
 			throw new OperationsError('identify: missing filename');
 		}
 		Debug.mute(false);
 
 		console.log('Autodetecting file format...');
-		let content = await fs.readFile(params.target);
+		let content = fs.readFileSync(params.target);
 		let handlers = GameArchive.findHandler(content);
 
 		console.log(handlers.length + ' format handler(s) matched');
@@ -135,7 +135,7 @@ class Operations
 		console.log(str);
 	}
 
-	async open(params) {
+	open(params) {
 		let handler;
 		if (params.format) {
 			handler = GameArchive.getHandler(params.format);
@@ -147,7 +147,7 @@ class Operations
 			throw new OperationsError('open: missing filename');
 		}
 
-		let content = await fs.readFile(params.target);
+		let content = fs.readFileSync(params.target);
 		if (!handler) {
 			let handlers = GameArchive.findHandler(content);
 			if (handlers.length === 0) {
@@ -191,7 +191,7 @@ class Operations
 
 		console.warn('Saving to', params.target, 'as', params.format);
 		const outBuffer = handler.generate(this.archive);
-		return fs.writeFile(params.target, outBuffer);
+		return fs.promises.writeFile(params.target, outBuffer);
 	}
 
 	type(params) {
@@ -343,7 +343,7 @@ Examples:
 			const runOptions = commandLineArgs(def, { argv, stopAtFirstUnknown: true });
 			argv = runOptions._unknown || [];
 			try {
-				await proc[cmd.name](runOptions);
+				proc[cmd.name](runOptions);
 			} catch (e) {
 				if (e instanceof OperationsError) {
 					console.error(e.message);
