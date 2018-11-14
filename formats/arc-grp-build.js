@@ -22,17 +22,18 @@ const FATENTRY_LEN = 16; // sizeof(fatEntry)
 module.exports = class Archive_GRP_Build extends ArchiveHandler
 {
 	static metadata() {
-		return {
+		let md = {
 			...super.metadata(),
 			id: FORMAT_ID,
 			title: 'BUILD Group File',
 			glob: [
 				'*.grp',
 			],
-			limits: {
-				maxFilenameLen: 12,
-			},
 		};
+
+		md.limits.maxFilenameLen = 12;
+
+		return md;
 	}
 
 	static identify(content) {

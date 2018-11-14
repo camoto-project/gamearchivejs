@@ -45,17 +45,24 @@ class Archive_RFF_Blood extends ArchiveHandler
 		const vFull = this.version();
 		const vHigh = vFull >> 8;
 		const vLow = vFull & 0xFF;
-		return {
+		let md = {
 			...super.metadata(),
 			id: FORMAT_ID + '-v' + vFull.toString(16),
 			title: 'Monolith Resource File Format v' + vHigh + '.' + vLow,
 			glob: [
 				'*.rff',
 			],
-			limits: {
-				maxFilenameLen: 12,
-			},
 		};
+		// This format can save the last-modified time of files.
+		md.caps.file.lastModified = true;
+
+		// Some versions of this format support encryption.
+		const crypto = this.getCrypto();
+		md.caps.file.attributes.encrypted = !!crypto;
+
+		md.limits.maxFilenameLen = 12;
+
+		return md;
 	}
 
 	static identify(content) {

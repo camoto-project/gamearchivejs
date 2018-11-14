@@ -19,6 +19,21 @@ module.exports = class ArchiveHandler
 			 */
 			glob: [],
 
+			/// Capabilities of the archive format.
+			caps: {
+				// Attributes that apply to files within the archive.
+				file: {
+					// True if files can have their last-modified date stored.
+					lastModified: false,
+
+					// By default none of these attributes can be set for files.
+					attributes: {
+						compressed: false,
+						encrypted: false,
+					},
+				},
+			},
+
 			/// Any limitations of the archive format.
 			limits: {
 				/// Number of characters in the filename, including dots.

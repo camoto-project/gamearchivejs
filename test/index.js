@@ -52,6 +52,30 @@ GameArchive.listHandlers().forEach(handler => {
 			content.empty = testutil.loadData('empty.bin');
 		});
 
+		describe('metadata()', function() {
+
+			it('should provide limits, even if empty', function() {
+				assert.ok(md.limits);
+			});
+
+			it('should provide a filename glob, even if empty', function() {
+				assert.ok(md.glob);
+			});
+
+			it('should provide a title', function() {
+				assert.ok(md.title && (md.title.length > 0));
+			});
+
+			it('should provide a capability list', function() {
+				// Make sure the metadata() implementation amends the objects rather
+				// than replacing them entirely.
+				assert.ok(md.caps);
+				assert.ok(md.caps.file);
+				assert.ok(md.caps.file.attributes);
+			});
+
+		});
+
 		describe('parse()', function() {
 			let archive;
 
@@ -61,6 +85,18 @@ GameArchive.listHandlers().forEach(handler => {
 
 			it('should have the standard number of files', function() {
 				assert.equal(archive.files.length, 4);
+			});
+
+			describe('should not set any attributes unsupported by the format', function() {
+				Object.keys(md.caps.file.attributes).forEach(attr => {
+					if (md.caps.file.attributes[attr] === false) {
+						it(`should not set the '${attr}' attribute`, function() {
+							archive.files.forEach(file => {
+								assert.equal(file.attributes[attr], undefined);
+							});
+						});
+					}
+				});
 			});
 
 		});
@@ -76,23 +112,6 @@ GameArchive.listHandlers().forEach(handler => {
 				const contentGenerated = handler.generate(emptyArchive);
 				testutil.buffersEqual(content.empty, contentGenerated);
 			});
-
-		});
-
-		describe('metadata()', function() {
-
-			it('should provide limits, even if empty', function() {
-				assert.ok(md.limits);
-			});
-
-			it('should provide a filename glob, even if empty', function() {
-				assert.ok(md.glob);
-			});
-
-			it('should provide a title', function() {
-				assert.ok(md.title && (md.title.length > 0));
-			});
-
 		});
 
 	});

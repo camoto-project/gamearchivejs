@@ -51,17 +51,21 @@ const cmpDefaultParams = {
 module.exports = class Archive_DAT_FAST extends ArchiveHandler
 {
 	static metadata() {
-		return {
+		let md = {
 			...super.metadata(),
 			id: FORMAT_ID,
 			title: 'F.A.S.T. Data File',
 			glob: [
 				'*.dat',
 			],
-			limits: {
-				maxFilenameLen: 31,
-			},
 		};
+
+		// Files can optionally be compressed.
+		md.caps.file.attributes.compressed = true;
+
+		md.limits.maxFilenameLen = 31;
+
+		return md;
 	}
 
 	static identify(content) {
