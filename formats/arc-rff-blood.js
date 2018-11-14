@@ -170,14 +170,13 @@ class Archive_RFF_Blood extends ArchiveHandler
 	{
 		const xor = GameCompression.getHandler('enc-xor-blood');
 
-		// Calculate the size up front so we don't have to keep reallocating
-		// the buffer, improving performance.
-		const fatOffset = archive.files.reduce(
-			(a, b) => a + b.diskSize,
-			HEADER_LEN
-		);
+		// Calculate the size up front (if all the diskSize fields are available)
+		// so we don't have to keep reallocating the buffer, improving performance.
 		const lenFAT = archive.files.length * FATENTRY_LEN;
-		const finalSize = fatOffset + lenFAT;
+		const guessFinalSize = archive.files.reduce(
+			(a, b) => a + (b.nativeSize || 0),
+			HEADER_LEN + lenFAT
+		);
 
 		const header = {
 			signature: 'RFF\x1A',
@@ -189,8 +188,8 @@ class Archive_RFF_Blood extends ArchiveHandler
 		};
 
 		const crypto = this.getCrypto();
+		let buffer = new RecordBuffer(guessFinalSize);
 
-		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
 		let nextOffset = HEADER_LEN;
 

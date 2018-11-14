@@ -91,14 +91,14 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		// Work out where the FAT ends and the first file starts.
 		const offEndFAT = FATENTRY_LEN * (header.fileCount + 1);
 
-		// Calculate the size up front so we don't have to keep reallocating
-		// the buffer, improving performance.
-		const finalSize = archive.files.reduce(
-			(a, b) => a + b.diskSize,
+		// Calculate the size up front (if all the diskSize fields are available)
+		// so we don't have to keep reallocating the buffer, improving performance.
+		const guessFinalSize = archive.files.reduce(
+			(a, b) => a + (b.nativeSize || 0),
 			offEndFAT,
 		);
 
-		let buffer = new RecordBuffer(finalSize);
+		let buffer = new RecordBuffer(guessFinalSize);
 		buffer.writeRecord(recordTypes.header, header);
 
 		// Write the files first so we can retrieve the sizes.

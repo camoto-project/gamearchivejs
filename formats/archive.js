@@ -54,8 +54,11 @@ module.exports.File = class File {
 		 * size.  If the file is not compressed, this will be the same as diskSize.
 		 *
 		 * This field is for information only after parsing an archive and is
-		 * unused when creating a new archive.  Creating archives instead use the
-		 * length of the buffer returned by getContent().
+		 * not required when creating a new archive, however supplying it will allow
+		 * the format handler to preallocate enough memory up front for the whole
+		 * archive, improving performance.  So this value should be supplied if it
+		 * can be done so efficiently.  Either way, the actual file size used when
+		 * creating archives is the length of the buffer returned by getContent().
 		 *
 		 * After creating an archive with generate(), this field may be populated to
 		 * reflect the newly written format.

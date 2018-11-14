@@ -174,10 +174,10 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 	{
 		const cmpAlgo = GameCompression.getHandler('cmp-lzw');
 
-		// Calculate the size up front so we don't have to keep reallocating
-		// the buffer, improving performance.
+		// Calculate the size up front (if all the diskSize fields are available)
+		// so we don't have to keep reallocating the buffer, improving performance.
 		const finalSize = archive.files.reduce(
-			(a, b) => a + b.diskSize,
+			(a, b) => a + (b.diskSize || 0),
 			FATENTRY_LEN * archive.files.length
 		);
 
