@@ -46,6 +46,7 @@ GameArchive.listHandlers().forEach(handler => {
 
 	describe(`Standard tests for ${md.title} [${md.id}]`, function() {
 		let content = {};
+
 		before('load test data from local filesystem', function() {
 			content.default = testutil.loadData('default.bin');
 			content.empty = testutil.loadData('empty.bin');
@@ -61,9 +62,11 @@ GameArchive.listHandlers().forEach(handler => {
 			it('should have the standard number of files', function() {
 				assert.equal(archive.files.length, 4);
 			});
+
 		});
 
 		describe('generate()', function() {
+
 			it('should generate correctly', function() {
 				const contentGenerated = handler.generate(defaultArchive);
 				testutil.buffersEqual(content.default, contentGenerated);
@@ -73,6 +76,24 @@ GameArchive.listHandlers().forEach(handler => {
 				const contentGenerated = handler.generate(emptyArchive);
 				testutil.buffersEqual(content.empty, contentGenerated);
 			});
+
 		});
+
+		describe('metadata()', function() {
+
+			it('should provide limits, even if empty', function() {
+				assert.ok(md.limits);
+			});
+
+			it('should provide a filename glob, even if empty', function() {
+				assert.ok(md.glob);
+			});
+
+			it('should provide a title', function() {
+				assert.ok(md.title && (md.title.length > 0));
+			});
+
+		});
+
 	});
 });

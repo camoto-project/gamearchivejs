@@ -52,6 +52,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 {
 	static metadata() {
 		return {
+			...super.metadata(),
 			id: FORMAT_ID,
 			title: 'F.A.S.T. Data File',
 			glob: [

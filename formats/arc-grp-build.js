@@ -23,6 +23,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 {
 	static metadata() {
 		return {
+			...super.metadata(),
 			id: FORMAT_ID,
 			title: 'BUILD Group File',
 			glob: [

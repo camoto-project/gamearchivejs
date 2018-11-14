@@ -46,6 +46,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		const vHigh = vFull >> 8;
 		const vLow = vFull & 0xFF;
 		return {
+			...super.metadata(),
 			id: FORMAT_ID + '-v' + vFull.toString(16),
 			title: 'Monolith Resource File Format v' + vHigh + '.' + vLow,
 			glob: [
