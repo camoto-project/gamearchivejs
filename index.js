@@ -64,4 +64,6 @@ module.exports = class GameArchive
 	static listHandlers() {
 		return fileTypes;
 	}
-}
+};
+
+module.exports.Archive = require('./formats/archive.js');

@@ -15,10 +15,7 @@ class OperationsError extends Error {
 class Operations
 {
 	constructor() {
-		this.archive = {
-			metadata: {},
-			files: [],
-		};
+		this.archive = new GameArchive.Archive();
 	}
 
 	log(action, ...params) {
@@ -26,14 +23,10 @@ class Operations
 	}
 
 	async add(params) {
-		let content = await fs.readFile(params.target);
-		this.archive.files.push({
-			name: params.name || params.target,
-			nativeSize: 0,
-			diskSize: content.length,
-			type: undefined,
-			getContent: () => content,
-		});
+		let file = new GameArchive.Archive.File();
+		file.name = params.name || params.target;
+		file.getRaw = () => fs.readFileSync(params.target);
+		this.archive.files.push(file);
 		this.log('adding', params.name || params.target,
 			params.name ? '(from ' + params.target + ')' : '');
 	}
