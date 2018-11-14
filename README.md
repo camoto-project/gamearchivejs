@@ -13,7 +13,7 @@ If you wish to use the command-line `gamearch` utility to work with
 game archives directly, you can install the library globally on your
 system:
 
-    npm install -g @malvineous/gamearch
+    npm install -g @malvineous/gamearchive
 
 ### Command line interface
 
@@ -40,11 +40,11 @@ To get a list of supported file formats, run:
 If you wish to make use of the library in your own project, install it
 in the usual way:
 
-    npm install @malvineous/gamearch
+    npm install @malvineous/gamearchive
 
 See `cli/index.js` for example use.  The quick start is:
 
-    const GameArchive = require('@malvineous/gamearch');
+    const GameArchive = require('@malvineous/gamearchive');
     
     // Read an archive into memory
     const handler = GameArchive.getHandler('arc-grp-duke3d');
