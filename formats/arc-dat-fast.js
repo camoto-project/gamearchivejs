@@ -133,6 +133,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			file.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
 			if (fatEntry.decompressedSize === 0) { // file is not compressed
 				file.nativeSize = file.diskSize;
+				file.attributes.compressed = false;
 
 			} else { // file is compressed
 				file.nativeSize = fatEntry.decompressedSize;
@@ -206,13 +207,13 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 				// Files that aren't compressed have the decompressed size set to 0 in
 				// this archive format.
-				entry.uncompressedSize = 0;
+				entry.decompressedSize = 0;
 			} else { // compression wanted or don't care/default
 				// Compress the file
 				diskData = cmpAlgo.obscure(nativeData, cmpDefaultParams);
 
 				// Set the size of the decompressed data in the header
-				entry.uncompressedSize = nativeData.length;
+				entry.decompressedSize = nativeData.length;
 			}
 			entry.compressedSize = diskData.length;
 
