@@ -48,7 +48,7 @@ class Operations
 			}
 		}
 		if (!targetFile) {
-			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
+			throw new OperationsError(`del: archive does not contain "${params.target}"`);
 		}
 	}
 
@@ -196,13 +196,13 @@ class Operations
 
 	type(params) {
 		if (!params.target) {
-			throw new OperationsError('extract: missing filename');
+			throw new OperationsError('type: missing filename');
 		}
 
 		const targetName = params.target.toUpperCase(); // nearly always ASCII
 		const targetFile = this.archive.files.find(file => file.name.toUpperCase() == targetName);
 		if (!targetFile) {
-			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
+			throw new OperationsError(`type: archive does not contain "${params.target}"`);
 		}
 		const data = targetFile.getContent();
 		process.stdout.write(data);
