@@ -170,7 +170,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 
 	static generate(archive)
 	{
-		const xor = GameCompression.getHandler('enc-xor-blood');
+		const crypto = this.getCrypto();
 
 		// Calculate the size up front (if all the diskSize fields are available)
 		// so we don't have to keep reallocating the buffer, improving performance.
@@ -180,19 +180,10 @@ class Archive_RFF_Blood extends ArchiveHandler
 			HEADER_LEN + lenFAT
 		);
 
-		const header = {
-			signature: 'RFF\x1A',
-			version: this.version(),
-			pad: 0,
-			fatOffset: fatOffset,
-			fileCount: archive.files.length,
-			pad2: '',
-		};
-
-		const crypto = this.getCrypto();
 		let buffer = new RecordBuffer(guessFinalSize);
 
-		buffer.writeRecord(recordTypes.header, header);
+		// Skip over the header, we'll write it last when we know the FAT offset.
+		buffer.seekAbs(HEADER_LEN);
 		let nextOffset = HEADER_LEN;
 
 		let fat = new RecordBuffer(lenFAT);
@@ -242,6 +233,15 @@ class Archive_RFF_Blood extends ArchiveHandler
 			nextOffset += rffFile.diskSize;
 		});
 
+		const header = {
+			signature: 'RFF\x1A',
+			version: this.version(),
+			pad: 0,
+			fatOffset: nextOffset,
+			fileCount: archive.files.length,
+			pad2: '',
+		};
+
 		// Write the FAT at the end, possibly encrypted
 		if (crypto) {
 			fat = crypto.obscure(fat.getBuffer(), {
@@ -253,6 +253,10 @@ class Archive_RFF_Blood extends ArchiveHandler
 			fat = fat.getBuffer(); // for consistency
 		}
 		buffer.put(fat);
+
+		// Go back and write the header now we know the FAT offset
+		buffer.seekAbs(0);
+		buffer.writeRecord(recordTypes.header, header);
 
 		return buffer.getBuffer();
 	}
