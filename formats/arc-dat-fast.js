@@ -58,6 +58,9 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			glob: [
 				'*.dat',
 			],
+			limits: {
+				maxFilenameLen: 31,
+			},
 		};
 	}
 
