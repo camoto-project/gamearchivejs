@@ -44,7 +44,8 @@ file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 file.getRaw = () => Buffer.from('This is the fourth file');
 defaultArchive.files.push(file);
 
-GameArchive.listHandlers().forEach(handler => {
+const allHandlers = GameArchive.listHandlers();
+allHandlers.forEach(handler => {
 	const md = handler.metadata();
 	let testutil = new TestUtil(md.id);
 
@@ -180,6 +181,32 @@ GameArchive.listHandlers().forEach(handler => {
 
 				assert.ok(parsedArchive.files[1], 'Second file did not get added to archive');
 				assert.equal(parsedArchive.files[1].name.toUpperCase(), 'TEST2', 'Name does not match');
+			});
+		});
+
+		describe('identify()', function() {
+
+			it('should not negatively identify itself', function() {
+				const result = handler.identify(content.default);
+				assert.ok(result === true || result === undefined);
+			});
+
+			it('should not negatively identify empty archives', function() {
+				const result = handler.identify(content.empty);
+				assert.ok(result === true || result === undefined);
+			});
+
+			const allHandlers = GameArchive.listHandlers();
+			allHandlers.forEach(subhandler => {
+				const submd = subhandler.metadata();
+
+				// Skip ourselves
+				if (submd.id === md.id) return;
+
+				it(`should not positively identify ${submd.id} files`, function() {
+					const result = subhandler.identify(content.default);
+					assert.notEqual(result, true);
+				});
 			});
 		});
 
