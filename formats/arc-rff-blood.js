@@ -49,6 +49,9 @@ class Archive_RFF_Blood extends ArchiveHandler
 			...super.metadata(),
 			id: FORMAT_ID + '-v' + vFull.toString(16),
 			title: 'Monolith Resource File Format v' + vHigh + '.' + vLow,
+			games: [
+				'Blood',
+			],
 			glob: [
 				'*.rff',
 			],

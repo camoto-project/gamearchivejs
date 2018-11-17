@@ -13,6 +13,9 @@ module.exports = class ArchiveHandler
 			/// The user-friendly title for the format.
 			title: 'Unknown format',
 
+			/// List of games that use this format.
+			games: [],
+
 			/// A list of filename globs that match files in this format, if any.
 			/**
 			 * Examples might be ['*.txt', '*.doc', 'file*.bin'].

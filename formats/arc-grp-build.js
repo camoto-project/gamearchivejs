@@ -26,6 +26,11 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			...super.metadata(),
 			id: FORMAT_ID,
 			title: 'BUILD Group File',
+			games: [
+				'Duke Nukem 3D',
+				'Redneck Rampage',
+				'Shadow Warrior',
+			],
 			glob: [
 				'*.grp',
 			],

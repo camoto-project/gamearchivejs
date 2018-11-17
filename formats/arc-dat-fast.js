@@ -55,6 +55,9 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			...super.metadata(),
 			id: FORMAT_ID,
 			title: 'F.A.S.T. Data File',
+			games: [
+				'Monster Bash',
+			],
 			glob: [
 				'*.dat',
 			],
