@@ -15,6 +15,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 	let content = {};
 	before('load test data from local filesystem', function() {
 		content.typecode = testutil.loadData('typecode.bin');
+		content.rle = testutil.loadData('rle.bin');
 	});
 
 	describe('parse()', function() {
@@ -26,12 +27,16 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			assert.equal(archive.files[3].name.toLowerCase(), 'audio.snd');
 			assert.equal(archive.files[4].name.toLowerCase(), 'ega.pal');
 		});
+
+		it('RLE codes are parsed', function() {
+			let archive = handler.parse(content.rle);
+			const exp = [0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56];
+			testutil.buffersEqual(Buffer.from(exp), archive.files[0].getContent());
+		});
 	});
 
 	describe('generate()', function() {
 		it('filenames are converted into type codes', async function() {
-			// This is what we expect the default archive in any given format to
-			// look like.
 			let archive = new Archive();
 
 			let file = new Archive.File();
@@ -61,6 +66,18 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			const contentGenerated = handler.generate(archive);
 			testutil.buffersEqual(content.typecode, contentGenerated);
+		});
+
+		it('RLE codes are generated', function() {
+			let archive = new Archive();
+
+			let file = new Archive.File();
+			file.name = 'data.rle';
+			file.getRaw = () => Buffer.from([0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56]);
+			archive.files.push(file);
+
+			const contentGenerated = handler.generate(archive);
+			testutil.buffersEqual(content.rle, contentGenerated);
 		});
 	});
 });

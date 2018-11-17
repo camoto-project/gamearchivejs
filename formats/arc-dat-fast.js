@@ -108,7 +108,8 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 	static parse(content) {
 		let archive = new Archive();
-		const cmpAlgo = GameCompression.getHandler('cmp-lzw');
+		const cmpLZW = GameCompression.getHandler('cmp-lzw');
+		const cmpRLE = GameCompression.getHandler('cmp-rle-bash');
 
 		let buffer = new RecordBuffer(content);
 
@@ -151,7 +152,10 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 						// memory to avoid a buffer resize right at the end.
 						finalSize: fatEntry.nativeSize + 16,
 					};
-					const decomp = cmpAlgo.reveal(file.getRaw(), fileParams);
+					// Decompress with LZW, then decode with RLE.
+					const decomp = cmpRLE.reveal(
+						cmpLZW.reveal(file.getRaw(), fileParams)
+					);
 
 					// Since the compression algorithm often leaves an extra null byte
 					// at the end of the data, we need to truncate it to the size given in
@@ -172,7 +176,8 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 	static generate(archive)
 	{
-		const cmpAlgo = GameCompression.getHandler('cmp-lzw');
+		const cmpLZW = GameCompression.getHandler('cmp-lzw');
+		const cmpRLE = GameCompression.getHandler('cmp-rle-bash');
 
 		// Calculate the size up front (if all the diskSize fields are available)
 		// so we don't have to keep reallocating the buffer, improving performance.
@@ -214,7 +219,10 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 				entry.decompressedSize = 0;
 			} else { // compression wanted or don't care/default
 				// Compress the file
-				diskData = cmpAlgo.obscure(nativeData, cmpDefaultParams);
+				diskData = cmpLZW.obscure(
+					cmpRLE.obscure(nativeData),
+					cmpDefaultParams
+				);
 
 				// Set the size of the decompressed data in the header
 				entry.decompressedSize = nativeData.length;
