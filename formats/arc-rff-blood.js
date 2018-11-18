@@ -165,7 +165,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 				const unixTimeUTC = fatEntry.lastModified + tzOffset;
 				file.lastModified = new Date(unixTimeUTC * 1000);
 
-				fatEntry.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
+				file.getRaw = () => buffer.sliceBlock(fatEntry.offset, fatEntry.diskSize);
 
 				if (crypto) {
 					if (fatEntry.flags & RFFFlags.FILE_ENCRYPTED) {
