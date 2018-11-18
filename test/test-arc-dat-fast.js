@@ -18,7 +18,6 @@
  */
 
 const assert = require('assert');
-const fs = require('fs').promises;
 
 const TestUtil = require('./util.js');
 const GameArchive = require('../index.js');

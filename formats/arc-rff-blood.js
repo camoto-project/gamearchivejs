@@ -287,7 +287,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		return buffer.getBuffer();
 	}
 
-};
+}
 
 class Archive_RFF_Blood_v200 extends Archive_RFF_Blood
 {
@@ -306,7 +306,7 @@ class Archive_RFF_Blood_v200 extends Archive_RFF_Blood
 	static getKeyOffset_FAT() {
 		return 0;
 	}
-};
+}
 
 class Archive_RFF_Blood_v300 extends Archive_RFF_Blood
 {
@@ -326,7 +326,7 @@ class Archive_RFF_Blood_v300 extends Archive_RFF_Blood
 	static getKeyOffset_FAT() {
 		return 1;
 	}
-};
+}
 
 class Archive_RFF_Blood_v301 extends Archive_RFF_Blood
 {
@@ -345,7 +345,7 @@ class Archive_RFF_Blood_v301 extends Archive_RFF_Blood
 	static getKeyOffset_FAT() {
 		return 0;
 	}
-};
+}
 
 module.exports = [
 	Archive_RFF_Blood_v200,

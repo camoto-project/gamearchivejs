@@ -31,7 +31,7 @@ module.exports = class Archive {
 		 * Each element in the array is an Archive.File object.
 		 */
 		this.files = [];
-	};
+	}
 };
 
 module.exports.File = class File {

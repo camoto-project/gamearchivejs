@@ -26,10 +26,10 @@ const Debug = require('../util/utl-debug.js');
 function humanFileSize(size) {
 	let i = (size == 0) ? 0 : Math.floor(Math.log(size) / Math.log(1024));
 	return (size / Math.pow(1024, i)).toFixed(1) * 1 + '' + ['', 'k', 'M', 'G', 'T'][i];
-};
+}
 
 class OperationsError extends Error {
-};
+}
 
 class Operations
 {
@@ -59,9 +59,7 @@ class Operations
 				return;
 			}
 		}
-		if (!targetFile) {
-			throw new OperationsError(`del: archive does not contain "${params.target}"`);
-		}
+		throw new OperationsError(`del: archive does not contain "${params.target}"`);
 	}
 
 	async extract(params) {
@@ -116,7 +114,7 @@ class Operations
 		Debug.mute(true);
 	}
 
-	list(params) {
+	list() {
 		let totalDiskSize = 0, totalNativeSize = 0;
 
 		this.archive.files.forEach(file => {
@@ -225,7 +223,7 @@ class Operations
 		const data = targetFile.getContent();
 		process.stdout.write(data);
 	}
-};
+}
 
 Operations.names = {
 	add: [
@@ -290,13 +288,6 @@ async function processCommands()
 		{ name: 'name', defaultOption: true },
 	];
 	let argv = process.argv;
-
-	let state = {
-		archive: {
-			metadata: {},
-			files: [],
-		},
-	};
 
 	let cmd = commandLineArgs(cmdDefinitions, { argv, stopAtFirstUnknown: true });
 	argv = cmd._unknown || [];

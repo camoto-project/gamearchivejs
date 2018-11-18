@@ -106,9 +106,10 @@ module.exports = class ArchiveHandler
 	 *   definitely not in this format, and undefined if the data could not be
 	 *   positively identified but it's possible it is in this format.
 	 */
+	// eslint-disable-next-line no-unused-vars
 	static identify(content) {
 		return false;
-	};
+	}
 
 	/// Read the given archive file.
 	/**
@@ -117,9 +118,10 @@ module.exports = class ArchiveHandler
 	 *
 	 * @return Archive object detailing the contents of the archive file.
 	 */
+	// eslint-disable-next-line no-unused-vars
 	static parse(content) {
 		throw new Error('Not implemented yet.');
-	};
+	}
 
 	/// Write out an archive file in this format.
 	/**
@@ -133,7 +135,8 @@ module.exports = class ArchiveHandler
 	 * @return Buffer instance containing the contents of the file, suitable for
 	 *   writing directly to a file on disk or offering for download to the user.
 	 */
+	// eslint-disable-next-line no-unused-vars
 	static generate(archive) {
 		throw new Error('Not implemented yet.');
-	};
+	}
 };

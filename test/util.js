@@ -24,7 +24,7 @@ const path = require('path');
 function hexdump(d) {
 	let s = '', h = '', t = '';
 	function addRow(i) {
-		s += (i - 15).toString(16).padStart(6, '0') + '  ' + h + '  ' + t + "\n";
+		s += (i - 15).toString(16).padStart(6, '0') + '  ' + h + '  ' + t + '\n';
 		h = t = '';
 	}
 	let i;
@@ -59,6 +59,7 @@ module.exports = class TestUtil {
 				for (let i = 1; i <= 20; i++) {
 					const fn = `error${i}.bin`;
 					if (!fs.existsSync(fn)) {
+						// eslint-disable-next-line no-console
 						console.warn(`** Saving actual data to ${fn}`);
 						fs.writeFileSync(fn, actual);
 						break;
