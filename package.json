@@ -34,7 +34,9 @@
   },
   "devDependencies": {
     "command-line-args": "^5.0.2",
-    "mocha": "^5.2.0"
+    "eslint": "^5.9.0",
+    "mocha": "^5.2.0",
+    "mocha-eslint": "^4.1.0"
   },
   "directories": {
     "test": "test"
