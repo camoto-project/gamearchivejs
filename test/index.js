@@ -111,6 +111,13 @@ allHandlers.forEach(handler => {
 				assert.equal(archive.files.length, 4);
 			});
 
+			it('should extract files correctly', function() {
+				testutil.buffersEqual(Buffer.from('This is the first file'), archive.files[0].getContent());
+				testutil.buffersEqual(Buffer.from('This is the second file'), archive.files[1].getContent());
+				testutil.buffersEqual(Buffer.from('This is the third file'), archive.files[2].getContent());
+				testutil.buffersEqual(Buffer.from('This is the fourth file'), archive.files[3].getContent());
+			});
+
 			it('should set the file size', function() {
 				assert.equal(archive.files[0].nativeSize, 22);
 				assert.equal(archive.files[1].nativeSize, 23);
