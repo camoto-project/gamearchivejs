@@ -1,5 +1,5 @@
 /**
- * @brief F.A.S.T engine .DAT format handler.
+ * @file F.A.S.T engine .DAT format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/DAT_Format_%28Monster_Bash%29

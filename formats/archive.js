@@ -1,5 +1,5 @@
 /**
- * @brief Archive base class and defaults.
+ * @file Archive base class and defaults.
  *
  * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,40 +17,72 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * Base class describing the interface to an archive.
+ *
+ * Instances of this class are returned when reading archives, and are passed
+ * to the format handlers to produce new archive files.
+ */
 module.exports = class Archive {
 	constructor() {
-		/// Any metadata describing the archive file itself goes here.
 		/**
+		 * Any metadata describing the archive file itself goes here.
+		 *
 		 * Some archives have a description, comment, or other information that's
 		 * not otherwise part of any file inside the archive.
 		 */
 		this.metadata = {};
 
-		/// All the files in the archive.
 		/**
+		 * An array of all the files in the archive.
+		 *
 		 * Each element in the array is an Archive.File object.
 		 */
 		this.files = [];
 	}
 };
 
+/**
+ * Base class describing the interface to a file inside an archive.
+ *
+ * Instances of this class are returned in the 'file' array in the {Archive}
+ * instance.
+ */
 module.exports.File = class File {
 	constructor() {
-		// Filename.
+		/**
+		 * Filename, as it appears in the archive file (case is not changed).
+		 *
+		 * @type {string}
+		 */
 		this.name = null;
 
-		// File type if known, as "major/minor".  Major is typically the type of
-		// editor (map, image, music, etc.) and minor is the file format.  This
-		// should only be set if the information is provided by the archive
-		// metadata.
+		/**
+		 * File type if known, as "major/minor".
+		 *
+		 * @type {string}
+		 *
+		 * Major is typically the type of editor (map, image, music, etc.) and
+		 * minor is the file format.  This should only be set if the information is
+		 * provided by the archive metadata.
+		 */
 		this.type = undefined;
 
-		// Date the file was last modified, if supported by the archive format.
-		// Either undefined or a Date object.
+		/**
+		 * Date the file was last modified.
+		 *
+		 * @type {Date}
+		 *
+		 * This is only set if it is supported by the archive format.  It is either
+		 * undefined or a Date object in local time.
+		 */
 		this.lastModified = undefined;
 
-		/// On-disk file size.
 		/**
+		 * On-disk file size.
+		 *
+		 * @type {Number}
+		 *
 		 * This is the number of bytes the file takes up inside the archive file,
 		 * not counting any file-specific header that is not part of the file
 		 * content.  If the file is compressed, this is the compressed size.  If the
@@ -66,8 +98,11 @@ module.exports.File = class File {
 		 */
 		this.diskSize = undefined;
 
-		/// Native file size.
 		/**
+		 * Native file size.
+		 *
+		 * @type {Number}
+		 *
 		 * This is the number of bytes in the file's native format, once extracted
 		 * from the archive.  If the file is compressed, this is the decompressed
 		 * size.  If the file is not compressed, this will be the same as diskSize.
@@ -84,7 +119,15 @@ module.exports.File = class File {
 		 */
 		this.nativeSize = undefined;
 
-		// Default attributes for this file are undefined, which means "don't care".
+		/**
+		 * Attributes for this specific file.
+		 *
+		 * @type {FileAttributes}
+		 *
+		 * Default attributes for this file are undefined, which means "don't care"
+		 * when writing the archive, and "unsupported attribute" when reading an
+		 * archive.
+		 */
 		this.attributes = {
 			compressed: undefined,
 			encrypted: undefined,
@@ -93,23 +136,28 @@ module.exports.File = class File {
 		this.getContent = () => this.getRaw();
 	}
 
-	/// Read this file.
 	/**
+	 * Read this file.
+	 *
 	 * By default the content returned is exactly the same as the raw data.
 	 * This function should be overridden if processing needs to be performed on
 	 * the raw data before it is suitable for use, e.g. by decompressing it.
 	 *
-	 * @return Buffer containing the file data in its native (decompressed,
+	 * @return {Buffer} containing the file data in its native (decompressed,
 	 *   decrypted) format.
 	 */
 	getContent() {
 		return this.getRaw();
 	}
 
-	/// Read the file exactly as it is in the archive.
 	/**
+	 * Read the file exactly as it is in the archive.
+	 *
 	 * This function will need to be overridden in every file, otherwise it will
 	 * not be possible to extract files from the archive.
+	 *
+	 * @return {Buffer} containing the file data in its on-disk (compressed,
+	 *   encrypted) format.
 	 */
 	getRaw() {
 		throw new Error('getRaw() has not been supplied for this file!');

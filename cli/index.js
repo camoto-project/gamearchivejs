@@ -1,5 +1,5 @@
 /**
- * @brief Command line interface to the library.
+ * @file Command line interface to the library.
  *
  * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
  *

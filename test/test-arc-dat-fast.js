@@ -1,5 +1,5 @@
 /**
- * @brief Extra tests for arc-dat-fast.
+ * @file Extra tests for arc-dat-fast.
  *
  * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
  *

@@ -1,5 +1,5 @@
 /**
- * @brief Blood .RFF format handler.
+ * @file Blood .RFF format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/RFF_Format

@@ -1,5 +1,5 @@
 /**
- * @brief Debugging helper functions.
+ * @file Debugging helper functions.
  *
  * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
  *

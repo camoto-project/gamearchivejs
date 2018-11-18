@@ -1,5 +1,5 @@
 /**
- * @brief Standard tests.
+ * @file Standard tests.
  *
  * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
  *

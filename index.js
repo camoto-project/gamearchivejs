@@ -1,5 +1,5 @@
 /**
- * @brief Main library interface.
+ * @file Main library interface.
  *
  * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -32,28 +32,45 @@ const fileTypes = [
 	// Coming soon :)
 ];
 
+/**
+ * Main library interface.
+ */
 module.exports = class GameArchive
 {
-	/// Get a handler by ID directly.
 	/**
-	 * @param string type
+	 * Get a handler by ID directly.
+	 *
+	 * @param {string} type
 	 *   Identifier of desired file format.
 	 *
-	 * @return Type from formats/*.js matching requested code, or null
+	 * @return {ArchiveHandler} from formats/*.js matching requested code, or null
 	 *   if the code is invalid.
+	 *
+	 * @example const handler = GameArchive.getHandler('arc-grp-build');
 	 */
 	static getHandler(type)
 	{
 		return fileTypes.find(x => type === x.metadata().id);
 	}
 
-	/// Get a handler by examining the file content.
 	/**
-	 * @param Buffer content
+	 * Get a handler by examining the file content.
+	 *
+	 * @param {Buffer} content
 	 *   Archive file content.
 	 *
-	 * @return Array of types from formats/*.js that can handle the
+	 * @return {Array} of {ArchiveHandler} from formats/*.js that can handle the
 	 *   format, or an empty array if the format could not be identified.
+	 *
+	 * @example
+	 * const content = fs.readFileSync('duke3d.grp');
+	 * const handler = GameArchive.findHandler(content);
+	 * if (!handler) {
+	 *   console.log('Unable to identify file format.');
+	 * } else {
+	 *   const md = handler.metadata();
+	 *   console.log('File is in ' + md.id + ' format');
+	 * }
 	 */
 	static findHandler(content)
 	{
@@ -73,12 +90,13 @@ module.exports = class GameArchive
 		return handlers;
 	}
 
-	/// Get a list of all the available handlers.
 	/**
+	 * Get a list of all the available handlers.
+	 *
 	 * This is probably only useful when testing the library.
 	 *
-	 * @return Array of file format handlers, with each element being
-	 *   just like getHandler() returns.
+	 * @return {Array} of file format handlers, with each element being just like
+	 *   the return value of getHandler().
 	 */
 	static listHandlers() {
 		return fileTypes;

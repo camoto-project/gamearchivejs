@@ -1,5 +1,5 @@
 /**
- * @brief Test helper functions.
+ * @file Test helper functions.
  *
  * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
  *
