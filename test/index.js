@@ -168,11 +168,12 @@ allHandlers.forEach(handler => {
 
 				let expectedName;
 				if (md.limits.maxFilenameLen >= 5) {
-					expectedName = new String().padStart(md.limits.maxFilenameLen - 5, 'A') + '.BBB';
+					expectedName = new String().padStart(md.limits.maxFilenameLen - 4, 'A') + '.BBB';
 				} else {
 					// Not enough space for an extension so leave it off
 					expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
 				}
+				assert.equal(expectedName.length, md.limits.maxFilenameLen);
 				file.name = expectedName;
 
 				file.getRaw = () => Buffer.from('longest filename');
