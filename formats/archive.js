@@ -22,6 +22,9 @@
  *
  * Instances of this class are returned when reading archives, and are passed
  * to the format handlers to produce new archive files.
+ *
+ * @name Archive
+ * @kind class
  */
 module.exports = class Archive {
 	constructor() {
@@ -47,6 +50,9 @@ module.exports = class Archive {
  *
  * Instances of this class are returned in the 'file' array in the {Archive}
  * instance.
+ *
+ * @name File
+ * @kind class
  */
 module.exports.File = class File {
 	constructor() {
