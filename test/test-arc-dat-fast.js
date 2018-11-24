@@ -49,7 +49,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 		it('RLE codes are parsed', function() {
 			let archive = handler.parse(content.rle);
 			const exp = [0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56];
-			testutil.buffersEqual(Buffer.from(exp), archive.files[0].getContent());
+			TestUtil.buffersEqual(Uint8Array.from(exp), archive.files[0].getContent());
 		});
 	});
 
@@ -59,31 +59,31 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			let file = new Archive.File();
 			file.name = 'level1.mif';
-			file.getRaw = () => Buffer.from('content1');
+			file.getRaw = () => TestUtil.u8FromString('content1');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'LEVEL2.MIF';
-			file.getRaw = () => Buffer.from('content2');
+			file.getRaw = () => TestUtil.u8FromString('content2');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'test.tbg';
-			file.getRaw = () => Buffer.from('content3');
+			file.getRaw = () => TestUtil.u8FromString('content3');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'audio.snd';
-			file.getRaw = () => Buffer.from('content4');
+			file.getRaw = () => TestUtil.u8FromString('content4');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'ega.pal';
-			file.getRaw = () => Buffer.from('content5');
+			file.getRaw = () => TestUtil.u8FromString('content5');
 			archive.files.push(file);
 
 			const contentGenerated = handler.generate(archive);
-			testutil.buffersEqual(content.typecode, contentGenerated);
+			TestUtil.buffersEqual(content.typecode, contentGenerated);
 		});
 
 		it('RLE codes are generated', function() {
@@ -91,11 +91,11 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			let file = new Archive.File();
 			file.name = 'data.rle';
-			file.getRaw = () => Buffer.from([0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56]);
+			file.getRaw = () => Uint8Array.from([0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56]);
 			archive.files.push(file);
 
 			const contentGenerated = handler.generate(archive);
-			testutil.buffersEqual(content.rle, contentGenerated);
+			TestUtil.buffersEqual(content.rle, contentGenerated);
 		});
 	});
 });

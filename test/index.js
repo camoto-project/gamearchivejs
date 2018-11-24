@@ -42,25 +42,25 @@ let defaultArchive = new Archive();
 let file = new Archive.File();
 file.name = 'ONE.TXT';
 file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-file.getRaw = () => Buffer.from('This is the first file');
+file.getRaw = () => TestUtil.u8FromString('This is the first file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'TWO.TXT';
 file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
-file.getRaw = () => Buffer.from('This is the second file');
+file.getRaw = () => TestUtil.u8FromString('This is the second file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'THREE.TXT';
 file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-file.getRaw = () => Buffer.from('This is the third file');
+file.getRaw = () => TestUtil.u8FromString('This is the third file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'FOUR.TXT';
 file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-file.getRaw = () => Buffer.from('This is the fourth file');
+file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
 defaultArchive.files.push(file);
 
 const allHandlers = GameArchive.listHandlers();
@@ -112,10 +112,10 @@ allHandlers.forEach(handler => {
 			});
 
 			it('should extract files correctly', function() {
-				testutil.buffersEqual(Buffer.from('This is the first file'), archive.files[0].getContent());
-				testutil.buffersEqual(Buffer.from('This is the second file'), archive.files[1].getContent());
-				testutil.buffersEqual(Buffer.from('This is the third file'), archive.files[2].getContent());
-				testutil.buffersEqual(Buffer.from('This is the fourth file'), archive.files[3].getContent());
+				TestUtil.buffersEqual(TestUtil.u8FromString('This is the first file'), archive.files[0].getContent());
+				TestUtil.buffersEqual(TestUtil.u8FromString('This is the second file'), archive.files[1].getContent());
+				TestUtil.buffersEqual(TestUtil.u8FromString('This is the third file'), archive.files[2].getContent());
+				TestUtil.buffersEqual(TestUtil.u8FromString('This is the fourth file'), archive.files[3].getContent());
 			});
 
 			it('should set the file size', function() {
@@ -154,12 +154,12 @@ allHandlers.forEach(handler => {
 
 			it('should generate correctly', function() {
 				const contentGenerated = handler.generate(defaultArchive);
-				testutil.buffersEqual(content.default, contentGenerated);
+				TestUtil.buffersEqual(content.default, contentGenerated);
 			});
 
 			it('empty archives can be produced', function() {
 				const contentGenerated = handler.generate(emptyArchive);
-				testutil.buffersEqual(content.empty, contentGenerated);
+				TestUtil.buffersEqual(content.empty, contentGenerated);
 			});
 
 			it('maximum filename length is correct', function() {
@@ -176,7 +176,7 @@ allHandlers.forEach(handler => {
 				assert.equal(expectedName.length, md.limits.maxFilenameLen);
 				file.name = expectedName;
 
-				file.getRaw = () => Buffer.from('longest filename');
+				file.getRaw = () => TestUtil.u8FromString('longest filename');
 				archive.files.push(file);
 				const contentGenerated = handler.generate(archive);
 
@@ -191,12 +191,12 @@ allHandlers.forEach(handler => {
 
 				let file = new Archive.File();
 				file.name = 'TEST1';
-				file.getRaw = () => Buffer.from('test1');
+				file.getRaw = () => TestUtil.u8FromString('test1');
 				archive.files.push(file);
 
 				file = new Archive.File();
 				file.name = 'TEST2';
-				file.getRaw = () => Buffer.from('test2');
+				file.getRaw = () => TestUtil.u8FromString('test2');
 				archive.files.push(file);
 
 				const contentGenerated = handler.generate(archive);
