@@ -29,7 +29,7 @@ function hexdump(d) {
 	}
 	let i;
 	for (i = 0; i < d.length; i++) {
-		let v = d.readUInt8(i);
+		const v = d[i];
 		h += v.toString(16).padStart(2, '0') + ' ';
 		t += ((v < 32) || (v > 126)) ? '.' : String.fromCharCode(v);
 		if (i % 16 === 15) {
@@ -47,6 +47,14 @@ function hexdump(d) {
 	return s;
 }
 
+function arrayEqual(a, b) {
+	if (a.length != b.length) return false;
+	for (let i = 0; i < a.length; i++) {
+		if (a[i] != b[i]) return false;
+	}
+	return true;
+}
+
 module.exports = class TestUtil {
 	constructor(idHandler) {
 		assert.ok(idHandler, 'Format handler ID must be specified');
@@ -54,7 +62,10 @@ module.exports = class TestUtil {
 	}
 
 	buffersEqual(expected, actual, msg) {
-		if ((expected.length != actual.length) || expected.compare(actual)) {
+		if (expected instanceof ArrayBuffer) {
+			expected = new Uint8Array(expected);
+		}
+		if (!arrayEqual(expected, actual)) {
 			if (process.env.SAVE_FAILED_TEST == 1) {
 				for (let i = 1; i <= 20; i++) {
 					const fn = `error${i}.bin`;
@@ -76,6 +87,10 @@ module.exports = class TestUtil {
 	}
 
 	loadData(filename) {
-		return fs.readFileSync(path.resolve(__dirname, this.idHandler, filename));
+		const buffer = fs.readFileSync(path.resolve(__dirname, this.idHandler, filename));
+		let ab = new ArrayBuffer(buffer.length);
+		let u8 = new Uint8Array(ab);
+		u8.set(buffer);
+		return u8;
 	}
 };

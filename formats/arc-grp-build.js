@@ -30,11 +30,11 @@ const FORMAT_ID = 'arc-grp-build';
 
 const recordTypes = {
 	header: {
-		signature: RecordType.string.fixed.withNulls(12),
+		signature: RecordType.string.fixed.noTerm(12),
 		fileCount: RecordType.int.u32le,
 	},
 	fatEntry: {
-		name: RecordType.string.fixed.optNullTerm(12),
+		name: RecordType.string.fixed.optTerm(12),
 		diskSize: RecordType.int.u32le,
 	},
 };
@@ -95,7 +95,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			file.name = fatEntry.name;
 			file.diskSize = file.nativeSize = fatEntry.diskSize;
 			file.offset = offset;
-			file.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
+			file.getRaw = () => buffer.getU8(offset, file.diskSize);
 
 			archive.files.push(file);
 
@@ -144,6 +144,6 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			buffer.writeRecord(recordTypes.fatEntry, file);
 		});
 
-		return buffer.getBuffer();
+		return buffer.getU8();
 	}
 };

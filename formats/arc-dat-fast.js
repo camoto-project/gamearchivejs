@@ -33,7 +33,7 @@ const recordTypes = {
 	fatEntry: {
 		typeCode: RecordType.int.u16le,
 		compressedSize: RecordType.int.u16le,
-		name: RecordType.string.fixed.nullTerm(31),
+		name: RecordType.string.fixed.reqTerm(31),
 		decompressedSize: RecordType.int.u16le, // 0 if not compressed
 	},
 };
@@ -160,7 +160,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 				file.type = undefined;
 			}
 
-			file.getRaw = () => buffer.sliceBlock(offset, file.diskSize);
+			file.getRaw = () => buffer.getU8(offset, file.diskSize);
 			if (fatEntry.decompressedSize === 0) { // file is not compressed
 				file.nativeSize = file.diskSize;
 				file.attributes.compressed = false;
@@ -258,7 +258,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			buffer.put(diskData);
 		});
 
-		return buffer.getBuffer();
+		return buffer.getU8();
 	}
 
 };

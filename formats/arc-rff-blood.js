@@ -31,22 +31,22 @@ const FORMAT_ID = 'arc-rff-blood';
 
 const recordTypes = {
 	header: {
-		signature: RecordType.string.fixed.withNulls(4),
+		signature: RecordType.int.u32le,
 		version: RecordType.int.u16le,
-		pad: RecordType.int.u16le,
+		pad: RecordType.padding(2),
 		fatOffset: RecordType.int.u32le,
 		fileCount: RecordType.int.u32le,
-		pad2: RecordType.string.fixed.withNulls(16),
+		pad2: RecordType.padding(16),
 	},
 	fatEntry: {
-		cache: RecordType.string.fixed.withNulls(16),
+		cache: RecordType.padding(16),
 		offset: RecordType.int.u32le,
 		diskSize: RecordType.int.u32le,
 		packedSize: RecordType.int.u32le,
 		lastModified: RecordType.int.u32le,
 		flags: RecordType.int.u8,
-		ext: RecordType.string.fixed.optNullTerm(3),
-		basename: RecordType.string.fixed.optNullTerm(8),
+		ext: RecordType.string.fixed.optTerm(3),
+		basename: RecordType.string.fixed.optTerm(8),
 		id: RecordType.int.u32le,
 	},
 };
@@ -56,6 +56,8 @@ const FATENTRY_LEN = 48; // sizeof(fatEntry)
 
 // Number of bytes encrypted from start of file
 const RFF_FILE_CRYPT_LEN = 256;
+
+const RFF_SIG = 0x1A464652; // RFF\x1A
 
 const RFFFlags = {
 	FILE_ENCRYPTED: 0x10,
@@ -98,7 +100,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 			let buffer = new RecordBuffer(content);
 
 			let header = buffer.readRecord(recordTypes.header);
-			if (header.signature !== 'RFF\x1A') {
+			if (header.signature !== RFF_SIG) {
 				Debug.log(`Wrong signature => false`);
 				return false;
 			}
@@ -132,7 +134,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 				+ header.version.toString(16));
 
 			const crypto = this.getCrypto();
-			let fat = buffer.sliceBlock(header.fatOffset, header.fileCount * FATENTRY_LEN);
+			let fat = buffer.getU8(header.fatOffset, header.fileCount * FATENTRY_LEN);
 			if (crypto) {
 				fat = crypto.reveal(fat, {
 					seed: header.fatOffset & 0xFF,
@@ -165,7 +167,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 				const unixTimeUTC = fatEntry.lastModified + tzOffset;
 				file.lastModified = new Date(unixTimeUTC * 1000);
 
-				file.getRaw = () => buffer.sliceBlock(fatEntry.offset, fatEntry.diskSize);
+				file.getRaw = () => buffer.getU8(fatEntry.offset, fatEntry.diskSize);
 
 				if (crypto) {
 					if (fatEntry.flags & RFFFlags.FILE_ENCRYPTED) {
@@ -260,7 +262,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		});
 
 		const header = {
-			signature: 'RFF\x1A',
+			signature: RFF_SIG,
 			version: this.version(),
 			pad: 0,
 			fatOffset: nextOffset,
@@ -270,13 +272,13 @@ class Archive_RFF_Blood extends ArchiveHandler
 
 		// Write the FAT at the end, possibly encrypted
 		if (crypto) {
-			fat = crypto.obscure(fat.getBuffer(), {
+			fat = crypto.obscure(fat.getU8(), {
 				seed: header.fatOffset & 0xFF,
 				offset: this.getKeyOffset_FAT(),
 				limit: 0, // fully encrypted
 			});
 		} else {
-			fat = fat.getBuffer(); // for consistency
+			fat = fat.getU8(); // for consistency
 		}
 		buffer.put(fat);
 
@@ -284,7 +286,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		buffer.seekAbs(0);
 		buffer.writeRecord(recordTypes.header, header);
 
-		return buffer.getBuffer();
+		return buffer.getU8();
 	}
 
 }

@@ -30,8 +30,8 @@
   },
   "homepage": "https://github.com/Malvineous/gamearchivejs#readme",
   "dependencies": {
-    "@malvineous/gamecomp": "^1.0.0",
-    "@malvineous/record-io-buffer": "^1.0.0"
+    "@malvineous/gamecomp": "^1.0.3",
+    "@malvineous/record-io-buffer": "^2.1.0"
   },
   "devDependencies": {
     "command-line-args": "^5.0.2",
