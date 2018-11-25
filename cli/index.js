@@ -79,7 +79,7 @@ class Operations
 			data = targetFile.getContent();
 		}
 		this.log('extracting', params.target, params.name ? 'as ' + params.name : '');
-		return fs.writeFile(params.name || params.target, data);
+		return fs.promises.writeFile(params.name || params.target, data);
 	}
 
 	identify(params) {
