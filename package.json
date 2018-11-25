@@ -1,6 +1,6 @@
 {
   "name": "@malvineous/gamearchive",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Read and write archive files used by DOS games",
   "bin": {
     "gamearch": "./bin/gamearch"
@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/Malvineous/gamearchivejs#readme",
   "dependencies": {
-    "@malvineous/gamecomp": "^1.0.3",
+    "@malvineous/gamecomp": "^1.0.4",
     "@malvineous/record-io-buffer": "^2.1.0"
   },
   "devDependencies": {
