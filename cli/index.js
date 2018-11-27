@@ -163,9 +163,11 @@ class Operations
 			throw new OperationsError('open: missing filename');
 		}
 
-		let content = fs.readFileSync(params.target);
+		let content = {
+			main: fs.readFileSync(params.target),
+		};
 		if (!handler) {
-			let handlers = GameArchive.findHandler(content);
+			let handlers = GameArchive.findHandler(content.main);
 			if (handlers.length === 0) {
 				throw new OperationsError('Unable to identify this archive format.');
 			}
@@ -179,6 +181,11 @@ class Operations
 			}
 			handler = handlers[0];
 		}
+
+		const suppList = handler.supps(params.target, content.main);
+		Object.keys(suppList).forEach(id => {
+			content[id] = fs.readFileSync(suppList[id]);
+		});
 
 		this.archive = handler.parse(content);
 		this.origFormat = handler.metadata().id;
@@ -206,8 +213,18 @@ class Operations
 		}
 
 		console.warn('Saving to', params.target, 'as', params.format);
-		const outBuffer = handler.generate(this.archive);
-		return fs.promises.writeFile(params.target, outBuffer);
+		const outContent = handler.generate(this.archive);
+
+		let promises = [];
+		const suppList = handler.supps(params.target, outContent.main);
+		Object.keys(suppList).forEach(id => {
+			console.warn(' - Saving supplemental file', suppList[id]);
+			promises.push(
+				fs.promises.writeFile(suppList[id], outContent[id])
+			);
+		});
+		promises.push(fs.promises.writeFile(params.target, outContent.main));
+		return Promise.all(promises);
 	}
 
 	type(params) {

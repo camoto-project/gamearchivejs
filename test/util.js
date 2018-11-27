@@ -69,6 +69,24 @@ module.exports = class TestUtil {
 		return u8;
 	}
 
+	loadContent(handler, ids) {
+		let content = {};
+		ids.forEach(name => {
+			const mainFilename = name + '.bin';
+			let input = {
+				main: this.loadData(mainFilename),
+			};
+
+			const suppList = handler.supps(mainFilename, input.main);
+			Object.keys(suppList).forEach(id => {
+				input[id] = this.loadData(suppList[id]);
+			});
+			content[name] = input;
+		});
+
+		return content;
+	}
+
 	static buffersEqual(expected, actual, msg) {
 		if (expected instanceof ArrayBuffer) {
 			expected = new Uint8Array(expected);
@@ -92,6 +110,12 @@ module.exports = class TestUtil {
 				actual: hexdump(actual),
 			});
 		}
+	}
+
+	static contentEqual(contentExpected, contentActual) {
+		Object.keys(contentExpected).forEach(id => {
+			this.buffersEqual(contentExpected[id], contentActual[id]);
+		});
 	}
 
 	static u8FromString(s) {

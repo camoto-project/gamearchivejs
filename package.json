@@ -1,6 +1,6 @@
 {
   "name": "@malvineous/gamearchive",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "Read and write archive files used by DOS games",
   "bin": {
     "gamearch": "./bin/gamearch"

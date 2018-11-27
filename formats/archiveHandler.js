@@ -143,6 +143,33 @@ module.exports = class ArchiveHandler
 	}
 
 	/**
+	 * Get a list of supplementary files needed to use the format.
+	 *
+	 * Some formats store their data across multiple files, and this function
+	 * will return a list of filenames needed, based on the filename and data in
+	 * the main archive file.
+	 *
+	 * This allows both the filename and archive content to be examined, in case
+	 * either of these are needed to construct the name of the supplementary
+	 * files.
+	 *
+	 * @param {string} name
+	 *   Archive filename.
+	 *
+	 * @param {Uint8Array} content
+	 *   Archive content.
+	 *
+	 * @return {Object} where each key is an identifier specific to the handler,
+	 *   and the value is the expected case-insensitive filename.  Don't convert
+	 *   passed names to lowercase, but any changes (e.g. appending a filename
+	 *   extension) should be lowercase.
+	 */
+	// eslint-disable-next-line no-unused-vars
+	static supps(name, content) {
+		return {};
+	}
+
+	/**
 	 * See if the given archive is in the format supported by this handler.
 	 *
 	 * This is used for format autodetection.

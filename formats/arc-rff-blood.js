@@ -119,7 +119,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		}
 	}
 
-	static parse(content) {
+	static parse({main: content}) {
 		try {
 			const md = this.metadata();
 			Debug.push(md.id, 'parse');
@@ -286,7 +286,9 @@ class Archive_RFF_Blood extends ArchiveHandler
 		buffer.seekAbs(0);
 		buffer.writeRecord(recordTypes.header, header);
 
-		return buffer.getU8();
+		return {
+			main: buffer.getU8(),
+		};
 	}
 
 }

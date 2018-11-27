@@ -72,8 +72,10 @@ allHandlers.forEach(handler => {
 		let content = {};
 
 		before('load test data from local filesystem', function() {
-			content.default = testutil.loadData('default.bin');
-			content.empty = testutil.loadData('empty.bin');
+			content = testutil.loadContent(handler, [
+				'default',
+				'empty',
+			]);
 		});
 
 		describe('metadata()', function() {
@@ -103,7 +105,7 @@ allHandlers.forEach(handler => {
 		describe('parse()', function() {
 			let archive;
 
-			it('should parse correctly', function() {
+			before('should parse correctly', function() {
 				archive = handler.parse(content.default);
 			});
 
@@ -154,12 +156,14 @@ allHandlers.forEach(handler => {
 
 			it('should generate correctly', function() {
 				const contentGenerated = handler.generate(defaultArchive);
-				TestUtil.buffersEqual(content.default, contentGenerated);
+
+				TestUtil.contentEqual(content.default, contentGenerated);
 			});
 
 			it('empty archives can be produced', function() {
 				const contentGenerated = handler.generate(emptyArchive);
-				TestUtil.buffersEqual(content.empty, contentGenerated);
+
+				TestUtil.contentEqual(content.empty, contentGenerated);
 			});
 
 			it('maximum filename length is correct', function() {
@@ -214,12 +218,12 @@ allHandlers.forEach(handler => {
 		describe('identify()', function() {
 
 			it('should not negatively identify itself', function() {
-				const result = handler.identify(content.default);
+				const result = handler.identify(content.default.main);
 				assert.ok(result === true || result === undefined);
 			});
 
 			it('should not negatively identify empty archives', function() {
-				const result = handler.identify(content.empty);
+				const result = handler.identify(content.empty.main);
 				assert.ok(result === true || result === undefined);
 			});
 
@@ -231,7 +235,7 @@ allHandlers.forEach(handler => {
 				if (submd.id === md.id) return;
 
 				it(`should not positively identify ${submd.id} files`, function() {
-					const result = subhandler.identify(content.default);
+					const result = subhandler.identify(content.default.main);
 					assert.notEqual(result, true);
 				});
 			});

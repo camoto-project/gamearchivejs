@@ -131,7 +131,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 		}
 	}
 
-	static parse(content) {
+	static parse({main: content}) {
 		let archive = new Archive();
 		const cmpLZW = GameCompression.getHandler('cmp-lzw');
 		const cmpRLE = GameCompression.getHandler('cmp-rle-bash');
@@ -258,7 +258,9 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			buffer.put(diskData);
 		});
 
-		return buffer.getU8();
+		return {
+			main: buffer.getU8(),
+		};
 	}
 
 };

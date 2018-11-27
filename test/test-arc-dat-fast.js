@@ -32,8 +32,10 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 	let content = {};
 	before('load test data from local filesystem', function() {
-		content.typecode = testutil.loadData('typecode.bin');
-		content.rle = testutil.loadData('rle.bin');
+		content = testutil.loadContent(handler, [
+			'typecode',
+			'rle',
+		]);
 	});
 
 	describe('parse()', function() {
@@ -83,7 +85,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			archive.files.push(file);
 
 			const contentGenerated = handler.generate(archive);
-			TestUtil.buffersEqual(content.typecode, contentGenerated);
+			TestUtil.contentEqual(content.typecode, contentGenerated);
 		});
 
 		it('RLE codes are generated', function() {
@@ -95,7 +97,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			archive.files.push(file);
 
 			const contentGenerated = handler.generate(archive);
-			TestUtil.buffersEqual(content.rle, contentGenerated);
+			TestUtil.contentEqual(content.rle, contentGenerated);
 		});
 	});
 });

@@ -79,7 +79,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		}
 	}
 
-	static parse(content) {
+	static parse({main: content}) {
 		let archive = new Archive();
 		const lenArchive = content.length;
 
@@ -144,6 +144,8 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			buffer.writeRecord(recordTypes.fatEntry, file);
 		});
 
-		return buffer.getU8();
+		return {
+			main: buffer.getU8(),
+		};
 	}
 };
