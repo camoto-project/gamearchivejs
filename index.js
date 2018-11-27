@@ -20,6 +20,7 @@
 const fileTypes = [
 	// These file formats all have signatures so the autodetection is
 	// fast and they are listed first.
+	require('./formats/arc-bnk-harry.js'),
 	require('./formats/arc-grp-build.js'),
 	...require('./formats/arc-rff-blood.js'),
 
