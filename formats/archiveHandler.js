@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const Debug = require('../util/utl-debug.js');
+
 /**
  * Base class and defaults for archive format handlers.
  *
@@ -139,6 +141,20 @@ module.exports = class ArchiveHandler
 				}
 			});
 		}
+
+		archive.files.forEach(file => {
+			if (file.nativeSize === 0) {
+				const content = file.getContent();
+				if (content.length !== 0) {
+					Debug.warn(`File ${file.name} has nativeSize unset but content is ` +
+						`${content.length} bytes.  This will cause slow memory ` +
+						`reallocations during archive writes and should be fixed if ` +
+						`possible.`
+					);
+				}
+			}
+		});
+
 		return issues;
 	}
 
