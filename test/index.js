@@ -54,6 +54,7 @@ defaultArchive.files.push(file);
 file = new Archive.File();
 file.name = 'THREE.TXT';
 file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+file.diskSize = file.nativeSize = 64; // intentionally wrong size
 file.getRaw = () => TestUtil.u8FromString('This is the third file');
 defaultArchive.files.push(file);
 
