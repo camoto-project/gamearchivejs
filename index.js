@@ -27,6 +27,7 @@ const fileTypes = [
 	// These formats require enumeration, sometimes all the way to the
 	// end of the file, so they are next.
 	require('./formats/arc-dat-fast.js'),
+	require('./formats/arc-vol-cosmo.js'),
 
 	// These formats are so ambiguous that they are often misidentified,
 	// so they are last.
