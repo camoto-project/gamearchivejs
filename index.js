@@ -22,6 +22,7 @@ const fileTypes = [
 	// fast and they are listed first.
 	require('./formats/arc-bnk-harry.js'),
 	require('./formats/arc-grp-build.js'),
+	require('./formats/arc-hog-descent.js'),
 	...require('./formats/arc-rff-blood.js'),
 
 	// These formats require enumeration, sometimes all the way to the
