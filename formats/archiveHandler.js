@@ -114,8 +114,13 @@ module.exports = class ArchiveHandler
 				 *   Number of characters in the filename, including dots.  If the
 				 *   archive can only store normal DOS 8.3 filenames, then this would
 				 *   be 12.  If omitted there is no restriction on filename length.
+				 *
+				 * @property {Number} maxFileCount
+				 *   Maximum number of files that can be stored in the archive file, or
+				 *   undefined if there is no maximum limit.
 				 */
 				maxFilenameLen: undefined,
+				maxFileCount: undefined,
 			},
 		};
 	}
@@ -134,10 +139,17 @@ module.exports = class ArchiveHandler
 	{
 		const { limits } = this.metadata();
 		let issues = [];
+
+		if (limits.maxFileCount && (archive.files.length > limits.maxFileCount)) {
+			issues.push(`There are ${archive.files.length} files to save, but this `
+				+ `archive format can only store up to ${limits.maxFileCount} files.`);
+		}
+
 		if (limits.maxFilenameLen) {
 			archive.files.forEach(file => {
 				if (file.name.length > limits.maxFilenameLen) {
-					issues.push(`Filename length is ${file.name.length}, max is ${limits.maxFilenameLen}: ${file.name}`);
+					issues.push(`Filename length is ${file.name.length}, max is `
+						+ `${limits.maxFilenameLen}: ${file.name}`);
 				}
 			});
 		}
