@@ -42,6 +42,9 @@ class Operations
 	}
 
 	async add(params) {
+		if (!params.target) {
+			throw new OperationsError('add: missing filename');
+		}
 		let file = new GameArchive.Archive.File();
 		file.name = params.name || params.target;
 		file.diskSize = file.nativeSize = fs.statSync(params.target).size;
@@ -51,7 +54,41 @@ class Operations
 			params.name ? '(from ' + params.target + ')' : '');
 	}
 
+	attrib(params) {
+		if (!params.target) {
+			throw new OperationsError('attrib: missing filename');
+		}
+		const targetName = params.target.toUpperCase(); // nearly always ASCII
+		for (let i = 0; i < this.archive.files.length; i++) {
+			if (this.archive.files[i].name.toUpperCase() == targetName) {
+				let desc = [];
+				if (params.compressed === true) {
+					this.archive.files[i].attributes.compressed = true;
+					desc.push('compressed');
+				}
+				if (params.uncompressed === true) {
+					this.archive.files[i].attributes.compressed = false;
+					desc.push('uncompressed');
+				}
+				if (params.encrypted === true) {
+					this.archive.files[i].attributes.encrypted = true;
+					desc.push('encrypted');
+				}
+				if (params.unencrypted === true) {
+					this.archive.files[i].attributes.encrypted = false;
+					desc.push('unencrypted');
+				}
+				this.log('attrib', this.archive.files[i].name, '=>', desc.length ? desc.join(', ') : 'no change');
+				return;
+			}
+		}
+		throw new OperationsError(`attrib: archive does not contain "${params.target}"`);
+	}
+
 	del(params) {
+		if (!params.target) {
+			throw new OperationsError('del: missing filename');
+		}
 		const targetName = params.target.toUpperCase(); // nearly always ASCII
 		for (let i = 0; i < this.archive.files.length; i++) {
 			if (this.archive.files[i].name.toUpperCase() == targetName) {
@@ -248,6 +285,13 @@ Operations.names = {
 		{ name: 'name', alias: 'n' },
 		{ name: 'target', defaultOption: true },
 	],
+	attrib: [
+		{ name: 'compressed', alias: 'c', type: Boolean },
+		{ name: 'encrypted', alias: 'e', type: Boolean },
+		{ name: 'uncompressed', alias: 'C', type: Boolean },
+		{ name: 'unencrypted', alias: 'E', type: Boolean },
+		{ name: 'target', defaultOption: true },
+	],
 	del: [
 		{ name: 'target', defaultOption: true },
 	],
@@ -325,6 +369,9 @@ Commands:
 
   add [-n name] <file>
     Append <file> to archive, storing it as <name>.
+
+  attrib [-c|-C][-e|-E] <file>
+    Set single attribute for <file>, see 'list' command.
 
   del | rm <file>
     Remove <file> from archive.
