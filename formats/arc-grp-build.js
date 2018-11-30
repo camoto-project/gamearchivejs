@@ -35,7 +35,7 @@ const recordTypes = {
 	},
 	fatEntry: {
 		name: RecordType.string.fixed.optTerm(12),
-		diskSize: RecordType.int.u32le,
+		size: RecordType.int.u32le,
 	},
 };
 
@@ -93,13 +93,13 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 
 			let file = new Archive.File();
 			file.name = fatEntry.name;
-			file.diskSize = file.nativeSize = fatEntry.diskSize;
+			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = offset;
-			file.getRaw = () => buffer.getU8(offset, file.diskSize);
+			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 
 			archive.files.push(file);
 
-			nextOffset += fatEntry.diskSize;
+			nextOffset += fatEntry.size;
 			if (nextOffset > lenArchive) {
 				console.error('Archive truncated, returning partial content');
 				break;
@@ -119,29 +119,33 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		// Work out where the FAT ends and the first file starts.
 		const offEndFAT = FATENTRY_LEN * (header.fileCount + 1);
 
-		// Calculate the size up front (if all the diskSize fields are available)
-		// so we don't have to keep reallocating the buffer, improving performance.
-		const guessFinalSize = archive.files.reduce(
+		// Calculate the size up front so we don't have to keep reallocating the
+		// buffer, improving performance.
+		const finalSize = archive.files.reduce(
 			(a, b) => a + (b.nativeSize || 0),
 			offEndFAT,
 		);
 
-		let buffer = new RecordBuffer(guessFinalSize);
+		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
 
-		// Write the files first so we can retrieve the sizes.
-		buffer.seekAbs(offEndFAT);
+		archive.files.forEach(file => {
+			const entry = {
+				name: file.name,
+				size: file.nativeSize,
+			};
+			buffer.writeRecord(recordTypes.fatEntry, entry);
+		});
 
 		archive.files.forEach(file => {
 			const content = file.getContent();
-			file.diskSize = file.nativeSize = content.length;
+
+			// Safety check.
+			if (content.length != file.nativeSize) {
+				throw new Error('Length of data and nativeSize field do not match!');
+			}
+
 			buffer.put(content);
-		});
-
-		buffer.seekAbs(FATENTRY_LEN * 1);
-
-		archive.files.forEach(file => {
-			buffer.writeRecord(recordTypes.fatEntry, file);
 		});
 
 		return {

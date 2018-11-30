@@ -135,27 +135,24 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		const fileCount = archive.files.length;
 		const lenFAT = fileCount * FATENTRY_LEN;
 
-		// Calculate the size up front (if all the size fields are available)
-		// so we don't have to keep reallocating the buffer, improving performance.
-		const guessFinalSize = archive.files.reduce(
+		// Calculate the size up front so we don't have to keep reallocating the
+		// buffer, improving performance.
+		const finalSize = archive.files.reduce(
 			(a, b) => a + (b.nativeSize || 0),
 			fileCount * FILEHEADER_LEN,
 		);
 
-		let buffer = new RecordBuffer(guessFinalSize);
+		let buffer = new RecordBuffer(finalSize);
 		let bufferFAT = new RecordBuffer(lenFAT);
 
 		let nextOffset = FILEHEADER_LEN;
 
 		archive.files.forEach(file => {
-			const nativeData = file.getContent();
-			// @todo Handle compression/decompression
-
 			const fatEntry = {
 				lenName: file.name.length,
 				name: file.name,
 				offset: nextOffset,
-				diskSize: nativeData.length,
+				diskSize: file.nativeSize,
 			};
 
 			const fileHeader = {
@@ -165,11 +162,21 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			};
 
 			buffer.writeRecord(recordTypes.fileHeader, fileHeader);
-			buffer.put(nativeData);
 
+			const nativeData = file.getContent();
+
+			// Safety check.
+			if (nativeData.length != file.nativeSize) {
+				throw new Error('Length of data and nativeSize field do not match!');
+			}
+
+			// @todo Handle compression/decompression
+			buffer.put(nativeData, fatEntry.diskSize);
+
+			// Add an entry to the external FAT.
 			bufferFAT.writeRecord(recordTypes.fatEntry, fatEntry);
 
-			nextOffset += fileHeader.diskSize + FILEHEADER_LEN;
+			nextOffset += fatEntry.diskSize + FILEHEADER_LEN;
 		});
 
 		return {

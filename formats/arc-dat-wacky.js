@@ -35,7 +35,7 @@ const recordTypes = {
 	fatEntry: {
 		name: RecordType.string.fixed.optTerm(12),
 		pad: RecordType.padding(2),
-		diskSize: RecordType.int.u32le,
+		size: RecordType.int.u32le,
 		offset: RecordType.int.u32le,
 	},
 };
@@ -90,7 +90,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 					Debug.log(`File ${i} starts beyond the end of the archive => false`);
 					return false;
 				}
-				if (fatEntry.offset + HEADER_LEN + fatEntry.diskSize > lenArchive) {
+				if (fatEntry.offset + HEADER_LEN + fatEntry.size > lenArchive) {
 					Debug.log(`File ${i} ends beyond the end of the archive => false`);
 					return false;
 				}
@@ -115,7 +115,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 
 			let file = new Archive.File();
 			file.name = fatEntry.name;
-			file.diskSize = file.nativeSize = fatEntry.diskSize;
+			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = fatEntry.offset + HEADER_LEN;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 
@@ -134,31 +134,36 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		// Work out where the FAT ends and the first file starts.
 		const lenFAT = HEADER_LEN + FATENTRY_LEN * header.fileCount;
 
-		// Calculate the size up front (if all the diskSize fields are available)
-		// so we don't have to keep reallocating the buffer, improving performance.
-		const guessFinalSize = archive.files.reduce(
+		// Calculate the size up front so we don't have to keep reallocating the
+		// buffer, improving performance.
+		const finalSize = archive.files.reduce(
 			(a, b) => a + (b.nativeSize || 0),
 			lenFAT,
 		);
 
-		let buffer = new RecordBuffer(guessFinalSize);
+		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
 
-		// Write the files first so we can retrieve the sizes.
-		buffer.seekAbs(lenFAT);
-
-		let offset = lenFAT;
+		let offset = lenFAT - HEADER_LEN;
 		archive.files.forEach(file => {
-			const content = file.getContent();
-			file.offset = offset - HEADER_LEN;
-			file.diskSize = file.nativeSize = content.length;
-			buffer.put(content);
-			offset += file.diskSize;
+			const entry = {
+				name: file.name,
+				size: file.nativeSize,
+				offset: offset,
+			};
+			buffer.writeRecord(recordTypes.fatEntry, entry);
+			offset += file.nativeSize;
 		});
 
-		buffer.seekAbs(2);
 		archive.files.forEach(file => {
-			buffer.writeRecord(recordTypes.fatEntry, file);
+			const content = file.getContent();
+
+			// Safety check.
+			if (content.length != file.nativeSize) {
+				throw new Error('Length of data and nativeSize field do not match!');
+			}
+
+			buffer.put(content);
 		});
 
 		return {

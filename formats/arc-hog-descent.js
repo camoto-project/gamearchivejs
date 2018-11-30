@@ -34,7 +34,7 @@ const recordTypes = {
 	},
 	fatEntry: {
 		name: RecordType.string.fixed.reqTerm(13),
-		diskSize: RecordType.int.u32le,
+		size: RecordType.int.u32le,
 	},
 };
 
@@ -91,13 +91,13 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 
 			let file = new Archive.File();
 			file.name = fatEntry.name;
-			file.diskSize = file.nativeSize = fatEntry.diskSize;
+			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 
 			archive.files.push(file);
 
-			offset += fatEntry.diskSize;
+			offset += fatEntry.size;
 		}
 
 		return archive;
@@ -109,20 +109,29 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			signature: 'DHF',
 		};
 
-		// Calculate the size up front (if all the diskSize fields are available)
-		// so we don't have to keep reallocating the buffer, improving performance.
-		const guessFinalSize = archive.files.reduce(
+		// Calculate the size up front so we don't have to keep reallocating the
+		// buffer, improving performance.
+		const finalSize = archive.files.reduce(
 			(a, b) => a + (b.nativeSize || 0),
 			HEADER_LEN + archive.files.length * FATENTRY_LEN,
 		);
 
-		let buffer = new RecordBuffer(guessFinalSize);
+		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
 
 		archive.files.forEach(file => {
 			const content = file.getContent();
-			file.diskSize = file.nativeSize = content.length;
-			buffer.writeRecord(recordTypes.fatEntry, file);
+
+			// Safety check.
+			if (content.length != file.nativeSize) {
+				throw new Error('Length of data and nativeSize field do not match!');
+			}
+			const entry = {
+				name: file.name,
+				size: file.nativeSize,
+			};
+
+			buffer.writeRecord(recordTypes.fatEntry, entry);
 			buffer.put(content);
 		});
 

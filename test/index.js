@@ -42,25 +42,30 @@ let defaultArchive = new Archive();
 let file = new Archive.File();
 file.name = 'ONE.TXT';
 file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+file.nativeSize = 22;
 file.getRaw = () => TestUtil.u8FromString('This is the first file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'TWO.TXT';
 file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
+file.nativeSize = 23;
 file.getRaw = () => TestUtil.u8FromString('This is the second file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'THREE.TXT';
 file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-file.diskSize = file.nativeSize = 64; // intentionally wrong size
+file.diskSize = 64; // intentionally wrong size
+file.nativeSize = 22;
 file.getRaw = () => TestUtil.u8FromString('This is the third file');
 defaultArchive.files.push(file);
 
 file = new Archive.File();
 file.name = 'FOUR.TXT';
 file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+file.diskSize = 64; // intentionally wrong size
+file.nativeSize = 23;
 file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
 defaultArchive.files.push(file);
 
@@ -179,8 +184,9 @@ allHandlers.forEach(handler => {
 					expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
 				}
 				assert.equal(expectedName.length, md.limits.maxFilenameLen);
-				file.name = expectedName;
 
+				file.name = expectedName;
+				file.nativeSize = 16;
 				file.getRaw = () => TestUtil.u8FromString('longest filename');
 				archive.files.push(file);
 				const contentGenerated = handler.generate(archive);
@@ -196,11 +202,13 @@ allHandlers.forEach(handler => {
 
 				let file = new Archive.File();
 				file.name = 'TEST1';
+				file.nativeSize = 5;
 				file.getRaw = () => TestUtil.u8FromString('test1');
 				archive.files.push(file);
 
 				file = new Archive.File();
 				file.name = 'TEST2';
+				file.nativeSize = 5;
 				file.getRaw = () => TestUtil.u8FromString('test2');
 				archive.files.push(file);
 
@@ -214,6 +222,21 @@ allHandlers.forEach(handler => {
 				assert.ok(parsedArchive.files[1], 'Second file did not get added to archive');
 				assert.equal(parsedArchive.files[1].name.toUpperCase(), 'TEST2', 'Name does not match');
 			});
+
+			it('inconsistent file lengths are detected', function() {
+				let archive = new Archive();
+
+				let file = new Archive.File();
+				file.name = 'TEST1';
+				file.nativeSize = 2;
+				file.getRaw = () => TestUtil.u8FromString('test1');
+				archive.files.push(file);
+
+				assert.throws(() => {
+					handler.generate(archive);
+				});
+			});
+
 		});
 
 		describe('identify()', function() {

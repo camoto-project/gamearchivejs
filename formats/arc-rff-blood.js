@@ -226,6 +226,11 @@ class Archive_RFF_Blood extends ArchiveHandler
 		archive.files.forEach(file => {
 			let content = file.getContent();
 
+			// Safety check.
+			if (content.length != file.nativeSize) {
+				throw new Error('Length of data and nativeSize field do not match!');
+			}
+
 			let rffFile = {...file};
 			if (file.lastModified) {
 				// Again we have to include the current timezone so that we are writing

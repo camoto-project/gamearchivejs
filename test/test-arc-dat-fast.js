@@ -61,26 +61,31 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			let file = new Archive.File();
 			file.name = 'level1.mif';
+			file.nativeSize = 8;
 			file.getRaw = () => TestUtil.u8FromString('content1');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'LEVEL2.MIF';
+			file.nativeSize = 8;
 			file.getRaw = () => TestUtil.u8FromString('content2');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'test.tbg';
+			file.nativeSize = 8;
 			file.getRaw = () => TestUtil.u8FromString('content3');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'audio.snd';
+			file.nativeSize = 8;
 			file.getRaw = () => TestUtil.u8FromString('content4');
 			archive.files.push(file);
 
 			file = new Archive.File();
 			file.name = 'ega.pal';
+			file.nativeSize = 8;
 			file.getRaw = () => TestUtil.u8FromString('content5');
 			archive.files.push(file);
 
@@ -93,6 +98,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			let file = new Archive.File();
 			file.name = 'data.rle';
+			file.nativeSize = 8;
 			file.getRaw = () => Uint8Array.from([0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56]);
 			archive.files.push(file);
 

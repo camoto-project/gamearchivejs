@@ -44,6 +44,7 @@ class Operations
 	async add(params) {
 		let file = new GameArchive.Archive.File();
 		file.name = params.name || params.target;
+		file.diskSize = file.nativeSize = fs.statSync(params.target).size;
 		file.getRaw = () => fs.readFileSync(params.target);
 		this.archive.files.push(file);
 		this.log('adding', params.name || params.target,

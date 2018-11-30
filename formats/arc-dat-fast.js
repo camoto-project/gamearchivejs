@@ -204,18 +204,20 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 		const cmpLZW = GameCompression.getHandler('cmp-lzw');
 		const cmpRLE = GameCompression.getHandler('cmp-rle-bash');
 
-		// Calculate the size up front (if all the diskSize fields are available)
-		// so we don't have to keep reallocating the buffer, improving performance.
+		// Calculate the size up front so we don't have to keep reallocating the
+		// buffer, improving performance.
 		const finalSize = archive.files.reduce(
-			(a, b) => a + (b.diskSize || 0),
+			(a, b) => a + (b.nativeSize || 0),
 			FATENTRY_LEN * archive.files.length
 		);
 
 		let buffer = new RecordBuffer(finalSize);
 
 		archive.files.forEach(file => {
-			const entry = {...file};
-			entry.typeCode = 32;
+			const entry = {
+				typeCode: 32,
+				name: file.name,
+			};
 			const ext = entry.name.substr(-4).toLowerCase();
 			if (ext === '.snd') { // special case
 				entry.typeCode = 8;
@@ -235,6 +237,11 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 			const nativeData = file.getContent();
 
+			// Safety check.
+			if (nativeData.length != file.nativeSize) {
+				throw new Error('Length of data and nativeSize field do not match!');
+			}
+
 			let diskData;
 			if (file.attributes.compressed === false) { // compression not wanted
 				diskData = nativeData;
@@ -242,6 +249,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 				// Files that aren't compressed have the decompressed size set to 0 in
 				// this archive format.
 				entry.decompressedSize = 0;
+				entry.compressedSize = file.nativeSize;
 			} else { // compression wanted or don't care/default
 				// Compress the file
 				diskData = cmpLZW.obscure(
@@ -250,9 +258,9 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 				);
 
 				// Set the size of the decompressed data in the header
-				entry.decompressedSize = nativeData.length;
+				entry.decompressedSize = file.nativeSize;
+				entry.compressedSize = diskData.length;
 			}
-			entry.compressedSize = diskData.length;
 
 			buffer.writeRecord(recordTypes.fatEntry, entry);
 			buffer.put(diskData);

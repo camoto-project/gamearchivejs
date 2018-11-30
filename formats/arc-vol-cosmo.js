@@ -32,7 +32,7 @@ const recordTypes = {
 	fatEntry: {
 		name: RecordType.string.fixed.optTerm(12),
 		offset: RecordType.int.u32le,
-		diskSize: RecordType.int.u32le,
+		size: RecordType.int.u32le,
 	},
 };
 
@@ -95,7 +95,7 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 					Debug.log(`File ${i} starts beyond the end of the archive => false`);
 					return false;
 				}
-				if (fatEntry.offset + fatEntry.diskSize > lenArchive) {
+				if (fatEntry.offset + fatEntry.size > lenArchive) {
 					Debug.log(`File ${i} ends beyond the end of the archive => false`);
 					return false;
 				}
@@ -118,7 +118,7 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 			if (fatEntry.offset !== 0) {
 				let file = new Archive.File();
 				file.name = fatEntry.name;
-				file.diskSize = file.nativeSize = fatEntry.diskSize;
+				file.diskSize = file.nativeSize = fatEntry.size;
 				file.offset = fatEntry.offset;
 				file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 
@@ -133,35 +133,41 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 	{
 		const lenFAT = MAX_FILES * FATENTRY_LEN;
 
-		// Calculate the size up front (if all the diskSize fields are available)
-		// so we don't have to keep reallocating the buffer, improving performance.
-		const guessFinalSize = archive.files.reduce(
+		// Calculate the size up front so we don't have to keep reallocating the
+		// buffer, improving performance.
+		const finalSize = archive.files.reduce(
 			(a, b) => a + (b.nativeSize || 0),
 			lenFAT,
 		);
 
-		let buffer = new RecordBuffer(guessFinalSize);
+		let buffer = new RecordBuffer(finalSize);
 
-		// Write the data first so we can update all the diskSize fields with the
-		// real data size.
-		buffer.seekAbs(lenFAT);
 		let offset = lenFAT;
 		archive.files.forEach(file => {
-			const content = file.getContent();
-			file.offset = offset;
-			file.diskSize = file.nativeSize = content.length;
-			buffer.put(content);
-			offset += file.diskSize;
-		});
-
-		buffer.seekAbs(0);
-		archive.files.forEach(file => {
-			buffer.writeRecord(recordTypes.fatEntry, file);
+			const entry = {
+				name: file.name,
+				offset: offset,
+				size: file.nativeSize,
+			};
+			buffer.writeRecord(recordTypes.fatEntry, entry);
+			offset += file.nativeSize;
 		});
 
 		// Write out the remaining empty FAT entries
 		const lenPadFAT = (200 - archive.files.length) * FATENTRY_LEN;
 		buffer.put(new Uint8Array(lenPadFAT));
+
+		// Write the file data.
+		archive.files.forEach(file => {
+			const content = file.getContent();
+
+			// Safety check.
+			if (content.length != file.nativeSize) {
+				throw new Error('Length of data and nativeSize field do not match!');
+			}
+
+			buffer.put(content);
+		});
 
 		return {
 			main: buffer.getU8(),
