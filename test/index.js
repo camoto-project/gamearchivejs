@@ -35,40 +35,6 @@ colors['error stack'] = '1;37';
 // An archive with no content.
 const emptyArchive = new Archive();
 
-// This is what we expect the default archive in any given format to
-// look like.
-let defaultArchive = new Archive();
-
-let file = new Archive.File();
-file.name = 'ONE.TXT';
-file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-file.nativeSize = 22;
-file.getRaw = () => TestUtil.u8FromString('This is the first file');
-defaultArchive.files.push(file);
-
-file = new Archive.File();
-file.name = 'TWO.TXT';
-file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
-file.nativeSize = 23;
-file.getRaw = () => TestUtil.u8FromString('This is the second file');
-defaultArchive.files.push(file);
-
-file = new Archive.File();
-file.name = 'THREE.TXT';
-file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-file.diskSize = 64; // intentionally wrong size
-file.nativeSize = 22;
-file.getRaw = () => TestUtil.u8FromString('This is the third file');
-defaultArchive.files.push(file);
-
-file = new Archive.File();
-file.name = 'FOUR.TXT';
-file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-file.diskSize = 64; // intentionally wrong size
-file.nativeSize = 23;
-file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
-defaultArchive.files.push(file);
-
 const allHandlers = GameArchive.listHandlers();
 allHandlers.forEach(handler => {
 	const md = handler.metadata();
@@ -76,12 +42,66 @@ allHandlers.forEach(handler => {
 
 	describe(`Standard tests for ${md.title} [${md.id}]`, function() {
 		let content = {};
+		let defaultArchive = new Archive();
 
 		before('load test data from local filesystem', function() {
 			content = testutil.loadContent(handler, [
 				'default',
 				'empty',
 			]);
+
+			// This is what we expect the default archive in any given format to
+			// look like.
+
+			let file = new Archive.File();
+			file.name = 'ONE.TXT';
+			file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+			file.nativeSize = 22;
+			file.getRaw = () => TestUtil.u8FromString('This is the first file');
+			// default setting for compression, if supported
+			// default setting for encryption, if supported
+			defaultArchive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'TWO.TXT';
+			file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
+			file.nativeSize = 23;
+			file.getRaw = () => TestUtil.u8FromString('This is the second file');
+			if (md.caps.file.attributes.compressed) {
+				// Always compress this file, if supported
+				file.attributes.compressed = true;
+			}
+			if (md.caps.file.attributes.encrypted) {
+				// Always encrypt this file, if supported
+				file.attributes.encrypted = true;
+			}
+			defaultArchive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'THREE.TXT';
+			file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+			file.diskSize = 64; // intentionally wrong size
+			file.nativeSize = 22;
+			file.getRaw = () => TestUtil.u8FromString('This is the third file');
+			if (md.caps.file.attributes.compressed) {
+				// Never compress this file, if supported
+				file.attributes.compressed = false;
+			}
+			if (md.caps.file.attributes.encrypted) {
+				// Never encrypt this file, if supported
+				file.attributes.encrypted = false;
+			}
+			defaultArchive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'FOUR.TXT';
+			file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+			file.diskSize = 64; // intentionally wrong size
+			file.nativeSize = 23;
+			file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
+			// default setting for compression, if supported
+			// default setting for encryption, if supported
+			defaultArchive.files.push(file);
 		});
 
 		describe('metadata()', function() {
@@ -113,6 +133,8 @@ allHandlers.forEach(handler => {
 
 			before('should parse correctly', function() {
 				archive = handler.parse(content.default);
+				assert.notStrictEqual(archive, undefined);
+				assert.notStrictEqual(archive, null);
 			});
 
 			it('should have the standard number of files', function() {
@@ -155,6 +177,20 @@ allHandlers.forEach(handler => {
 					}
 				});
 			});
+
+			if (md.caps.file.attributes.compressed) {
+				it('compression optional; should set attributes accordingly', function() {
+					assert.equal(archive.files[1].attributes.compressed, true);
+					assert.equal(archive.files[2].attributes.compressed, false);
+				});
+			}
+
+			if (md.caps.file.attributes.encrypted) {
+				it('encryption optional; should set attributes accordingly', function() {
+					assert.equal(archive.files[1].attributes.encrypted, true);
+					assert.equal(archive.files[2].attributes.encrypted, false);
+				});
+			}
 
 		});
 
