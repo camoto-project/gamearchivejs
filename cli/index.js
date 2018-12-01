@@ -127,8 +127,10 @@ class Operations
 		Debug.mute(false);
 
 		console.log('Autodetecting file format...');
-		let content = fs.readFileSync(params.target);
-		let handlers = GameArchive.findHandler(content);
+		const content = {
+			main: fs.readFileSync(params.target),
+		};
+		let handlers = GameArchive.findHandler(content.main);
 
 		console.log(handlers.length + ' format handler(s) matched');
 		if (handlers.length === 0) {
@@ -138,6 +140,21 @@ class Operations
 		handlers.forEach(handler => {
 			const m = handler.metadata();
 			console.log(`\n>> Trying handler for ${m.id} (${m.title})`);
+
+			try {
+				const suppList = handler.supps(params.target, content.main);
+				Object.keys(suppList).forEach(id => {
+					try {
+						content[id] = fs.readFileSync(suppList[id]);
+					} catch (e) {
+						throw new Error(`Unable to open supp file ${suppList[id]}:\n     ${e}`);
+					}
+				});
+			} catch (e) {
+				console.log(` - Skipping format due to error loading additional files `
+					+ `required:\n   ${e}`);
+				return;
+			}
 
 			const tempArch = handler.parse(content);
 			console.log(' - Handler reports archive contains', tempArch.files.length, 'files.');
