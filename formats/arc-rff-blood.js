@@ -112,6 +112,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 				return false;
 			}
 
+			Debug.log(`Signature matched, version OK => true`);
 			return true;
 
 		} finally {

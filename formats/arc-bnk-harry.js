@@ -92,10 +92,13 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			let buffer = new RecordBuffer(content);
 
 			const file1 = buffer.readRecord(recordTypes.fileHeader);
-			if (file1.signature === '-ID-') return true;
+			if (file1.signature !== '-ID-') {
+				Debug.log(`Wrong signature ${file1.signature} => false`);
+				return false;
+			}
 
-			Debug.log(`Wrong signature ${file1.signature} => false`);
-			return false;
+			Debug.log(`Signature matched => true`);
+			return true;
 
 		} finally {
 			Debug.pop();

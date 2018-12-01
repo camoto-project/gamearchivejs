@@ -68,10 +68,13 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			let buffer = new RecordBuffer(content);
 
 			const sig = recordTypes.header.signature.read(buffer);
-			if (sig === 'DHF') return true;
+			if (sig !== 'DHF') {
+				Debug.log(`Wrong signature => false`);
+				return false;
+			}
 
-			Debug.log(`Wrong signature => false`);
-			return false;
+			Debug.log(`Signature matched => true`);
+			return true;
 
 		} finally {
 			Debug.pop();
