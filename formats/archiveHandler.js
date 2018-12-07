@@ -206,7 +206,7 @@ module.exports = class ArchiveHandler
 	 *   such as the case of an empty file, which is a valid empty archive in a
 	 *   number of different file formats.
 	 *
-	 * @param {Buffer} content
+	 * @param {Uint8Array} content
 	 *   The archive to examine.
 	 *
 	 * @return {Boolean} true if the data is definitely in this format, false if
@@ -221,7 +221,7 @@ module.exports = class ArchiveHandler
 	/**
 	 * Read the given archive file.
 	 *
-	 * @param {Buffer} content
+	 * @param {Uint8Array} content
 	 *   File content of the archive.
 	 *
 	 * @return {Archive} object detailing the contents of the archive file.
@@ -241,8 +241,9 @@ module.exports = class ArchiveHandler
 	 * @param {Archive} archive
 	 *   The contents of the file to write.
 	 *
-	 * @return {Buffer} instance containing the contents of the file, suitable for
-	 *   writing directly to a file on disk or offering for download to the user.
+	 * @return {Uint8Array} instance containing the contents of the file, suitable
+	 *   for writing directly to a file on disk or offering for download to the
+	 *   user.
 	 */
 	// eslint-disable-next-line no-unused-vars
 	static generate(archive) {
