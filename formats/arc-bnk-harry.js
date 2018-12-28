@@ -48,7 +48,7 @@ const recordTypes = {
 const FILEHEADER_LEN = 22; // sizeof(fileHeader)
 const FATENTRY_LEN = 21; // sizeof(fatEntry)
 
-module.exports = class Archive_GRP_Build extends ArchiveHandler
+module.exports = class Archive_BNK_Harry extends ArchiveHandler
 {
 	static metadata() {
 		let md = {

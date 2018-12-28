@@ -62,7 +62,7 @@ module.exports = class GameArchive
 	/**
 	 * Get a handler by examining the file content.
 	 *
-	 * @param {Buffer} content
+	 * @param {Uint8Array} content
 	 *   Archive file content.
 	 *
 	 * @return {Array} of {ArchiveHandler} from formats/*.js that can handle the
