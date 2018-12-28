@@ -56,7 +56,6 @@ module.exports = class Archive_BNK_Harry extends ArchiveHandler
 			id: FORMAT_ID,
 			title: 'Halloween Harry Data Bank',
 			games: [
-				'Alien Carnage',
 				'Halloween Harry',
 			],
 			glob: [
@@ -94,6 +93,15 @@ module.exports = class Archive_BNK_Harry extends ArchiveHandler
 			const file1 = buffer.readRecord(recordTypes.fileHeader);
 			if (file1.signature !== '-ID-') {
 				Debug.log(`Wrong signature ${file1.signature} => false`);
+				return false;
+			}
+
+			// Read the second file signature too, as this will tell us whether it's
+			// Halloween Harry or Alien Carnage.
+			buffer.seekRel(file1.diskSize);
+			const file2 = buffer.readRecord(recordTypes.fileHeader);
+			if (file2.signature !== '-ID-') {
+				Debug.log(`Wrong signature for second file ${file2.signature} => false`);
 				return false;
 			}
 
