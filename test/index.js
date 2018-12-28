@@ -295,11 +295,14 @@ allHandlers.forEach(handler => {
 			});
 
 			it('should not break on short data', function() {
-				const content = new Uint8Array(1);
-				content[0] = 1;
-				handler.identify(content);
-				// Should not throw
-				assert.ok(true);
+				// Test a handful of random file sizes
+				[1, 7, 8, 15, 16, 20, 22, 23, 30].forEach(len => {
+					const content = new Uint8Array(len);
+					content[0] = 1;
+					handler.identify(content);
+					// Should not throw
+					assert.ok(true);
+				});
 			});
 
 			const allHandlers = GameArchive.listHandlers();

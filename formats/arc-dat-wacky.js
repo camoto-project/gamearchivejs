@@ -67,21 +67,22 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		try {
 			Debug.push(FORMAT_ID, 'identify');
 
-			if (content.length < HEADER_LEN) {
+			const lenArchive = content.length;
+
+			if (lenArchive < HEADER_LEN) {
 				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
 				return false;
 			}
 
 			let buffer = new RecordBuffer(content);
 			const header = buffer.readRecord(recordTypes.header);
-			const lenArchive = content.length;
-			if (lenArchive < HEADER_LEN) {
-				Debug.log(`File length of ${lenArchive} is less than min size of `
-					+ `${HEADER_LEN} => false`);
-				return false;
-			}
 
 			const lenFAT = HEADER_LEN + header.fileCount * FATENTRY_LEN;
+
+			if (content.length < lenFAT) {
+				Debug.log(`FAT truncated => false`);
+				return false;
+			}
 
 			for (let i = 0; i < header.fileCount; i++) {
 				const fatEntry = buffer.readRecord(recordTypes.fatEntry);
