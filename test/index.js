@@ -287,6 +287,21 @@ allHandlers.forEach(handler => {
 				assert.ok(result === true || result === undefined);
 			});
 
+			it('should not break on empty data', function() {
+				const content = new Uint8Array();
+				handler.identify(content);
+				// Should not throw
+				assert.ok(true);
+			});
+
+			it('should not break on short data', function() {
+				const content = new Uint8Array(1);
+				content[0] = 1;
+				handler.identify(content);
+				// Should not throw
+				assert.ok(true);
+			});
+
 			const allHandlers = GameArchive.listHandlers();
 			allHandlers.forEach(subhandler => {
 				const submd = subhandler.metadata();

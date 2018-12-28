@@ -97,9 +97,14 @@ class Archive_RFF_Blood extends ArchiveHandler
 			const md = this.metadata();
 			Debug.push(md.id, 'identify');
 
+			if (content.length < HEADER_LEN) {
+				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
+				return false;
+			}
+
 			let buffer = new RecordBuffer(content);
 
-			let header = buffer.readRecord(recordTypes.header);
+			const header = buffer.readRecord(recordTypes.header);
 			if (header.signature !== RFF_SIG) {
 				Debug.log(`Wrong signature => false`);
 				return false;

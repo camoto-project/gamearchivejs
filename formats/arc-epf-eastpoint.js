@@ -98,6 +98,11 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 		try {
 			Debug.push(FORMAT_ID, 'identify');
 
+			if (content.length < HEADER_LEN) {
+				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
+				return false;
+			}
+
 			let buffer = new RecordBuffer(content);
 
 			const sig = recordTypes.header.signature.read(buffer);

@@ -75,6 +75,11 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		try {
 			Debug.push(FORMAT_ID, 'identify');
 
+			if (content.length < FATENTRY_LEN) {
+				Debug.log(`Content too short (< ${FATENTRY_LEN} b) => false`);
+				return false;
+			}
+
 			let buffer = new RecordBuffer(content);
 
 			const sig = recordTypes.header.signature.read(buffer);

@@ -101,10 +101,17 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 			for (let i = 0; i < MAX_FILES; i++) {
 				// If we're exactly at the EOF then we're done.
-				if (buffer.distFromEnd() === 0) {
+				const bytesLeft = buffer.distFromEnd();
+				if (bytesLeft === 0) {
 					Debug.log(`EOF at correct place => true`);
 					return true;
 				}
+
+				if (bytesLeft < FATENTRY_LEN) {
+					Debug.log(`Incomplete FAT entry => false`);
+					return false;
+				}
+
 				const file = buffer.readRecord(recordTypes.fatEntry);
 				if ([...file.name].some(c => {
 					const cc = c.charCodeAt(0);
