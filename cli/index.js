@@ -239,7 +239,12 @@ class Operations
 
 		const suppList = handler.supps(params.target, content.main);
 		Object.keys(suppList).forEach(id => {
-			content[id] = fs.readFileSync(suppList[id]);
+			try {
+				content[id] = fs.readFileSync(suppList[id]);
+			} catch (e) {
+				throw new OperationsError(`open: unable to open supplementary file `
+					+ `"${suppList[id]}": ${e}`);
+			}
 		});
 
 		this.archive = handler.parse(content);
