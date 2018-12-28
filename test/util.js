@@ -78,7 +78,7 @@ module.exports = class TestUtil {
 			};
 
 			const suppList = handler.supps(mainFilename, input.main);
-			Object.keys(suppList).forEach(id => {
+			if (suppList) Object.keys(suppList).forEach(id => {
 				input[id] = this.loadData(suppList[id]);
 			});
 			content[name] = input;

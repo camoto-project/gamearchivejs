@@ -143,7 +143,7 @@ class Operations
 
 			try {
 				const suppList = handler.supps(params.target, content.main);
-				Object.keys(suppList).forEach(id => {
+				if (suppList) Object.keys(suppList).forEach(id => {
 					try {
 						content[id] = fs.readFileSync(suppList[id]);
 					} catch (e) {
@@ -238,7 +238,7 @@ class Operations
 		}
 
 		const suppList = handler.supps(params.target, content.main);
-		Object.keys(suppList).forEach(id => {
+		if (suppList) Object.keys(suppList).forEach(id => {
 			try {
 				content[id] = fs.readFileSync(suppList[id]);
 			} catch (e) {
@@ -277,7 +277,7 @@ class Operations
 
 		let promises = [];
 		const suppList = handler.supps(params.target, outContent.main);
-		Object.keys(suppList).forEach(id => {
+		if (suppList) Object.keys(suppList).forEach(id => {
 			console.warn(' - Saving supplemental file', suppList[id]);
 			promises.push(
 				fs.promises.writeFile(suppList[id], outContent[id])

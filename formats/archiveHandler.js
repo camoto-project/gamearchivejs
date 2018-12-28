@@ -187,14 +187,15 @@ module.exports = class ArchiveHandler
 	 * @param {Uint8Array} content
 	 *   Archive content.
 	 *
-	 * @return {Object} where each key is an identifier specific to the handler,
-	 *   and the value is the expected case-insensitive filename.  Don't convert
-	 *   passed names to lowercase, but any changes (e.g. appending a filename
-	 *   extension) should be lowercase.
+	 * @return {null} if there are no supplementary files, otherwise an {Object}
+	 *   where each key is an identifier specific to the handler, and the value
+	 *   is the expected case-insensitive filename.  Don't convert passed names
+	 *   to lowercase, but any changes (e.g. appending a filename extension)
+	 *   should be lowercase.
 	 */
 	// eslint-disable-next-line no-unused-vars
 	static supps(name, content) {
-		return {};
+		return null;
 	}
 
 	/**
