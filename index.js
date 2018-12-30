@@ -80,6 +80,9 @@ module.exports = class GameArchive
 	 */
 	static findHandler(content)
 	{
+		if (content.length === undefined) {
+			throw new Error('content parameter must be Uint8Array');
+		}
 		let handlers = [];
 		fileTypes.some(x => {
 			const metadata = x.metadata();
