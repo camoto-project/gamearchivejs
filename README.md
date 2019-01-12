@@ -48,7 +48,10 @@ See `cli/index.js` for example use.  The quick start is:
     
     // Read an archive into memory
     const handler = GameArchive.getHandler('arc-grp-duke3d');
-    const content = fs.readFileSync('duke3d.grp');
+    const content = {
+        main: fs.readFileSync('duke3d.grp'),
+        // Some formats need additional files here, see handler.supps()
+    };
     let archive = handler.parse(content);
     
     // List the files in the archive
@@ -68,7 +71,7 @@ See `cli/index.js` for example use.  The quick start is:
     
     // Write the archive back to disk with the modifications
     const outBuffer = handler.generate(archive);
-    fs.writeFileSync('new.grp', outBuffer);
+    fs.writeFileSync('new.grp', outBuffer.main);
 
 ## Installation as a contributor
 
