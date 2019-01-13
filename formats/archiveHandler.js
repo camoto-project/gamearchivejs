@@ -222,8 +222,10 @@ module.exports = class ArchiveHandler
 	/**
 	 * Read the given archive file.
 	 *
-	 * @param {Uint8Array} content
-	 *   File content of the archive.
+	 * @param {Object} content
+	 *   File content of the map.  The `main` property contains the main file,
+	 *   with any other supps as other properties.  Each property is a
+	 *   {Uint8Array}.
 	 *
 	 * @return {Archive} object detailing the contents of the archive file.
 	 */
@@ -242,9 +244,10 @@ module.exports = class ArchiveHandler
 	 * @param {Archive} archive
 	 *   The contents of the file to write.
 	 *
-	 * @return {Uint8Array} instance containing the contents of the file, suitable
-	 *   for writing directly to a file on disk or offering for download to the
-	 *   user.
+	 * @return {Object} containing the contents of the file in the `main`
+	 *   property, with any other supp files as other properties.  Each property
+	 *   is a {Uint8Array} suitable for writing directly to a file on disk or
+	 *   offering for download to the user.
 	 */
 	// eslint-disable-next-line no-unused-vars
 	static generate(archive) {
