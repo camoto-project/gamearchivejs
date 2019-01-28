@@ -387,6 +387,14 @@ async function processCommands()
 		// No params, show help.
 		console.log(`Use: gamearch --formats | [--debug] [command1 [command2...]]
 
+Options:
+
+  --formats
+    List all available file formats.
+
+  --debug
+    Show additional debug information for troubleshooting.
+
 Commands:
 
   add [-n name] <file>
