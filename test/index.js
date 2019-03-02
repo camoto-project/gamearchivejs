@@ -23,6 +23,11 @@ const TestUtil = require('./util.js');
 const GameArchive = require('../index.js');
 const Archive = require('../formats/archive.js');
 
+// These formats are skipped entirely.
+const skipFormats = [
+	'arc-fixed-ddave_exe',
+];
+
 // Override the default colours so we can actually see them
 var colors = require('mocha/lib/reporters/base').colors;
 colors['diff added'] = '1;33';
@@ -38,6 +43,11 @@ const emptyArchive = new Archive();
 const allHandlers = GameArchive.listHandlers();
 allHandlers.forEach(handler => {
 	const md = handler.metadata();
+
+	if (skipFormats.some(id => id === md.id)) {
+		return;
+	}
+
 	let testutil = new TestUtil(md.id);
 
 	describe(`Standard tests for ${md.title} [${md.id}]`, function() {
