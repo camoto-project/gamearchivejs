@@ -21,7 +21,6 @@
  */
 
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
-const GameCompression = require('@malvineous/gamecomp');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const FixedArchive = require('../util/fixedArchive.js');
