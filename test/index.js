@@ -112,6 +112,14 @@ allHandlers.forEach(handler => {
 			// default setting for compression, if supported
 			// default setting for encryption, if supported
 			defaultArchive.files.push(file);
+
+			const mdTags = Object.keys(md.tags);
+			if (mdTags.length > 0) {
+				mdTags.forEach(mdTag => {
+					defaultArchive.metadata[mdTag] = `${mdTag} goes here`;
+				});
+			}
+
 		});
 
 		describe('metadata()', function() {
@@ -134,8 +142,8 @@ allHandlers.forEach(handler => {
 				assert.ok(md.caps);
 				assert.ok(md.caps.file);
 				assert.ok(md.caps.file.attributes);
+				assert.ok(md.tags);
 			});
-
 		});
 
 		describe('parse()', function() {
@@ -199,6 +207,15 @@ allHandlers.forEach(handler => {
 				it('encryption optional; should set attributes accordingly', function() {
 					assert.equal(archive.files[1].attributes.encrypted, true);
 					assert.equal(archive.files[2].attributes.encrypted, false);
+				});
+			}
+
+			const mdTags = Object.keys(md.tags);
+			if (mdTags.length > 0) {
+				mdTags.forEach(mdTag => {
+					it(`should provide "${mdTag}" metadata field`, function() {
+						assert.equal(archive.metadata[mdTag], `${mdTag} goes here`);
+					});
 				});
 			}
 

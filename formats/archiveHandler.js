@@ -122,6 +122,7 @@ module.exports = class ArchiveHandler
 				maxFilenameLen: undefined,
 				maxFileCount: undefined,
 			},
+			tags: {},
 		};
 	}
 
