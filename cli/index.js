@@ -452,7 +452,7 @@ Examples:
 			const runOptions = commandLineArgs(def, { argv, stopAtFirstUnknown: true });
 			argv = runOptions._unknown || [];
 			try {
-				proc[cmd.name](runOptions);
+				await proc[cmd.name](runOptions);
 			} catch (e) {
 				if (e instanceof OperationsError) {
 					console.error(e.message);
