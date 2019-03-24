@@ -224,12 +224,18 @@ allHandlers.forEach(handler => {
 		describe('generate()', function() {
 
 			it('should generate correctly', function() {
+				const issues = handler.checkLimits(defaultArchive);
+				assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+
 				const contentGenerated = handler.generate(defaultArchive);
 
 				TestUtil.contentEqual(content.default, contentGenerated);
 			});
 
 			it('empty archives can be produced', function() {
+				const issues = handler.checkLimits(emptyArchive);
+				assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+
 				const contentGenerated = handler.generate(emptyArchive);
 
 				TestUtil.contentEqual(content.empty, contentGenerated);
