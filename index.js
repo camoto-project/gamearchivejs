@@ -26,6 +26,7 @@ const fileTypes = [
 	require('./formats/arc-grp-build.js'),
 	require('./formats/arc-hog-descent.js'),
 	...require('./formats/arc-rff-blood.js'),
+	require('./formats/arc-wad-doom.js'),
 	require('./formats/arc-fixed-ddave_exe.js'),
 
 	// These formats require enumeration, sometimes all the way to the

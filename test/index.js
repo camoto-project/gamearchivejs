@@ -89,6 +89,12 @@ allHandlers.forEach(handler => {
 
 			file = new Archive.File();
 			file.name = 'THREE.TXT';
+
+			if (md.id === 'arc-wad-doom') {
+				// Default name is too long
+				file.name = 'THREE';
+			}
+
 			file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 			file.diskSize = 64; // intentionally wrong size
 			file.nativeSize = 22;
@@ -241,30 +247,36 @@ allHandlers.forEach(handler => {
 				TestUtil.contentEqual(content.empty, contentGenerated);
 			});
 
-			it('maximum filename length is correct', function() {
-				let archive = new Archive();
-				let file = new Archive.File();
+			if (md.limits.maxFilenameLen) {
+				it('maximum filename length is correct', function() {
+					let archive = new Archive();
+					let file = new Archive.File();
 
-				let expectedName;
-				if (md.limits.maxFilenameLen >= 5) {
-					expectedName = new String().padStart(md.limits.maxFilenameLen - 4, 'A') + '.BBB';
-				} else {
-					// Not enough space for an extension so leave it off
-					expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
-				}
-				assert.equal(expectedName.length, md.limits.maxFilenameLen);
+					let expectedName;
+					if (md.limits.maxFilenameLen >= 5) {
+						expectedName = new String().padStart(md.limits.maxFilenameLen - 4, 'A') + '.BBB';
+					} else {
+						// Not enough space for an extension so leave it off
+						expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
+					}
+					assert.equal(expectedName.length, md.limits.maxFilenameLen);
 
-				file.name = expectedName;
-				file.nativeSize = 16;
-				file.getRaw = () => TestUtil.u8FromString('longest filename');
-				archive.files.push(file);
-				const contentGenerated = handler.generate(archive);
+					file.name = expectedName;
+					file.nativeSize = 16;
+					file.getRaw = () => TestUtil.u8FromString('longest filename');
+					archive.files.push(file);
 
-				const parsedArchive = handler.parse(contentGenerated);
-				assert.ok(parsedArchive.files, 'Incorrect archive returned');
-				assert.ok(parsedArchive.files[0], 'File did not get added to archive');
-				assert.equal(parsedArchive.files[0].name, expectedName, 'Name does not match');
-			});
+					const issues = handler.checkLimits(archive);
+					assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+
+					const contentGenerated = handler.generate(archive);
+
+					const parsedArchive = handler.parse(contentGenerated);
+					assert.ok(parsedArchive.files, 'Incorrect archive returned');
+					assert.ok(parsedArchive.files[0], 'File did not get added to archive');
+					assert.equal(parsedArchive.files[0].name, expectedName, 'Name does not match');
+				});
+			}
 
 			it('filenames without extensions work', function() {
 				let archive = new Archive();
