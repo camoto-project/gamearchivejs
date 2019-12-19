@@ -35,6 +35,7 @@ const fileTypes = [
 	require('./formats/arc-dat-wacky.js'),
 	require('./formats/arc-pod-tv.js'),
 	require('./formats/arc-vol-cosmo.js'),
+	require('./formats/arc-lbr-vinyl.js'),
 
 	// These formats are so ambiguous that they are often misidentified,
 	// so they are last.
