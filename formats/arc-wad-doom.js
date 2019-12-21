@@ -47,7 +47,15 @@ const HEADER_LEN = 12; // sizeof(header)
 const FATENTRY_LEN = 16; // sizeof(fatEntry)
 
 function isLevel(name) {
-	return (name[0] === 'E') && (name[2] === 'M');
+	return (
+		(
+			(name[0] === 'E')
+			&& (name[2] === 'M')
+		) || (
+			(name.length === 5)
+			&& (name.substr(0, 3) === 'MAP')
+		)
+	);
 }
 
 const levelEntryOrder = [

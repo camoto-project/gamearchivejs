@@ -34,6 +34,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 	before('load test data from local filesystem', function() {
 		content = testutil.loadContent(handler, [
 			'folders',
+			'folders_map',
 		]);
 	});
 
@@ -51,7 +52,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 	});
 
 	describe('generate()', function() {
-		it('folders are converted into start/end codes', async function() {
+		it('folders are converted into start/end codes (ExMx)', async function() {
 			let archive = new Archive();
 
 			let file = new Archive.File();
@@ -98,6 +99,55 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			const contentGenerated = handler.generate(archive);
 			TestUtil.contentEqual(content.folders, contentGenerated);
+		});
+
+		it('folders are converted into start/end codes (MAPxx)', async function() {
+			let archive = new Archive();
+
+			let file = new Archive.File();
+			file.name = 'MAP01/THINGS';
+			file.nativeSize = 22;
+			file.getRaw = () => TestUtil.u8FromString('This is the first file');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'MAP01/BEHAVIOR';
+			file.nativeSize = 23;
+			file.getRaw = () => TestUtil.u8FromString('This is the second file');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'MAP02/LINEDEFS';
+			file.nativeSize = 22;
+			file.getRaw = () => TestUtil.u8FromString('This is the third file');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'MAP02/BLOCKMAP';
+			file.nativeSize = 23;
+			file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'ROOT';
+			file.nativeSize = 22;
+			file.getRaw = () => TestUtil.u8FromString('This is the first file');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'A/B/TEST';
+			file.nativeSize = 23;
+			file.getRaw = () => TestUtil.u8FromString('This is the second file');
+			archive.files.push(file);
+
+			file = new Archive.File();
+			file.name = 'ROOT2';
+			file.nativeSize = 22;
+			file.getRaw = () => TestUtil.u8FromString('This is the third file');
+			archive.files.push(file);
+
+			const contentGenerated = handler.generate(archive);
+			TestUtil.contentEqual(content.folders_map, contentGenerated);
 		});
 
 		it('maximum filename length is correct', function() {

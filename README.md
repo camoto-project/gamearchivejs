@@ -114,7 +114,7 @@ is to make it easier to reuse the algorithms, as many of them
 archive formats.  All the `gamecomp` algorithms are available to be
 used by any archive format in this library.
 
-During development you can test your algorithm like this:
+During development you can test your code like this:
 
     # Read a sample archive and list the files, with debug messages on
     $ ./bin/gamearch --debug open -f arc-myformat example.dat list
@@ -124,3 +124,31 @@ During development you can test your algorithm like this:
 
 If you use `Debug.log` rather than `console.log` then these messages can be left
 in for future diagnosis as they will only appear when `--debug` is given.
+
+### Development tips
+
+This is a list of some common issues and how they have been solved by some of
+the format handlers:
+
+##### Archive doesn't store filenames
+
+* `dat-hocus` has a list of fake filenames that are assigned based on the
+  index, with `unknown.123` used for any extra files.
+* `lbr-vinyl` stores an integer hash instead of a filename, so a list of known
+  filenames is used to convert the hash back into a name, with `unknown-123`
+  used for any unmatched files.
+
+##### Archive has duplicate filenames
+
+* `res-stellar7` appends the order number to each filename, so two files called
+  `SNG` become `SNG.0` and `SNG.1`.
+
+##### Archive has folders
+
+* `dat-fast` and `pod-tv` have the folder stored as part of the filename with a
+  backslash as separator, so they are returned as-is (e.g. `digi\sound.voc`).
+* `res-stellar7` has subfolders stored as separate FAT blocks so from these,
+  filenames are generated that include the folder, e.g. `SSM.0/SNG.1`.
+* `wad-doom` has empty files used for starting and ending a group of files,
+  so to ensure these files are kept together they are converted into a virtual
+  folder.  So files `P_STRT`, `EXAMPLE`, and `P_END` come out as `P/EXAMPLE`.
