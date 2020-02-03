@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const Path = require('path');
+
 /**
  * Place to group together helper functions for supplemental data files.
  *
@@ -24,6 +26,14 @@
  * @kind class
  */
 module.exports = class Supp {
+	static replaceBasename(name, newBase) {
+		return Path.format({
+			...Path.parse(name),
+			name: newBase,
+			base: undefined,
+		});
+	}
+
 	static replaceExtension(name, newExt) {
 		return name.replace(/\.[^/.]+$/, '') + '.' + newExt;
 	}

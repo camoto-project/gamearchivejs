@@ -81,4 +81,27 @@ describe(`Extra tests for supplemental data functions`, function() {
 		});
 
 	});
+
+	describe('replaceBasename()', function() {
+		it('replaces a normal basename', function() {
+			assert.equal(
+				Supp.replaceBasename('test.dat', 'abc'),
+				'abc.dat'
+			);
+		});
+
+		it('replaces a basename with a path', function() {
+			assert.equal(
+				Supp.replaceBasename('/blah/test.dat', 'abc'),
+				'/blah/abc.dat'
+			);
+		});
+
+		it('replaces a basename with no extension and a path', function() {
+			assert.equal(
+				Supp.replaceBasename('/blah/test', 'abc'),
+				'/blah/abc'
+			);
+		});
+	});
 });
