@@ -55,74 +55,64 @@ module.exports = class ArchiveHandler
 			 *   A list of strings with filename expressions matching files that are
 			 *   often in this format.  An examples is ['*.txt', '*.doc', 'file*.bin'].
 			 *
-			 * @property {ArchiveCaps} caps
+			 * @property {Object} caps
 			 *   Capability flags indicating what the format can or cannot support.
 			 *
-			 * @property {ArchiveLimits} limits
-			 *   Values indicating what limitations apply to this format.
+			 * @property {Number} caps.maxFileCount
+			 *   Maximum number of files that can be stored in the archive file, or
+			 *   undefined if there is no maximum limit.
+			 *
+			 * @property {Object} caps.file
+			 *   Capabilities relating to files inside the archive.
+			 *
+			 * @property {Boolean} caps.file.lastModified
+			 *   True if files can have their last-modified date stored.  Default
+			 *   is false.
+			 *
+			 * @property {Object} caps.file.attributes
+			 *   Capabilities relating to attributes that can be set on files. If
+			 *   the values here are set to true then that attribute is allowed to
+			 *   be set on a per-file basis for files in this archive.  If the value
+			 *   here is false, then that attribute is fixed by the archive format
+			 *   (either forced on or off) and cannot be set on individual files.
+			 *
+			 * @property {Boolean} caps.file.attributes.compressed
+			 *   True if the file is compressed when stored in the archive, false
+			 *   if not.  Will be undefined when reading an archive if the
+			 *   attribute is unsupported, and it can be set to undefined when
+			 *   writing an archive to use the default value for the format.
+			 *
+			 * @property {Boolean} caps.file.attributes.encrypted
+			 *   True if the file is encrypted when stored in the archive, false
+			 *   if not.  Will be undefined when reading an archive if the
+			 *   attribute is unsupported, and it can be set to undefined when
+			 *   writing an archive to use the default value for the format.
+			 *
+			 * @property {Number} caps.file.maxFilenameLen
+			 *   Number of characters in the filename, including dots.  If the
+			 *   archive can only store normal DOS 8.3 filenames, then this would
+			 *   be 12.  If omitted there is no restriction on filename length.
+			 *
+			 * @property {Object} caps.tags
+			 *   Key=Value list of tags this format supports, e.g.
+			 *   `{ desc: 'Description' }`.
 			 */
 			id: 'unknown',
 			title: 'Unknown format',
 			games: [],
 			glob: [],
 			caps: {
-				/**
-				 * @typedef {Object} ArchiveCaps
-				 *
-				 * @property {Object} file
-				 *   Capabilities relating to files inside the archive.
-				 *
-				 * @property {Boolean} file.lastModified
-				 *   True if files can have their last-modified date stored.  Default
-				 *   is false.
-				 *
-				 * @property {FileAttributes} file.attributes
-				 *   Capabilities relating to attributes that can be set on files. If
-				 *   the values here are set to true then that attribute is allowed to
-				 *   be set on a per-file basis for files in this archive.  If the value
-				 *   here is false, then that attribute is fixed by the archive format
-				 *   (either forced on or off) and cannot be set on individual files.
-				 */
+				maxFileCount: undefined,
 				file: {
 					lastModified: false,
-					/**
-					 * @typedef {Object} FileAttributes
-					 *
-					 * @property {Boolean} compressed
-					 *   True if the file is compressed when stored in the archive, false
-					 *   if not.  Will be undefined when reading an archive if the
-					 *   attribute is unsupported, and it can be set to undefined when
-					 *   writing an archive to use the default value for the format.
-					 *
-					 * @property {Boolean} encrypted
-					 *   True if the file is encrypted when stored in the archive, false
-					 *   if not.  Will be undefined when reading an archive if the
-					 *   attribute is unsupported, and it can be set to undefined when
-					 *   writing an archive to use the default value for the format.
-					 */
 					attributes: {
 						compressed: false,
 						encrypted: false,
 					},
+					maxFilenameLen: undefined,
 				},
+				tags: {},
 			},
-			limits: {
-				/**
-				 * @typedef {Object} ArchiveLimits
-				 *
-				 * @property {Number} maxFilenameLen
-				 *   Number of characters in the filename, including dots.  If the
-				 *   archive can only store normal DOS 8.3 filenames, then this would
-				 *   be 12.  If omitted there is no restriction on filename length.
-				 *
-				 * @property {Number} maxFileCount
-				 *   Maximum number of files that can be stored in the archive file, or
-				 *   undefined if there is no maximum limit.
-				 */
-				maxFilenameLen: undefined,
-				maxFileCount: undefined,
-			},
-			tags: {},
 		};
 	}
 
@@ -138,19 +128,19 @@ module.exports = class ArchiveHandler
 	 */
 	static checkLimits(archive)
 	{
-		const { limits } = this.metadata();
+		const { caps } = this.metadata();
 		let issues = [];
 
-		if (limits.maxFileCount && (archive.files.length > limits.maxFileCount)) {
+		if (caps.maxFileCount && (archive.files.length > caps.maxFileCount)) {
 			issues.push(`There are ${archive.files.length} files to save, but this `
-				+ `archive format can only store up to ${limits.maxFileCount} files.`);
+				+ `archive format can only store up to ${caps.maxFileCount} files.`);
 		}
 
-		if (limits.maxFilenameLen) {
+		if (caps.file.maxFilenameLen !== undefined) {
 			archive.files.forEach(file => {
-				if (file.name.length > limits.maxFilenameLen) {
+				if (file.name.length > caps.file.maxFilenameLen) {
 					issues.push(`Filename length is ${file.name.length}, max is `
-						+ `${limits.maxFilenameLen}: ${file.name}`);
+						+ `${caps.file.maxFilenameLen}: ${file.name}`);
 				}
 			});
 		}

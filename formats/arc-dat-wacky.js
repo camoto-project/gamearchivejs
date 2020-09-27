@@ -58,7 +58,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			],
 		};
 
-		md.limits.maxFilenameLen = 12;
+		md.caps.file.maxFilenameLen = 12;
 
 		return md;
 	}

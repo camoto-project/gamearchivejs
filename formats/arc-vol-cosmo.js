@@ -61,8 +61,8 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 			],
 		};
 
-		md.limits.maxFilenameLen = 12;
-		md.limits.maxFileCount = MAX_FILES;
+		md.caps.file.maxFilenameLen = 12;
+		md.caps.maxFileCount = MAX_FILES;
 
 		return md;
 	}

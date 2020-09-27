@@ -56,15 +56,16 @@ module.exports = class Archive_POD_TV extends ArchiveHandler
 			glob: [
 				'*.pod',
 			],
-			tags: {
-				description: {
-					type: 'string',
-					size: 80,
-				},
-			},
 		};
 
-		md.limits.maxFilenameLen = 32;
+		md.caps.file.maxFilenameLen = 32;
+
+		md.caps.tags = {
+			description: {
+				type: 'string',
+				size: 80,
+			},
+		};
 
 		return md;
 	}
@@ -115,7 +116,7 @@ module.exports = class Archive_POD_TV extends ArchiveHandler
 
 		let buffer = new RecordBuffer(content);
 		let header = buffer.readRecord(recordTypes.header);
-		archive.metadata.description = header.description;
+		archive.tags.description = header.description;
 
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
@@ -136,7 +137,7 @@ module.exports = class Archive_POD_TV extends ArchiveHandler
 	{
 		const header = {
 			fileCount: archive.files.length,
-			description: archive.metadata.description || 'Unnamed POD file',
+			description: archive.tags.description || 'Unnamed POD file',
 		};
 
 		// Work out where the FAT ends and the first file starts.

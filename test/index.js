@@ -56,10 +56,6 @@ allHandlers.forEach(handler => {
 
 		describe('metadata()', function() {
 
-			it('should provide limits, even if empty', function() {
-				assert.ok(md.limits);
-			});
-
 			it('should provide a filename glob, even if empty', function() {
 				assert.ok(md.glob);
 			});
@@ -74,7 +70,7 @@ allHandlers.forEach(handler => {
 				assert.ok(md.caps);
 				assert.ok(md.caps.file);
 				assert.ok(md.caps.file.attributes);
-				assert.ok(md.tags);
+				assert.ok(md.caps.tags);
 
 				// Ok to proceed with I/O tests below.
 				md.pass = true;
@@ -152,10 +148,10 @@ allHandlers.forEach(handler => {
 				// default setting for encryption, if supported
 				defaultArchive.files.push(file);
 
-				const mdTags = Object.keys(md.tags);
+				const mdTags = Object.keys(md.caps.tags);
 				if (mdTags.length > 0) {
 					mdTags.forEach(mdTag => {
-						defaultArchive.metadata[mdTag] = `${mdTag} goes here`;
+						defaultArchive.tags[mdTag] = `${mdTag} goes here`;
 					});
 				}
 
@@ -225,11 +221,11 @@ allHandlers.forEach(handler => {
 					});
 				}
 
-				const mdTags = Object.keys(md.tags);
+				const mdTags = Object.keys(md.caps.tags);
 				if (mdTags.length > 0) {
 					mdTags.forEach(mdTag => {
 						it(`should provide "${mdTag}" metadata field`, function() {
-							assert.equal(archive.metadata[mdTag], `${mdTag} goes here`);
+							assert.equal(archive.tags[mdTag], `${mdTag} goes here`);
 						});
 					});
 				}
@@ -256,19 +252,19 @@ allHandlers.forEach(handler => {
 					TestUtil.contentEqual(content.empty, contentGenerated);
 				});
 
-				if (md.limits.maxFilenameLen) {
+				if (md.caps.file.maxFilenameLen) {
 					it('maximum filename length is correct', function() {
 						let archive = new Archive();
 						let file = new Archive.File();
 
 						let expectedName;
-						if (md.limits.maxFilenameLen >= 5) {
-							expectedName = new String().padStart(md.limits.maxFilenameLen - 4, 'A') + '.BBB';
+						if (md.caps.file.maxFilenameLen >= 5) {
+							expectedName = new String().padStart(md.caps.file.maxFilenameLen - 4, 'A') + '.BBB';
 						} else {
 							// Not enough space for an extension so leave it off
-							expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
+							expectedName = new String().padStart(md.caps.file.maxFilenameLen, 'A');
 						}
-						assert.equal(expectedName.length, md.limits.maxFilenameLen);
+						assert.equal(expectedName.length, md.caps.file.maxFilenameLen);
 
 						file.name = expectedName;
 						file.nativeSize = 16;

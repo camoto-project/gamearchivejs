@@ -88,7 +88,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 		// Files can optionally be compressed.
 		md.caps.file.attributes.compressed = true;
 
-		md.limits.maxFilenameLen = 30;
+		md.caps.file.maxFilenameLen = 30;
 
 		return md;
 	}

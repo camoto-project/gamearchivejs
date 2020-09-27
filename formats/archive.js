@@ -34,7 +34,7 @@ module.exports = class Archive {
 		 * Some archives have a description, comment, or other information that's
 		 * not otherwise part of any file inside the archive.
 		 */
-		this.metadata = {};
+		this.tags = {};
 
 		/**
 		 * An array of all the files in the archive.

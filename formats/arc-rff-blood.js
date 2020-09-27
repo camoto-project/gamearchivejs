@@ -87,7 +87,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 		const crypto = this.getCrypto();
 		md.caps.file.attributes.encrypted = !!crypto;
 
-		md.limits.maxFilenameLen = 12;
+		md.caps.file.maxFilenameLen = 12;
 
 		return md;
 	}

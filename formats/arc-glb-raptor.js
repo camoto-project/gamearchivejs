@@ -66,7 +66,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		// Attributes that can be changed per-file.
 		md.caps.file.attributes.encrypted = true;
 
-		md.limits.maxFilenameLen = 12;
+		md.caps.file.maxFilenameLen = 12;
 
 		return md;
 	}

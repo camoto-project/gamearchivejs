@@ -89,7 +89,7 @@ module.exports = class Archive_WAD_Doom extends ArchiveHandler
 
 		// No filename length set here because we are using virtual folders, and
 		// these cause the total filename length to exceed the limit.
-		//md.limits.maxFilenameLen = 8;
+		//md.caps.file.maxFilenameLen = 8;
 
 		return md;
 	}
