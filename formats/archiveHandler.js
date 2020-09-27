@@ -132,7 +132,7 @@ module.exports = class ArchiveHandler
 	 * @param {Archive} archive
 	 *   Archive to attempt to write in this handler's format.
 	 *
-	 * @return {Array} of strings listing any problems that will prevent the
+	 * @return {Array<string>} listing any problems that will prevent the
 	 *   supplied archive from being written in this format.  An empty array
 	 *   indicates no problems.
 	 */
@@ -238,16 +238,16 @@ module.exports = class ArchiveHandler
 	/**
 	 * Write out an archive file in this format.
 	 *
-	 * @preconditions The archive has already been passed through checkLimits()
-	 *   successfully. If not, the behaviour is undefined and a corrupted file
-	 *   might be produced.
+	 * Preconditions: The parameter has already been passed through
+	 *   {@link ArchiveHandler.checkLimits checkLimits()} successfully.  If not,
+	 *   the behaviour is undefined and a corrupted file might be produced.
 	 *
 	 * @param {Archive} archive
 	 *   The contents of the file to write.
 	 *
 	 * @return {Object} containing the contents of the file in the `main`
 	 *   property, with any other supp files as other properties.  Each property
-	 *   is a {Uint8Array} suitable for writing directly to a file on disk or
+	 *   is a `Uint8Array` suitable for writing directly to a file on disk or
 	 *   offering for download to the user.
 	 */
 	// eslint-disable-next-line no-unused-vars

@@ -284,6 +284,7 @@ class Operations
 			);
 		});
 		promises.push(fs.promises.writeFile(params.target, outContent.main));
+
 		return Promise.all(promises);
 	}
 
