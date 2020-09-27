@@ -54,80 +54,6 @@ allHandlers.forEach(handler => {
 		let content = {};
 		let defaultArchive = new Archive();
 
-		before('load test data from local filesystem', function() {
-			content = testutil.loadContent(handler, [
-				'default',
-				'empty',
-			]);
-
-			// This is what we expect the default archive in any given format to
-			// look like.
-
-			let file = new Archive.File();
-			file.name = 'ONE.TXT';
-			file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-			file.nativeSize = 22;
-			file.getRaw = () => TestUtil.u8FromString('This is the first file');
-			// default setting for compression, if supported
-			// default setting for encryption, if supported
-			defaultArchive.files.push(file);
-
-			file = new Archive.File();
-			file.name = 'TWO.TXT';
-			file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
-			file.nativeSize = 23;
-			file.getRaw = () => TestUtil.u8FromString('This is the second file');
-			if (md.caps.file.attributes.compressed) {
-				// Always compress this file, if supported
-				file.attributes.compressed = true;
-			}
-			if (md.caps.file.attributes.encrypted) {
-				// Always encrypt this file, if supported
-				file.attributes.encrypted = true;
-			}
-			defaultArchive.files.push(file);
-
-			file = new Archive.File();
-			file.name = 'THREE.TXT';
-
-			if (md.id === 'arc-wad-doom') {
-				// Default name is too long
-				file.name = 'THREE';
-			}
-
-			file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-			file.diskSize = 64; // intentionally wrong size
-			file.nativeSize = 22;
-			file.getRaw = () => TestUtil.u8FromString('This is the third file');
-			if (md.caps.file.attributes.compressed) {
-				// Never compress this file, if supported
-				file.attributes.compressed = false;
-			}
-			if (md.caps.file.attributes.encrypted) {
-				// Never encrypt this file, if supported
-				file.attributes.encrypted = false;
-			}
-			defaultArchive.files.push(file);
-
-			file = new Archive.File();
-			file.name = 'FOUR.TXT';
-			file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
-			file.diskSize = 64; // intentionally wrong size
-			file.nativeSize = 23;
-			file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
-			// default setting for compression, if supported
-			// default setting for encryption, if supported
-			defaultArchive.files.push(file);
-
-			const mdTags = Object.keys(md.tags);
-			if (mdTags.length > 0) {
-				mdTags.forEach(mdTag => {
-					defaultArchive.metadata[mdTag] = `${mdTag} goes here`;
-				});
-			}
-
-		});
-
 		describe('metadata()', function() {
 
 			it('should provide limits, even if empty', function() {
@@ -149,220 +75,306 @@ allHandlers.forEach(handler => {
 				assert.ok(md.caps.file);
 				assert.ok(md.caps.file.attributes);
 				assert.ok(md.tags);
+
+				// Ok to proceed with I/O tests below.
+				md.pass = true;
 			});
 		});
 
-		describe('parse()', function() {
-			let archive;
+		describe('I/O', function() {
 
-			before('should parse correctly', function() {
-				archive = handler.parse(content.default);
-				assert.notStrictEqual(archive, undefined);
-				assert.notStrictEqual(archive, null);
+			before('load test data from local filesystem', function() {
+
+				// Skip all these tests if the metadata() one above failed.
+				if (!md.pass) this.skip();
+
+				content = testutil.loadContent(handler, [
+					'default',
+					'empty',
+				]);
+
+				// This is what we expect the default archive in any given format to
+				// look like.
+
+				let file = new Archive.File();
+				file.name = 'ONE.TXT';
+				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+				file.nativeSize = 22;
+				file.getRaw = () => TestUtil.u8FromString('This is the first file');
+				// default setting for compression, if supported
+				// default setting for encryption, if supported
+				defaultArchive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'TWO.TXT';
+				file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
+				file.nativeSize = 23;
+				file.getRaw = () => TestUtil.u8FromString('This is the second file');
+				if (md.caps.file.attributes.compressed) {
+					// Always compress this file, if supported
+					file.attributes.compressed = true;
+				}
+				if (md.caps.file.attributes.encrypted) {
+					// Always encrypt this file, if supported
+					file.attributes.encrypted = true;
+				}
+				defaultArchive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'THREE.TXT';
+
+				if (md.id === 'arc-wad-doom') {
+					// Default name is too long
+					file.name = 'THREE';
+				}
+
+				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+				file.diskSize = 64; // intentionally wrong size
+				file.nativeSize = 22;
+				file.getRaw = () => TestUtil.u8FromString('This is the third file');
+				if (md.caps.file.attributes.compressed) {
+					// Never compress this file, if supported
+					file.attributes.compressed = false;
+				}
+				if (md.caps.file.attributes.encrypted) {
+					// Never encrypt this file, if supported
+					file.attributes.encrypted = false;
+				}
+				defaultArchive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'FOUR.TXT';
+				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
+				file.diskSize = 64; // intentionally wrong size
+				file.nativeSize = 23;
+				file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
+				// default setting for compression, if supported
+				// default setting for encryption, if supported
+				defaultArchive.files.push(file);
+
+				const mdTags = Object.keys(md.tags);
+				if (mdTags.length > 0) {
+					mdTags.forEach(mdTag => {
+						defaultArchive.metadata[mdTag] = `${mdTag} goes here`;
+					});
+				}
+
 			});
 
-			it('should have the standard number of files', function() {
-				assert.equal(archive.files.length, 4);
-			});
+			describe('parse()', function() {
+				let archive;
 
-			it('should extract files correctly', function() {
-				TestUtil.buffersEqual(TestUtil.u8FromString('This is the first file'), archive.files[0].getContent());
-				TestUtil.buffersEqual(TestUtil.u8FromString('This is the second file'), archive.files[1].getContent());
-				TestUtil.buffersEqual(TestUtil.u8FromString('This is the third file'), archive.files[2].getContent());
-				TestUtil.buffersEqual(TestUtil.u8FromString('This is the fourth file'), archive.files[3].getContent());
-			});
-
-			it('should set the file size', function() {
-				assert.equal(archive.files[0].nativeSize, 22);
-				assert.equal(archive.files[1].nativeSize, 23);
-				assert.equal(archive.files[2].nativeSize, 22);
-				assert.equal(archive.files[3].nativeSize, 23);
-			});
-
-			if (md.caps.file.lastModified) {
-				it('should set the last modified date', function() {
-					assert.equal(archive.files[0].lastModified.getFullYear(), 1994, 'Wrong year');
-					assert.equal(archive.files[0].lastModified.getMonth(), 11, 'Wrong month');
-					assert.equal(archive.files[0].lastModified.getDate(), 31, 'Wrong day');
-					assert.equal(archive.files[0].lastModified.getHours(), 12, 'Wrong hour');
-					assert.equal(archive.files[0].lastModified.getMinutes(), 34, 'Wrong minute');
-					assert.equal(archive.files[0].lastModified.getSeconds(), 56, 'Wrong second');
+				before('should parse correctly', function() {
+					archive = handler.parse(content.default);
+					assert.notStrictEqual(archive, undefined);
+					assert.notStrictEqual(archive, null);
 				});
-			}
 
-			describe('should not set any attributes unsupported by the format', function() {
-				Object.keys(md.caps.file.attributes).forEach(attr => {
-					if (md.caps.file.attributes[attr] === false) {
-						it(`should not set the '${attr}' attribute`, function() {
-							archive.files.forEach(file => {
-								assert.equal(file.attributes[attr], undefined);
+				it('should have the standard number of files', function() {
+					assert.equal(archive.files.length, 4);
+				});
+
+				it('should extract files correctly', function() {
+					TestUtil.buffersEqual(TestUtil.u8FromString('This is the first file'), archive.files[0].getContent());
+					TestUtil.buffersEqual(TestUtil.u8FromString('This is the second file'), archive.files[1].getContent());
+					TestUtil.buffersEqual(TestUtil.u8FromString('This is the third file'), archive.files[2].getContent());
+					TestUtil.buffersEqual(TestUtil.u8FromString('This is the fourth file'), archive.files[3].getContent());
+				});
+
+				it('should set the file size', function() {
+					assert.equal(archive.files[0].nativeSize, 22);
+					assert.equal(archive.files[1].nativeSize, 23);
+					assert.equal(archive.files[2].nativeSize, 22);
+					assert.equal(archive.files[3].nativeSize, 23);
+				});
+
+				if (md.caps.file.lastModified) {
+					it('should set the last modified date', function() {
+						assert.equal(archive.files[0].lastModified.getFullYear(), 1994, 'Wrong year');
+						assert.equal(archive.files[0].lastModified.getMonth(), 11, 'Wrong month');
+						assert.equal(archive.files[0].lastModified.getDate(), 31, 'Wrong day');
+						assert.equal(archive.files[0].lastModified.getHours(), 12, 'Wrong hour');
+						assert.equal(archive.files[0].lastModified.getMinutes(), 34, 'Wrong minute');
+						assert.equal(archive.files[0].lastModified.getSeconds(), 56, 'Wrong second');
+					});
+				}
+
+				describe('should not set any attributes unsupported by the format', function() {
+					Object.keys(md.caps.file.attributes).forEach(attr => {
+						if (md.caps.file.attributes[attr] === false) {
+							it(`should not set the '${attr}' attribute`, function() {
+								archive.files.forEach(file => {
+									assert.equal(file.attributes[attr], undefined);
+								});
 							});
-						});
-					}
-				});
-			});
-
-			if (md.caps.file.attributes.compressed) {
-				it('compression optional; should set attributes accordingly', function() {
-					assert.equal(archive.files[1].attributes.compressed, true);
-					assert.equal(archive.files[2].attributes.compressed, false);
-				});
-			}
-
-			if (md.caps.file.attributes.encrypted) {
-				it('encryption optional; should set attributes accordingly', function() {
-					assert.equal(archive.files[1].attributes.encrypted, true);
-					assert.equal(archive.files[2].attributes.encrypted, false);
-				});
-			}
-
-			const mdTags = Object.keys(md.tags);
-			if (mdTags.length > 0) {
-				mdTags.forEach(mdTag => {
-					it(`should provide "${mdTag}" metadata field`, function() {
-						assert.equal(archive.metadata[mdTag], `${mdTag} goes here`);
+						}
 					});
 				});
-			}
 
-		});
+				if (md.caps.file.attributes.compressed) {
+					it('compression optional; should set attributes accordingly', function() {
+						assert.equal(archive.files[1].attributes.compressed, true);
+						assert.equal(archive.files[2].attributes.compressed, false);
+					});
+				}
 
-		describe('generate()', function() {
+				if (md.caps.file.attributes.encrypted) {
+					it('encryption optional; should set attributes accordingly', function() {
+						assert.equal(archive.files[1].attributes.encrypted, true);
+						assert.equal(archive.files[2].attributes.encrypted, false);
+					});
+				}
 
-			it('should generate correctly', function() {
-				const issues = handler.checkLimits(defaultArchive);
-				assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+				const mdTags = Object.keys(md.tags);
+				if (mdTags.length > 0) {
+					mdTags.forEach(mdTag => {
+						it(`should provide "${mdTag}" metadata field`, function() {
+							assert.equal(archive.metadata[mdTag], `${mdTag} goes here`);
+						});
+					});
+				}
 
-				const contentGenerated = handler.generate(defaultArchive);
-
-				TestUtil.contentEqual(content.default, contentGenerated);
 			});
 
-			it('empty archives can be produced', function() {
-				const issues = handler.checkLimits(emptyArchive);
-				assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+			describe('generate()', function() {
 
-				const contentGenerated = handler.generate(emptyArchive);
+				it('should generate correctly', function() {
+					const issues = handler.checkLimits(defaultArchive);
+					assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
 
-				TestUtil.contentEqual(content.empty, contentGenerated);
-			});
+					const contentGenerated = handler.generate(defaultArchive);
 
-			if (md.limits.maxFilenameLen) {
-				it('maximum filename length is correct', function() {
+					TestUtil.contentEqual(content.default, contentGenerated);
+				});
+
+				it('empty archives can be produced', function() {
+					const issues = handler.checkLimits(emptyArchive);
+					assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+
+					const contentGenerated = handler.generate(emptyArchive);
+
+					TestUtil.contentEqual(content.empty, contentGenerated);
+				});
+
+				if (md.limits.maxFilenameLen) {
+					it('maximum filename length is correct', function() {
+						let archive = new Archive();
+						let file = new Archive.File();
+
+						let expectedName;
+						if (md.limits.maxFilenameLen >= 5) {
+							expectedName = new String().padStart(md.limits.maxFilenameLen - 4, 'A') + '.BBB';
+						} else {
+							// Not enough space for an extension so leave it off
+							expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
+						}
+						assert.equal(expectedName.length, md.limits.maxFilenameLen);
+
+						file.name = expectedName;
+						file.nativeSize = 16;
+						file.getRaw = () => TestUtil.u8FromString('longest filename');
+						archive.files.push(file);
+
+						const issues = handler.checkLimits(archive);
+						assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+
+						const contentGenerated = handler.generate(archive);
+
+						const parsedArchive = handler.parse(contentGenerated);
+						assert.ok(parsedArchive.files, 'Incorrect archive returned');
+						assert.ok(parsedArchive.files[0], 'File did not get added to archive');
+						assert.equal(parsedArchive.files[0].name, expectedName, 'Name does not match');
+					});
+				}
+
+				it('filenames without extensions work', function() {
 					let archive = new Archive();
+
 					let file = new Archive.File();
-
-					let expectedName;
-					if (md.limits.maxFilenameLen >= 5) {
-						expectedName = new String().padStart(md.limits.maxFilenameLen - 4, 'A') + '.BBB';
-					} else {
-						// Not enough space for an extension so leave it off
-						expectedName = new String().padStart(md.limits.maxFilenameLen, 'A');
-					}
-					assert.equal(expectedName.length, md.limits.maxFilenameLen);
-
-					file.name = expectedName;
-					file.nativeSize = 16;
-					file.getRaw = () => TestUtil.u8FromString('longest filename');
+					file.name = 'TEST1';
+					file.nativeSize = 5;
+					file.getRaw = () => TestUtil.u8FromString('test1');
 					archive.files.push(file);
 
-					const issues = handler.checkLimits(archive);
-					assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+					file = new Archive.File();
+					file.name = 'TEST2';
+					file.nativeSize = 5;
+					file.getRaw = () => TestUtil.u8FromString('test2');
+					archive.files.push(file);
 
 					const contentGenerated = handler.generate(archive);
 
 					const parsedArchive = handler.parse(contentGenerated);
 					assert.ok(parsedArchive.files, 'Incorrect archive returned');
-					assert.ok(parsedArchive.files[0], 'File did not get added to archive');
-					assert.equal(parsedArchive.files[0].name, expectedName, 'Name does not match');
+					assert.ok(parsedArchive.files[0], 'First file did not get added to archive');
+					assert.equal(parsedArchive.files[0].name.toUpperCase(), 'TEST1', 'Name does not match');
+
+					assert.ok(parsedArchive.files[1], 'Second file did not get added to archive');
+					assert.equal(parsedArchive.files[1].name.toUpperCase(), 'TEST2', 'Name does not match');
 				});
-			}
 
-			it('filenames without extensions work', function() {
-				let archive = new Archive();
+				it('inconsistent file lengths are detected', function() {
+					let archive = new Archive();
 
-				let file = new Archive.File();
-				file.name = 'TEST1';
-				file.nativeSize = 5;
-				file.getRaw = () => TestUtil.u8FromString('test1');
-				archive.files.push(file);
+					let file = new Archive.File();
+					file.name = 'TEST1';
+					file.nativeSize = 2;
+					file.getRaw = () => TestUtil.u8FromString('test1');
+					archive.files.push(file);
 
-				file = new Archive.File();
-				file.name = 'TEST2';
-				file.nativeSize = 5;
-				file.getRaw = () => TestUtil.u8FromString('test2');
-				archive.files.push(file);
-
-				const contentGenerated = handler.generate(archive);
-
-				const parsedArchive = handler.parse(contentGenerated);
-				assert.ok(parsedArchive.files, 'Incorrect archive returned');
-				assert.ok(parsedArchive.files[0], 'First file did not get added to archive');
-				assert.equal(parsedArchive.files[0].name.toUpperCase(), 'TEST1', 'Name does not match');
-
-				assert.ok(parsedArchive.files[1], 'Second file did not get added to archive');
-				assert.equal(parsedArchive.files[1].name.toUpperCase(), 'TEST2', 'Name does not match');
-			});
-
-			it('inconsistent file lengths are detected', function() {
-				let archive = new Archive();
-
-				let file = new Archive.File();
-				file.name = 'TEST1';
-				file.nativeSize = 2;
-				file.getRaw = () => TestUtil.u8FromString('test1');
-				archive.files.push(file);
-
-				assert.throws(() => {
-					handler.generate(archive);
+					assert.throws(() => {
+						handler.generate(archive);
+					});
 				});
+
 			});
 
-		});
+			describe('identify()', function() {
 
-		describe('identify()', function() {
+				it('should not negatively identify itself', function() {
+					const result = handler.identify(content.default.main);
+					assert.ok(result === true || result === undefined);
+				});
 
-			it('should not negatively identify itself', function() {
-				const result = handler.identify(content.default.main);
-				assert.ok(result === true || result === undefined);
-			});
+				it('should not negatively identify empty archives', function() {
+					const result = handler.identify(content.empty.main);
+					assert.ok(result === true || result === undefined);
+				});
 
-			it('should not negatively identify empty archives', function() {
-				const result = handler.identify(content.empty.main);
-				assert.ok(result === true || result === undefined);
-			});
-
-			it('should not break on empty data', function() {
-				const content = new Uint8Array();
-				handler.identify(content);
-				// Should not throw
-				assert.ok(true);
-			});
-
-			it('should not break on short data', function() {
-				// Test a handful of random file sizes
-				[1, 7, 8, 15, 16, 20, 22, 23, 30].forEach(len => {
-					const content = new Uint8Array(len);
-					content[0] = 1;
+				it('should not break on empty data', function() {
+					const content = new Uint8Array();
 					handler.identify(content);
 					// Should not throw
 					assert.ok(true);
 				});
-			});
 
-			const allHandlers = GameArchive.listHandlers();
-			allHandlers.forEach(subhandler => {
-				const submd = subhandler.metadata();
-
-				// Skip ourselves
-				if (submd.id === md.id) return;
-
-				it(`should not positively identify ${submd.id} files`, function() {
-					const result = subhandler.identify(content.default.main);
-					assert.notEqual(result, true);
+				it('should not break on short data', function() {
+					// Test a handful of random file sizes
+					[1, 7, 8, 15, 16, 20, 22, 23, 30].forEach(len => {
+						const content = new Uint8Array(len);
+						content[0] = 1;
+						handler.identify(content);
+						// Should not throw
+						assert.ok(true);
+					});
 				});
-			});
-		});
 
-	});
-});
+				const allHandlers = GameArchive.listHandlers();
+				allHandlers.forEach(subhandler => {
+					const submd = subhandler.metadata();
+
+					// Skip ourselves
+					if (submd.id === md.id) return;
+
+					it(`should not positively identify ${submd.id} files`, function() {
+						const result = subhandler.identify(content.default.main);
+						assert.notEqual(result, true);
+					});
+				});
+
+			}); // identify()
+
+		}); // I/O
+	}); // Standard tests
+
+}); // for each handler
