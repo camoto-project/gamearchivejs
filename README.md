@@ -1,5 +1,5 @@
 # gamearchive.js
-Copyright 2018 Adam Nielsen <<malvineous@shikadi.net>>  
+Copyright 2010-2021 Adam Nielsen <<malvineous@shikadi.net>>  
 
 This is a Javascript library that can read and write archive files
 used by a number of MS-DOS games from the 1990s.  Archive files are
