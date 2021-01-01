@@ -20,13 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-dat-wacky';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-dat-wacky';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	header: {
@@ -64,50 +65,56 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
+		const lenArchive = content.length;
 
-			const lenArchive = content.length;
-
-			if (lenArchive < HEADER_LEN) {
-				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-			const header = buffer.readRecord(recordTypes.header);
-
-			const lenFAT = HEADER_LEN + header.fileCount * FATENTRY_LEN;
-
-			if (content.length < lenFAT) {
-				Debug.log(`FAT truncated => false`);
-				return false;
-			}
-
-			for (let i = 0; i < header.fileCount; i++) {
-				const fatEntry = buffer.readRecord(recordTypes.fatEntry);
-
-				if (fatEntry.offset + HEADER_LEN < lenFAT) {
-					Debug.log(`File ${i} @ offset ${fatEntry.offset} starts inside the `
-						+ `FAT which ends at offset ${lenFAT} => false`);
-					return false;
-				}
-				if (fatEntry.offset + HEADER_LEN > lenArchive) {
-					Debug.log(`File ${i} starts beyond the end of the archive => false`);
-					return false;
-				}
-				if (fatEntry.offset + HEADER_LEN + fatEntry.size > lenArchive) {
-					Debug.log(`File ${i} ends beyond the end of the archive => false`);
-					return false;
-				}
-			}
-
-			Debug.log(`All files contained within the archive => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (lenArchive < HEADER_LEN) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${HEADER_LEN} b).`,
+			};
 		}
+
+		let buffer = new RecordBuffer(content);
+		const header = buffer.readRecord(recordTypes.header);
+
+		const lenFAT = HEADER_LEN + header.fileCount * FATENTRY_LEN;
+
+		if (content.length < lenFAT) {
+			return {
+				valid: false,
+				reason: `FAT truncated (file length ${content.length} < FAT length ${lenFAT}).`,
+			};
+		}
+
+		for (let i = 0; i < header.fileCount; i++) {
+			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
+
+			if (fatEntry.offset + HEADER_LEN < lenFAT) {
+				return {
+					valid: false,
+					reason: `File ${i} @ offset ${fatEntry.offset} starts inside the FAT `
+						+ `which ends at offset ${lenFAT}.`,
+				};
+			}
+			if (fatEntry.offset + HEADER_LEN > lenArchive) {
+				return {
+					valid: false,
+					reason: `File ${i} starts beyond the end of the archive.`,
+				};
+			}
+			if (fatEntry.offset + HEADER_LEN + fatEntry.size > lenArchive) {
+				return {
+					valid: false,
+					reason: `File ${i} ends beyond the end of the archive.`,
+				};
+			}
+		}
+
+		return {
+			valid: true,
+			reason: `All files contained within the archive.`,
+		};
 	}
 
 	static parse({main: content}) {

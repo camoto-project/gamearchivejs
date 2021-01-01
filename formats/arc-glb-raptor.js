@@ -20,14 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-glb-raptor';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 const GameCompression = require('@malvineous/gamecomp');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-glb-raptor';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	header: {
@@ -72,28 +73,29 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
 
-			if (content.length < FATENTRY_LEN) {
-				Debug.log(`Content too short (< ${FATENTRY_LEN} b) => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-
-			const sig = recordTypes.header.signature.read(buffer);
-			if (sig !== 0x09d19b64) {
-				Debug.log(`Wrong signature => false`);
-				return false;
-			}
-
-			Debug.log(`Signature matched => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (content.length < FATENTRY_LEN) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${FATENTRY_LEN} b).`,
+			};
 		}
+
+		let buffer = new RecordBuffer(content);
+
+		const sig = recordTypes.header.signature.read(buffer);
+		if (sig !== 0x09d19b64) {
+			return {
+				valid: false,
+				reason: `Wrong signature.`,
+			};
+		}
+
+		return {
+			valid: true,
+			reason: `Signature matched.`,
+		};
 	}
 
 	static parse({main: content}) {

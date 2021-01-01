@@ -20,13 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-wad-doom';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
+const g_debug = Debug.extend(FORMAT_ID);
 
-const FORMAT_ID = 'arc-wad-doom';
 const MAX_FILENAME_LEN = 8;
 const MAX_FOLDERNAME_LEN = MAX_FILENAME_LEN - 6; // length of "_START"
 
@@ -129,39 +131,42 @@ module.exports = class Archive_WAD_Doom extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
 
-			const lenArchive = content.length;
+		const lenArchive = content.length;
 
-			if (lenArchive < HEADER_LEN) {
-				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-			const header = buffer.readRecord(recordTypes.header);
-
-			if (
-				(header.signature != 'IWAD')
-				&& (header.signature != 'PWAD')
-			) {
-				Debug.log(`Incorrect signature "${header.signature}" => false`);
-				return false;
-			}
-
-			if (header.fatOffset > lenArchive) {
-				Debug.log(`FAT offset (${header.fatOffset}) is past the end of the `
-					+ `file (${lenArchive}) => false`);
-				return false;
-			}
-
-			Debug.log(`Header OK => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (lenArchive < HEADER_LEN) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${HEADER_LEN} b).`,
+			};
 		}
+
+		let buffer = new RecordBuffer(content);
+		const header = buffer.readRecord(recordTypes.header);
+
+		if (
+			(header.signature != 'IWAD')
+			&& (header.signature != 'PWAD')
+		) {
+			return {
+				valid: false,
+				reason: `Incorrect signature "${header.signature}".`,
+			};
+		}
+
+		if (header.fatOffset > lenArchive) {
+			return {
+				valid: false,
+				reason: `FAT offset (${header.fatOffset}) is past the end of the `
+					+ `file (${lenArchive}).`,
+			};
+		}
+
+		return {
+			valid: true,
+			reason: `Header OK.`,
+		};
 	}
 
 	static parse({main: content}) {

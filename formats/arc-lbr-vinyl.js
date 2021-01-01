@@ -20,13 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-lbr-vinyl';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-lbr-vinyl';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const knownFilenames = [
 	'1000P.CMP',
@@ -368,41 +369,43 @@ module.exports = class Archive_LBR_Vinyl extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
+		const lenArchive = content.length;
 
-			const lenArchive = content.length;
-
-			if (lenArchive < HEADER_LEN) {
-				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-			const header = buffer.readRecord(recordTypes.header);
-
-			const lenFAT = HEADER_LEN + header.fileCount * FATENTRY_LEN;
-			if (lenArchive < lenFAT) {
-				Debug.log(`Content too short (< ${lenFAT} b) => false`);
-				return false;
-			}
-
-			for (let i = 0; i < header.fileCount; i++) {
-				const fatEntry = buffer.readRecord(recordTypes.fatEntry);
-
-				if (fatEntry.offset >= lenArchive) {
-					Debug.log(`File offset (${fatEntry.offset}) is past the end of the `
-						+ `archive (${lenArchive}) => false`);
-					return false;
-				}
-			}
-
-			Debug.log(`Header OK => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (lenArchive < HEADER_LEN) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${HEADER_LEN} b).`,
+			};
 		}
+
+		let buffer = new RecordBuffer(content);
+		const header = buffer.readRecord(recordTypes.header);
+
+		const lenFAT = HEADER_LEN + header.fileCount * FATENTRY_LEN;
+		if (lenArchive < lenFAT) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${lenFAT} b).`,
+			};
+		}
+
+		for (let i = 0; i < header.fileCount; i++) {
+			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
+
+			if (fatEntry.offset >= lenArchive) {
+				return {
+					valid: false,
+					reason: `File offset (${fatEntry.offset}) is past the end of the `
+						+ `archive (${lenArchive}).`,
+				};
+			}
+		}
+
+		return {
+			valid: true,
+			reason: `Header OK.`,
+		};
 	}
 
 	static parse({main: content}) {

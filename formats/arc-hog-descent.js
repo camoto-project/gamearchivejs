@@ -20,13 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-hog-descent';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-hog-descent';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	header: {
@@ -62,28 +63,29 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
 
-			if (content.length < HEADER_LEN) {
-				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-
-			const sig = recordTypes.header.signature.read(buffer);
-			if (sig !== 'DHF') {
-				Debug.log(`Wrong signature => false`);
-				return false;
-			}
-
-			Debug.log(`Signature matched => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (content.length < HEADER_LEN) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${HEADER_LEN} b).`,
+			};
 		}
+
+		let buffer = new RecordBuffer(content);
+
+		const sig = recordTypes.header.signature.read(buffer);
+		if (sig !== 'DHF') {
+			return {
+				valid: false,
+				reason: `Wrong signature.`,
+			};
+		}
+
+		return {
+			valid: true,
+			reason: `Signature matched.`,
+		};
 	}
 
 	static parse({main: content}) {

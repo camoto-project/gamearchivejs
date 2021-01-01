@@ -20,14 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-dat-fast';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 const GameCompression = require('@malvineous/gamecomp');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-dat-fast';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	fatEntry: {
@@ -94,48 +95,51 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
+		let buffer = new RecordBuffer(content);
 
-			let buffer = new RecordBuffer(content);
-
-			for (let i = 0; i < MAX_FILES; i++) {
-				// If we're exactly at the EOF then we're done.
-				const bytesLeft = buffer.distFromEnd();
-				if (bytesLeft === 0) {
-					Debug.log(`EOF at correct place => true`);
-					return true;
-				}
-
-				if (bytesLeft < FATENTRY_LEN) {
-					Debug.log(`Incomplete FAT entry => false`);
-					return false;
-				}
-
-				const file = buffer.readRecord(recordTypes.fatEntry);
-				if ([...file.name].some(c => {
-					const cc = c.charCodeAt(0);
-					return (cc <= 32) || (cc > 126);
-				})) {
-					// One or more filenames contain invalid chars, so they probably aren't
-					// filenames.
-					Debug.log(`File ${i} contains invalid char [${file.name}] => false`);
-					return false;
-				}
-				if (buffer.distFromEnd() < file.compressedSize) {
-					// This file apparently goes past the end of the archive
-					Debug.log(`File ${i} would go past EOF => false`);
-					return false;
-				}
-				buffer.seekRel(file.compressedSize);
+		for (let i = 0; i < MAX_FILES; i++) {
+			// If we're exactly at the EOF then we're done.
+			const bytesLeft = buffer.distFromEnd();
+			if (bytesLeft === 0) {
+				return {
+					valid: true,
+					reason: `EOF at correct place.`,
+				};
 			}
-			// Too many files
-			Debug.log(`Too many files => false`);
-			return false;
 
-		} finally {
-			Debug.pop();
+			if (bytesLeft < FATENTRY_LEN) {
+				return {
+					valid: false,
+					reason: `Incomplete FAT entry (${bytesLeft} bytes is less than the `
+						+ `required ${FATENTRY_LEN}).`,
+				};
+			}
+
+			const file = buffer.readRecord(recordTypes.fatEntry);
+			if ([...file.name].some(c => {
+				const cc = c.charCodeAt(0);
+				return (cc <= 32) || (cc > 126);
+			})) {
+				return {
+					valid: false,
+					reason: `File ${i} contains invalid char [${file.name}].`,
+				};
+			}
+
+			if (buffer.distFromEnd() < file.compressedSize) {
+				return {
+					valid: false,
+					reason: `File ${i} would go past EOF.`,
+				};
+			}
+			buffer.seekRel(file.compressedSize);
 		}
+
+		return {
+			valid: false,
+			reason: `Too many files (bailing at ${MAX_FILES}).`,
+		};
 	}
 
 	static parse({main: content}) {

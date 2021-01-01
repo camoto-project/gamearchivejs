@@ -20,14 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-bnk-harry';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
 const Supp = require('./supp.js');
-
-const FORMAT_ID = 'arc-bnk-harry';
+const Debug = require('../util/utl-debug.js');
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	fileHeader: {
@@ -76,41 +77,49 @@ module.exports = class Archive_BNK_Harry extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
 
-			const lenArchive = content.length;
-			// Empty archive
-			if (lenArchive === 0) return true;
-
-			if (lenArchive < FILEHEADER_LEN) {
-				Debug.log(`File length ${lenArchive} too short, min ${FILEHEADER_LEN} => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-
-			const file1 = buffer.readRecord(recordTypes.fileHeader);
-			if (file1.signature !== '-ID-') {
-				Debug.log(`Wrong signature ${file1.signature} => false`);
-				return false;
-			}
-
-			// Read the second file signature too, as this will tell us whether it's
-			// Halloween Harry or Alien Carnage.
-			buffer.seekRel(file1.diskSize);
-			const file2 = buffer.readRecord(recordTypes.fileHeader);
-			if (file2.signature !== '-ID-') {
-				Debug.log(`Wrong signature for second file ${file2.signature} => false`);
-				return false;
-			}
-
-			Debug.log(`Signature matched => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		const lenArchive = content.length;
+		// Empty archive
+		if (lenArchive === 0) {
+			return {
+				valid: true,
+				reason: `Empty file.`,
+			};
 		}
+
+		if (lenArchive < FILEHEADER_LEN) {
+			return {
+				valid: false,
+				reason: `File length ${lenArchive} too short, min ${FILEHEADER_LEN}.`,
+			};
+		}
+
+		let buffer = new RecordBuffer(content);
+
+		const file1 = buffer.readRecord(recordTypes.fileHeader);
+		if (file1.signature !== '-ID-') {
+			return {
+				valid: false,
+				reason: `Wrong signature "${file1.signature}".`,
+			};
+		}
+
+		// Read the second file signature too, as this will tell us whether it's
+		// Halloween Harry or Alien Carnage.
+		buffer.seekRel(file1.diskSize);
+		const file2 = buffer.readRecord(recordTypes.fileHeader);
+		if (file2.signature !== '-ID-') {
+			return {
+				valid: false,
+				reason: `Wrong signature for second file "${file2.signature}".`,
+			};
+		}
+
+		return {
+			valid: true,
+			reason: `Signature matched.`,
+		};
 	}
 
 	static parse(content) {

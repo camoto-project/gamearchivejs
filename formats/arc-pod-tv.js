@@ -20,13 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-pod-tv';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-pod-tv';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	header: {
@@ -71,44 +72,49 @@ module.exports = class Archive_POD_TV extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
 
-			if (content.length < HEADER_LEN) {
-				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-
-			const fileCount = recordTypes.header.fileCount.read(buffer);
-			const offEndFAT = HEADER_LEN + fileCount * FATENTRY_LEN;
-			if (content.length < offEndFAT) {
-				Debug.log(`Content too short for file count => false`);
-				return false;
-			}
-
-			// Read each offset and length and ensure it is valid.
-			for (let i = 0; i < fileCount; i++) {
-				const fatEntry = buffer.readRecord(recordTypes.fatEntry);
-
-				if (fatEntry.offset >= content.length) {
-					Debug.log(`File ${i} @ offset ${fatEntry.offset} starts beyond the `
-						+ `end of the file`);
-					return false;
-				}
-				if (fatEntry.offset + fatEntry.size > content.length) {
-					Debug.log(`File ${i} ends beyond the end of the archive => false`);
-					return false;
-				}
-			}
-
-			Debug.log(`No checks failed => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (content.length < HEADER_LEN) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${HEADER_LEN} b).`,
+			};
 		}
+
+		let buffer = new RecordBuffer(content);
+
+		const fileCount = recordTypes.header.fileCount.read(buffer);
+		const offEndFAT = HEADER_LEN + fileCount * FATENTRY_LEN;
+		if (content.length < offEndFAT) {
+			return {
+				valid: false,
+				reason: `Content too short for file count.`,
+			};
+		}
+
+		// Read each offset and length and ensure it is valid.
+		for (let i = 0; i < fileCount; i++) {
+			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
+
+			if (fatEntry.offset >= content.length) {
+				return {
+					valid: false,
+					reason: `File ${i} @ offset ${fatEntry.offset} starts beyond the `
+						+ `end of the file.`,
+				};
+			}
+			if (fatEntry.offset + fatEntry.size > content.length) {
+				return {
+					valid: false,
+					reason: `File ${i} ends beyond the end of the archive.`,
+				};
+			}
+		}
+
+		return {
+			valid: true,
+			reason: `All checks passed.`,
+		};
 	}
 
 	static parse({main: content}) {

@@ -20,14 +20,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-rff-blood';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 const GameCompression = require('@malvineous/gamecomp');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-rff-blood';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	header: {
@@ -93,112 +94,110 @@ class Archive_RFF_Blood extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			const md = this.metadata();
-			Debug.push(md.id, 'identify');
+		const md = this.metadata();
+		const debug = g_debug.extend(`${md.id}:identify`);
 
-			if (content.length < HEADER_LEN) {
-				Debug.log(`Content too short (< ${HEADER_LEN} b) => false`);
-				return false;
-			}
-
-			let buffer = new RecordBuffer(content);
-
-			const header = buffer.readRecord(recordTypes.header);
-			if (header.signature !== RFF_SIG) {
-				Debug.log(`Wrong signature => false`);
-				return false;
-			}
-
-			if (header.version != this.version()) {
-				const vHigh = header.version >> 8;
-				const vLow = header.version & 0xFF;
-				Debug.log(`Unsupported RFF version ${vHigh}.${vLow} => false`);
-				return false;
-			}
-
-			Debug.log(`Signature matched, version OK => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (content.length < HEADER_LEN) {
+			return {
+				valid: false,
+				reason: `Content too short (< ${HEADER_LEN} b).`,
+			};
 		}
+
+		let buffer = new RecordBuffer(content);
+
+		const header = buffer.readRecord(recordTypes.header);
+		if (header.signature !== RFF_SIG) {
+			return {
+				valid: false,
+				reason: `Wrong signature.`,
+			};
+		}
+
+		if (header.version != this.version()) {
+			const vHigh = header.version >> 8;
+			const vLow = header.version & 0xFF;
+			return {
+				valid: false,
+				reason: `Unsupported RFF version ${vHigh}.${vLow}.`,
+			};
+		}
+
+		return {
+			valid: true,
+			reason: `Signature matched, version OK.`,
+		};
 	}
 
 	static parse({main: content}) {
-		try {
-			const md = this.metadata();
-			Debug.push(md.id, 'parse');
+		const md = this.metadata();
+		const debug = g_debug.extend(`${md.id}:parse`);
 
-			let archive = new Archive();
-			const lenArchive = content.length;
+		let archive = new Archive();
+		const lenArchive = content.length;
 
-			let buffer = new RecordBuffer(content);
-			let header = buffer.readRecord(recordTypes.header);
+		let buffer = new RecordBuffer(content);
+		let header = buffer.readRecord(recordTypes.header);
 
-			Debug.log(`Contains ${header.fileCount} files, version 0x`
-				+ header.version.toString(16));
+		debug(`Contains ${header.fileCount} files, version 0x`
+			+ header.version.toString(16));
 
-			const crypto = this.getCrypto();
-			let fat = buffer.getU8(header.fatOffset, header.fileCount * FATENTRY_LEN);
-			if (crypto) {
-				fat = crypto.reveal(fat, {
-					seed: header.fatOffset & 0xFF,
-					offset: this.getKeyOffset_FAT(),
-					limit: 0,
-				});
-			}
-			fat = new RecordBuffer(fat);
-
-			const tzOffset = new Date().getTimezoneOffset() * 60;
-
-			for (let i = 0; i < header.fileCount; i++) {
-				const fatEntry = fat.readRecord(recordTypes.fatEntry);
-				if (fatEntry.offset > lenArchive) {
-					Debug.log(`File #${i} (${fatEntry.basename}.${fatEntry.ext}) has `
-						+ `offset ${fatEntry.offset}, past archive EOF at ${lenArchive}`);
-					console.error('Archive truncated, returning partial content');
-					break;
-				}
-
-				let file = new Archive.File();
-				file.name = fatEntry.basename;
-				file.diskSize = fatEntry.diskSize;
-				file.nativeSize = fatEntry.diskSize;
-				if (fatEntry.ext) file.name += '.' + fatEntry.ext;
-
-				// The file's last-modified time is in local time, but when we create
-				// a date object from a UNIX timestamp it's assumed to be in UTC.  So
-				// we have to add the local timezone onto it to keep it as local time.
-				const unixTimeUTC = fatEntry.lastModified + tzOffset;
-				file.lastModified = new Date(unixTimeUTC * 1000);
-
-				file.getRaw = () => buffer.getU8(fatEntry.offset, fatEntry.diskSize);
-
-				if (crypto) {
-					if (fatEntry.flags & RFFFlags.FILE_ENCRYPTED) {
-						// Override the function to get the file content with one that
-						// decrypts the data first.
-						file.getContent = () => {
-							return crypto.reveal(file.getRaw(), {
-								seed: 0,
-								offset: this.getKeyOffset_File(),
-								limit: RFF_FILE_CRYPT_LEN,
-							});
-						};
-						file.attributes.encrypted = true;
-					} else {
-						file.attributes.encrypted = false;
-					}
-				}
-				archive.files.push(file);
-			}
-
-			return archive;
-
-		} finally {
-			Debug.pop();
+		const crypto = this.getCrypto();
+		let fat = buffer.getU8(header.fatOffset, header.fileCount * FATENTRY_LEN);
+		if (crypto) {
+			fat = crypto.reveal(fat, {
+				seed: header.fatOffset & 0xFF,
+				offset: this.getKeyOffset_FAT(),
+				limit: 0,
+			});
 		}
+		fat = new RecordBuffer(fat);
+
+		const tzOffset = new Date().getTimezoneOffset() * 60;
+
+		for (let i = 0; i < header.fileCount; i++) {
+			const fatEntry = fat.readRecord(recordTypes.fatEntry);
+			if (fatEntry.offset > lenArchive) {
+				debug(`File #${i} (${fatEntry.basename}.${fatEntry.ext}) has `
+					+ `offset ${fatEntry.offset}, past archive EOF at ${lenArchive}`);
+				console.error('Archive truncated, returning partial content');
+				break;
+			}
+
+			let file = new Archive.File();
+			file.name = fatEntry.basename;
+			file.diskSize = fatEntry.diskSize;
+			file.nativeSize = fatEntry.diskSize;
+			if (fatEntry.ext) file.name += '.' + fatEntry.ext;
+
+			// The file's last-modified time is in local time, but when we create
+			// a date object from a UNIX timestamp it's assumed to be in UTC.  So
+			// we have to add the local timezone onto it to keep it as local time.
+			const unixTimeUTC = fatEntry.lastModified + tzOffset;
+			file.lastModified = new Date(unixTimeUTC * 1000);
+
+			file.getRaw = () => buffer.getU8(fatEntry.offset, fatEntry.diskSize);
+
+			if (crypto) {
+				if (fatEntry.flags & RFFFlags.FILE_ENCRYPTED) {
+					// Override the function to get the file content with one that
+					// decrypts the data first.
+					file.getContent = () => {
+						return crypto.reveal(file.getRaw(), {
+							seed: 0,
+							offset: this.getKeyOffset_File(),
+							limit: RFF_FILE_CRYPT_LEN,
+						});
+					};
+					file.attributes.encrypted = true;
+				} else {
+					file.attributes.encrypted = false;
+				}
+			}
+			archive.files.push(file);
+		}
+
+		return archive;
 	}
 
 	static generate(archive)

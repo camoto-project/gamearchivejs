@@ -214,8 +214,8 @@ module.exports = class ArchiveHandler
 	 * Read the given archive file.
 	 *
 	 * @param {Object} content
-	 *   File content of the map.  The `main` property contains the main file,
-	 *   with any other supps as other properties.  Each property is a
+	 *   File content of the archive.  The `main` property contains the main
+	 *   file, with any other supps as other properties.  Each property is a
 	 *   {Uint8Array}.
 	 *
 	 * @return {Archive} object detailing the contents of the archive file.

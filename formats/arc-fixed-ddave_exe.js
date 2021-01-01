@@ -20,13 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-fixed-ddave_exe';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const FixedArchive = require('../util/fixedArchive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-fixed-ddave_exe';
+const g_debug = Debug.extend(FORMAT_ID);
 
 module.exports = class Archive_Fixed_DDave_EXE extends ArchiveHandler
 {
@@ -50,40 +51,44 @@ module.exports = class Archive_Fixed_DDave_EXE extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
 
-			// First, see if the .exe is compressed and decompress it if so.
-			if (content.length === 76586) {
-				let buffer = new RecordBuffer(content);
-				buffer.seekAbs(0x1C);
-				const sig = RecordType.string.fixed.noTerm(4).read(buffer);
-				if (sig === 'LZ91') {
-					Debug.log(`TODO: unlzexe this file automatically`);
-					return false;
-				}
+		// First, see if the .exe is compressed and decompress it if so.
+		if (content.length === 76586) {
+			let buffer = new RecordBuffer(content);
+			buffer.seekAbs(0x1C);
+			const sig = RecordType.string.fixed.noTerm(4).read(buffer);
+			if (sig === 'LZ91') {
+				return {
+					valid: false,
+					reason: `TODO: unlzexe this file automatically.`,
+				};
 			}
-
-			// Now examine the decompressed file.
-			if (content.length === 172848) {
-				let buffer = new RecordBuffer(content);
-				buffer.seekAbs(0x26A80);
-
-				const sig = RecordType.string.fixed.noTerm(25).read(buffer);
-				if (sig !== 'Trouble loading tileset!$') {
-					Debug.log(`Wrong signature => false`);
-					return false;
-				}
-			} else {
-				Debug.log(`Unknown file size => false`);
-				return false;
-			}
-
-			return true;
-
-		} finally {
-			Debug.pop();
 		}
+
+		// Now examine the decompressed file.
+		if (content.length === 172848) {
+			let buffer = new RecordBuffer(content);
+			buffer.seekAbs(0x26A80);
+
+			const sig = RecordType.string.fixed.noTerm(25).read(buffer);
+			if (sig !== 'Trouble loading tileset!$') {
+				return {
+					valid: false,
+					reason: `Wrong signature.`,
+				};
+			}
+		} else {
+			return {
+				valid: false,
+				reason: `Unknown file size.`,
+			};
+		}
+
+		return {
+			valid: true,
+			reason: `Signature matched.`,
+		};
 	}
 
 	static parse(content) {

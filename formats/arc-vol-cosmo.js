@@ -20,13 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const FORMAT_ID = 'arc-vol-cosmo';
+
 const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');
 const Debug = require('../util/utl-debug.js');
-
-const FORMAT_ID = 'arc-vol-cosmo';
+const g_debug = Debug.extend(FORMAT_ID);
 
 const recordTypes = {
 	fatEntry: {
@@ -68,44 +69,50 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 	}
 
 	static identify(content) {
-		try {
-			Debug.push(FORMAT_ID, 'identify');
+		const debug = g_debug.extend('identify');
 
-			const lenArchive = content.length;
-			const lenFAT = MAX_FILES * FATENTRY_LEN;
+		const lenArchive = content.length;
+		const lenFAT = MAX_FILES * FATENTRY_LEN;
 
-			if (lenArchive < lenFAT) {
-				Debug.log(`Archive too short to contain full FAT => false`);
-				return false;
-			}
-			let buffer = new RecordBuffer(content);
-
-			for (let i = 0; i < MAX_FILES; i++) {
-				const fatEntry = buffer.readRecord(recordTypes.fatEntry);
-
-				// Ignore empty entries
-				if (fatEntry.offset === 0) continue;
-
-				if (fatEntry.offset < lenFAT) {
-					Debug.log(`File ${i} @ offset ${fatEntry.offset} starts inside the `
-						+ `FAT which ends at offset ${lenFAT} => false`);
-					return false;
-				}
-				if (fatEntry.offset > lenArchive) {
-					Debug.log(`File ${i} starts beyond the end of the archive => false`);
-					return false;
-				}
-				if (fatEntry.offset + fatEntry.size > lenArchive) {
-					Debug.log(`File ${i} ends beyond the end of the archive => false`);
-					return false;
-				}
-			}
-			Debug.log(`All files contained within the archive => true`);
-			return true;
-
-		} finally {
-			Debug.pop();
+		if (lenArchive < lenFAT) {
+			return {
+				valid: false,
+				reason: `Archive too short to contain full FAT.`,
+			};
 		}
+		let buffer = new RecordBuffer(content);
+
+		for (let i = 0; i < MAX_FILES; i++) {
+			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
+
+			// Ignore empty entries
+			if (fatEntry.offset === 0) continue;
+
+			if (fatEntry.offset < lenFAT) {
+				return {
+					valid: false,
+					reason: `File ${i} @ offset ${fatEntry.offset} starts inside the `
+						+ `FAT which ends at offset ${lenFAT}.`,
+				};
+			}
+			if (fatEntry.offset > lenArchive) {
+				return {
+					valid: false,
+					reason: `File ${i} starts beyond the end of the archive.`,
+				};
+			}
+			if (fatEntry.offset + fatEntry.size > lenArchive) {
+				return {
+					valid: false,
+					reason: `File ${i} ends beyond the end of the archive.`,
+				};
+			}
+		}
+
+		return {
+			valid: true,
+			reason: `All files contained within the archive.`,
+		};
 	}
 
 	static parse({main: content}) {
