@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/Malvineous/gamearchivejs#readme",
   "dependencies": {
-    "@camoto/gamecomp": "^1.1.1",
+    "@camoto/gamecomp": "^1.1.3",
     "@camoto/record-io-buffer": "^2.2.2"
   },
   "devDependencies": {
