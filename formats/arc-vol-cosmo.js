@@ -95,12 +95,6 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 						+ `FAT which ends at offset ${lenFAT}.`,
 				};
 			}
-			if (fatEntry.offset > lenArchive) {
-				return {
-					valid: false,
-					reason: `File ${i} starts beyond the end of the archive.`,
-				};
-			}
 			if (fatEntry.offset + fatEntry.size > lenArchive) {
 				return {
 					valid: false,
