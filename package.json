@@ -1,6 +1,6 @@
 {
   "name": "@camoto/gamearchive",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Read and write archive files used by DOS games",
   "bin": {
     "gamearch": "./bin/gamearch"
@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "command-line-args": "^5.1.1",
-    "documentation": "^13.0.2",
+    "documentation": "^13.1.0",
     "eslint": "^7.16.0",
     "mocha": "^8.2.1",
     "mocha-eslint": "^6.0.0"
