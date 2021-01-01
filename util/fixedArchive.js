@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { RecordBuffer } = require('@malvineous/record-io-buffer');
+const { RecordBuffer } = require('@camoto/record-io-buffer');
 
 const Archive = require('../formats/archive.js');
 

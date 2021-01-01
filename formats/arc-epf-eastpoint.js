@@ -22,8 +22,8 @@
 
 const FORMAT_ID = 'arc-epf-eastpoint';
 
-const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
-const GameCompression = require('@malvineous/gamecomp');
+const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
+const GameCompression = require('@camoto/gamecomp');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const Archive = require('./archive.js');

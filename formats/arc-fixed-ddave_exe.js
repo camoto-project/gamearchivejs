@@ -22,7 +22,7 @@
 
 const FORMAT_ID = 'arc-fixed-ddave_exe';
 
-const { RecordBuffer, RecordType } = require('@malvineous/record-io-buffer');
+const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const FixedArchive = require('../util/fixedArchive.js');
