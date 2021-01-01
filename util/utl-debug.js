@@ -1,7 +1,7 @@
 /**
  * @file Debugging helper functions.
  *
- * Copyright (C) 2018 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,43 +17,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-let state = {
-	mute: true,
-	prefix: [],
-};
-
-module.exports = class Debug {
-	static push(...items) {
-		state.prefix.push(items.join('/'));
-		this.renderPrefix();
-	}
-
-	static pop() {
-		state.prefix.pop();
-		this.renderPrefix();
-	}
-
-	static renderPrefix() {
-		state.renderedPrefix = '[' + state.prefix.join('/') + ']';
-	}
-
-	static log(...params) {
-		if (!state.mute) console.debug(state.renderedPrefix, ...params);
-	}
-
-	static backtrace(...params) {
-		console.trace(state.renderedPrefix, ...params);
-	}
-
-	static warn(...params) {
-		console.warn(state.renderedPrefix, ...params);
-	}
-
-	static mute(m) {
-		state.mute = m;
-	}
-
-	static get enabled() {
-		return !state.mute;
-	}
-};
+const Debug = require('debug');
+module.exports = Debug('gamearchive');

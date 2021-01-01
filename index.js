@@ -91,11 +91,11 @@ module.exports = class GameArchive
 		fileTypes.some(x => {
 			const metadata = x.metadata();
 			const confidence = x.identify(content);
-			if (confidence === true) {
+			if (confidence.valid === true) {
 				handlers = [x];
 				return true; // exit loop early
 			}
-			if (confidence === undefined) {
+			if (confidence.valid === undefined) {
 				handlers.push(x);
 				// keep going to look for a better match
 			}

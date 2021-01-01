@@ -329,12 +329,14 @@ allHandlers.forEach(handler => {
 
 				it('should not negatively identify itself', function() {
 					const result = handler.identify(content.default.main);
-					assert.ok(result === true || result === undefined);
+					assert.ok(result.valid === true || result.valid === undefined,
+						`Failed to recognise standard file: ${result.reason}`);
 				});
 
 				it('should not negatively identify empty archives', function() {
 					const result = handler.identify(content.empty.main);
-					assert.ok(result === true || result === undefined);
+					assert.ok(result.valid === true || result.valid === undefined,
+						`Failed to recognise empty file: ${result.reason}`);
 				});
 
 				it('should not break on empty data', function() {
@@ -362,9 +364,12 @@ allHandlers.forEach(handler => {
 					// Skip ourselves
 					if (submd.id === md.id) return;
 
+					// NOTE: If we ever get formats that identify each other and we can't
+					// work around it, copy the identifyConflicts code from this matching
+					// section in gamemusic.js.
 					it(`should not positively identify ${submd.id} files`, function() {
 						const result = subhandler.identify(content.default.main);
-						assert.notEqual(result, true);
+						assert.notEqual(result.valid, true);
 					});
 				});
 

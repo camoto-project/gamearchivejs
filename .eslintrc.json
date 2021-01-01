@@ -28,6 +28,12 @@
 				"allowTemplateLiterals": true
 			}
 		],
+		"no-unused-vars": [
+			"error",
+			{
+				"varsIgnorePattern": "debug"
+			}
+		],
 		"semi": [
 			"error",
 			"always"

@@ -107,23 +107,23 @@ You're ready to go!  To add a new file format:
         SAVE_FAILED_TEST=1 npm run -s test
         mv error1.bin test/arc-myformat/default.bin
 
-If your archive format has any sort of compression or encryption,
-these algorithms should go into the `gamecomp` project instead.  This
-is to make it easier to reuse the algorithms, as many of them
-(particularly the compression ones) are used amongst many unrelated
-archive formats.  All the `gamecomp` algorithms are available to be
-used by any archive format in this library.
+If your archive format has any sort of compression or encryption, these
+algorithms should go into the gamecomp.js project instead.  This is to make it
+easier to reuse the algorithms, as many of them (particularly the compression
+ones) are used amongst many unrelated archive formats.  All the gamecomp.js
+algorithms are available to be used by any archive format in this library.
 
 During development you can test your code like this:
 
     # Read a sample archive and list the files, with debug messages on
-    $ ./bin/gamearch --debug open -f arc-myformat example.dat list
+    $ DEBUG='gamearchive:*' ./bin/gamearch open -f arc-myformat example.dat list
 
     # Make sure the format is identified correctly or if not why not
-    $ ./bin/gamearch --debug identify example.dat
+    $ DEBUG='gamearchive:*' ./bin/gamearch identify example.dat
 
-If you use `Debug.log` rather than `console.log` then these messages can be left
-in for future diagnosis as they will only appear when `--debug` is given.
+If you use `debug()` rather than `console.log()` in your code then these
+messages can be left in for future diagnosis as they will only appear when the
+`DEBUG` environment variable is set correctly.
 
 ### Development tips
 
