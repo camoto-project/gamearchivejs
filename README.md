@@ -13,7 +13,7 @@ If you wish to use the command-line `gamearch` utility to work with
 game archives directly, you can install the library globally on your
 system:
 
-    npm install -g @malvineous/gamearchive
+    npm install -g @camoto/gamearchive
 
 ### Command line interface
 
@@ -40,11 +40,11 @@ To get a list of supported file formats, run:
 If you wish to make use of the library in your own project, install it
 in the usual way:
 
-    npm install @malvineous/gamearchive
+    npm install @camoto/gamearchive
 
 See `cli/index.js` for example use.  The quick start is:
 
-    const GameArchive = require('@malvineous/gamearchive');
+    const GameArchive = require('@camoto/gamearchive');
     
     // Read an archive into memory
     const handler = GameArchive.getHandler('arc-grp-duke3d');
@@ -82,7 +82,7 @@ Clone the repo, and to get started:
 
 Run the tests to make sure everything worked:
 
-    npm test
+    npm run -s test
 
 You're ready to go!  To add a new file format:
 
@@ -104,7 +104,7 @@ You're ready to go!  To add a new file format:
     cause the archive file produced by your code to be saved to a temporary
     file in the current directory:
     
-        SAVE_FAILED_TEST=1 npm test
+        SAVE_FAILED_TEST=1 npm run -s test
         mv error1.bin test/arc-myformat/default.bin
 
 If your archive format has any sort of compression or encryption,
