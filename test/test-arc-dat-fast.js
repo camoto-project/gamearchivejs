@@ -17,93 +17,140 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const ID_FORMAT = 'arc-dat-fast';
+
 const assert = require('assert');
 
 const TestUtil = require('./util.js');
 const GameArchive = require('../index.js');
 const Archive = require('../formats/archive.js');
 
-const format = 'arc-dat-fast';
+const handler = GameArchive.getHandler(ID_FORMAT);
 
-const handler = GameArchive.getHandler(format);
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);
+
 describe(`Extra tests for ${md.title} [${md.id}]`, function() {
-
 	let content = {};
-	before('load test data from local filesystem', function() {
-		content = testutil.loadContent(handler, [
-			'typecode',
-			'rle',
-		]);
-	});
 
-	describe('parse()', function() {
-		it('type codes are converted into filenames', function() {
-			let archive = handler.parse(content.typecode);
-			assert.equal(archive.files[0].name.toLowerCase(), 'level1.mif');
-			assert.equal(archive.files[1].name.toLowerCase(), 'level2.mif');
-			assert.equal(archive.files[2].name.toLowerCase(), 'test.tbg');
-			assert.equal(archive.files[3].name.toLowerCase(), 'audio.snd');
-			assert.equal(archive.files[4].name.toLowerCase(), 'ega.pal');
+	describe('I/O', function() {
+
+		before('load test data from local filesystem', function() {
+			content = testutil.loadContent(handler, [
+				'fat_trunc',
+				'bad_filename',
+				'file_past_eof',
+				'typecode',
+				'rle',
+			]);
 		});
 
-		it('RLE codes are parsed', function() {
-			let archive = handler.parse(content.rle);
-			const exp = [0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56];
-			TestUtil.buffersEqual(Uint8Array.from(exp), archive.files[0].getContent());
-		});
-	});
+		describe('identify()', function() {
 
-	describe('generate()', function() {
-		it('filenames are converted into type codes', async function() {
-			let archive = new Archive();
+			it('should reject files with truncated FAT entries', function() {
+				const result = handler.identify(
+					content['fat_trunc'].main,
+					content['fat_trunc'].main.filename
+				);
+				assert.equal(result.reason, 'Incomplete FAT entry (36 bytes is less than the required 37).');
+				assert.equal(result.valid, false);
+			});
 
-			let file = new Archive.File();
-			file.name = 'level1.mif';
-			file.nativeSize = 8;
-			file.getRaw = () => TestUtil.u8FromString('content1');
-			archive.files.push(file);
+			it('should reject invalid chars in filename', function() {
+				const result = handler.identify(
+					content['bad_filename'].main,
+					content['bad_filename'].main.filename
+				);
+				// Note that the file contains byte 0xFF but this gets translated into
+				// UTF-8, so it comes out as \uA0 (non-breaking space).
+				assert.equal(result.reason, `File 1 contains invalid (UTF-8) char 0xa0.`);
+				assert.equal(result.valid, false);
+			});
 
-			file = new Archive.File();
-			file.name = 'LEVEL2.MIF';
-			file.nativeSize = 8;
-			file.getRaw = () => TestUtil.u8FromString('content2');
-			archive.files.push(file);
+			it('should reject file past archive EOF', function() {
+				const result = handler.identify(
+					content['file_past_eof'].main,
+					content['file_past_eof'].main.filename
+				);
+				assert.equal(result.reason, 'File 3 would go past EOF.');
+				assert.equal(result.valid, false);
+			});
 
-			file = new Archive.File();
-			file.name = 'test.tbg';
-			file.nativeSize = 8;
-			file.getRaw = () => TestUtil.u8FromString('content3');
-			archive.files.push(file);
+		}); // identify()
 
-			file = new Archive.File();
-			file.name = 'audio.snd';
-			file.nativeSize = 8;
-			file.getRaw = () => TestUtil.u8FromString('content4');
-			archive.files.push(file);
+		describe('parse()', function() {
 
-			file = new Archive.File();
-			file.name = 'ega.pal';
-			file.nativeSize = 8;
-			file.getRaw = () => TestUtil.u8FromString('content5');
-			archive.files.push(file);
+			it('type codes are converted into filenames', function() {
+				let archive = handler.parse(content.typecode);
+				assert.equal(archive.files[0].name.toLowerCase(), 'level1.mif');
+				assert.equal(archive.files[1].name.toLowerCase(), 'level2.mif');
+				assert.equal(archive.files[2].name.toLowerCase(), 'test.tbg');
+				assert.equal(archive.files[3].name.toLowerCase(), 'audio.snd');
+				assert.equal(archive.files[4].name.toLowerCase(), 'ega.pal');
+			});
 
-			const contentGenerated = handler.generate(archive);
-			TestUtil.contentEqual(content.typecode, contentGenerated);
-		});
+			it('RLE codes are parsed', function() {
+				let archive = handler.parse(content.rle);
+				const exp = [0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56];
+				TestUtil.buffersEqual(Uint8Array.from(exp), archive.files[0].getContent());
+			});
 
-		it('RLE codes are generated', function() {
-			let archive = new Archive();
+		}); // parse()
 
-			let file = new Archive.File();
-			file.name = 'data.rle';
-			file.nativeSize = 8;
-			file.getRaw = () => Uint8Array.from([0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56]);
-			archive.files.push(file);
+		describe('generate()', function() {
 
-			const contentGenerated = handler.generate(archive);
-			TestUtil.contentEqual(content.rle, contentGenerated);
-		});
-	});
-});
+			it('filenames are converted into type codes', async function() {
+				let archive = new Archive();
+
+				let file = new Archive.File();
+				file.name = 'level1.mif';
+				file.nativeSize = 8;
+				file.getRaw = () => TestUtil.u8FromString('content1');
+				archive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'LEVEL2.MIF';
+				file.nativeSize = 8;
+				file.getRaw = () => TestUtil.u8FromString('content2');
+				archive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'test.tbg';
+				file.nativeSize = 8;
+				file.getRaw = () => TestUtil.u8FromString('content3');
+				archive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'audio.snd';
+				file.nativeSize = 8;
+				file.getRaw = () => TestUtil.u8FromString('content4');
+				archive.files.push(file);
+
+				file = new Archive.File();
+				file.name = 'ega.pal';
+				file.nativeSize = 8;
+				file.getRaw = () => TestUtil.u8FromString('content5');
+				archive.files.push(file);
+
+				const contentGenerated = handler.generate(archive);
+				TestUtil.contentEqual(content.typecode, contentGenerated);
+			});
+
+			it('RLE codes are generated', function() {
+				let archive = new Archive();
+
+				let file = new Archive.File();
+				file.name = 'data.rle';
+				file.nativeSize = 8;
+				file.getRaw = () => Uint8Array.from([0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56]);
+				archive.files.push(file);
+
+				const contentGenerated = handler.generate(archive);
+				TestUtil.contentEqual(content.rle, contentGenerated);
+			});
+
+		}); // generate()
+
+	}); // I/O
+
+}); // Extra tests

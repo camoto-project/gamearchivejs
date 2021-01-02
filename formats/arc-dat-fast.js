@@ -117,13 +117,14 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			}
 
 			const file = buffer.readRecord(recordTypes.fatEntry);
-			if ([...file.name].some(c => {
+			const invalidChar = [...file.name].find(c => {
 				const cc = c.charCodeAt(0);
 				return (cc <= 32) || (cc > 126);
-			})) {
+			});
+			if (invalidChar !== undefined) {
 				return {
 					valid: false,
-					reason: `File ${i} contains invalid char [${file.name}].`,
+					reason: `File ${i} contains invalid (UTF-8) char 0x${invalidChar.charCodeAt(0).toString(16)}.`,
 				};
 			}
 
