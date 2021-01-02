@@ -83,26 +83,18 @@ module.exports = class Archive_POD_TV extends ArchiveHandler
 
 		let buffer = new RecordBuffer(content);
 
-		const fileCount = recordTypes.header.fileCount.read(buffer);
-		const offEndFAT = HEADER_LEN + fileCount * FATENTRY_LEN;
+		const header = buffer.readRecord(recordTypes.header);
+		const offEndFAT = HEADER_LEN + header.fileCount * FATENTRY_LEN;
 		if (content.length < offEndFAT) {
 			return {
 				valid: false,
-				reason: `Content too short for file count.`,
+				reason: `Content too short for file count (< ${offEndFAT} b).`,
 			};
 		}
 
 		// Read each offset and length and ensure it is valid.
-		for (let i = 0; i < fileCount; i++) {
+		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
-
-			if (fatEntry.offset >= content.length) {
-				return {
-					valid: false,
-					reason: `File ${i} @ offset ${fatEntry.offset} starts beyond the `
-						+ `end of the file.`,
-				};
-			}
 			if (fatEntry.offset + fatEntry.size > content.length) {
 				return {
 					valid: false,
