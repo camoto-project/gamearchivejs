@@ -97,12 +97,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 						+ `which ends at offset ${lenFAT}.`,
 				};
 			}
-			if (fatEntry.offset + HEADER_LEN > lenArchive) {
-				return {
-					valid: false,
-					reason: `File ${i} starts beyond the end of the archive.`,
-				};
-			}
+
 			if (fatEntry.offset + HEADER_LEN + fatEntry.size > lenArchive) {
 				return {
 					valid: false,
