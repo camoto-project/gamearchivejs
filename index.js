@@ -71,12 +71,17 @@ module.exports = class GameArchive
 	 * @param {Uint8Array} content
 	 *   Archive file content.
 	 *
-	 * @return {Array} of {ArchiveHandler} from formats/*.js that can handle the
+	 * @param {string} filename
+	 *   Filename where `content` was read from.  This is required to identify
+	 *   formats where the filename extension is significant.  This can be
+	 *   omitted for less accurate autodetection.
+	 *
+	 * @return {Array<ArchiveHandler>} from formats/*.js that can handle the
 	 *   format, or an empty array if the format could not be identified.
 	 *
 	 * @example
 	 * const content = fs.readFileSync('duke3d.grp');
-	 * const handler = GameArchive.findHandler(content);
+	 * const handler = GameArchive.findHandler(content, 'duke3d.grp');
 	 * if (!handler) {
 	 *   console.log('Unable to identify file format.');
 	 * } else {
@@ -84,7 +89,7 @@ module.exports = class GameArchive
 	 *   console.log('File is in ' + md.id + ' format');
 	 * }
 	 */
-	static findHandler(content)
+	static findHandler(content, filename)
 	{
 		const debug = Debug.extend('findHandler');
 		debug('Autodetecting file format');
@@ -95,7 +100,7 @@ module.exports = class GameArchive
 		let handlers = [];
 		for (const x of fileTypes) {
 			const metadata = x.metadata();
-			const confidence = x.identify(content);
+			const confidence = x.identify(content, filename);
 			if (confidence.valid === true) {
 				debug(`Matched ${metadata.id}: ${confidence.reason}`);
 				handlers = [x];
