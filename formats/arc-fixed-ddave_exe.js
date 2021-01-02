@@ -23,6 +23,7 @@
 const FORMAT_ID = 'arc-fixed-ddave_exe';
 
 const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
+const cmp_lzexe = require('@camoto/gamecomp/compress/cmp-lzexe.js');
 
 const ArchiveHandler = require('./archiveHandler.js');
 const FixedArchive = require('../util/fixedArchive.js');
@@ -53,35 +54,26 @@ module.exports = class Archive_Fixed_DDave_EXE extends ArchiveHandler
 	static identify(content) {
 		const debug = g_debug.extend('identify');
 
-		// First, see if the .exe is compressed and decompress it if so.
-		if (content.length === 76586) {
-			let buffer = new RecordBuffer(content);
-			buffer.seekAbs(0x1C);
-			const sig = RecordType.string.fixed.noTerm(4).read(buffer);
-			if (sig === 'LZ91') {
-				return {
-					valid: false,
-					reason: `TODO: unlzexe this file automatically.`,
-				};
-			}
+		// UNLZEXE the file if required.
+		let output = content;
+		if (cmp_lzexe.identify(content).valid) {
+			output = cmp_lzexe.reveal(content);
 		}
 
-		// Now examine the decompressed file.
-		if (content.length === 172848) {
-			let buffer = new RecordBuffer(content);
-			buffer.seekAbs(0x26A80);
-
-			const sig = RecordType.string.fixed.noTerm(25).read(buffer);
-			if (sig !== 'Trouble loading tileset!$') {
-				return {
-					valid: false,
-					reason: `Wrong signature.`,
-				};
-			}
-		} else {
+		if (output.length < 0x26A80 + 25) {
 			return {
 				valid: false,
-				reason: `Unknown file size.`,
+				reason: `File too short.`,
+			};
+		}
+
+		let buffer = new RecordBuffer(output);
+		buffer.seekAbs(0x26A80);
+		const sig = RecordType.string.fixed.noTerm(25).read(buffer);
+		if (sig !== 'Trouble loading tileset!$') {
+			return {
+				valid: false,
+				reason: `Wrong signature.`,
 			};
 		}
 
