@@ -29,8 +29,11 @@ module.exports = class FixedArchive
 		let buffer = new RecordBuffer(content);
 
 		let nextOffset = 0, extraFileCount = 1;
-		files.forEach(file => {
-			if (nextOffset != file.offset) {
+		for (const file of files) {
+			if (
+				(file.offset !== undefined) // if we were given an offset
+				&& (nextOffset != file.offset) // and it's not where we're up to
+			) {
 				// There's unclaimed data before this file, so add a dummy file for it.
 				let ef = new Archive.File();
 				ef.name = `data${extraFileCount}.bin`;
@@ -43,13 +46,17 @@ module.exports = class FixedArchive
 			}
 			let newFile = new Archive.File();
 			newFile.name = file.name;
-			newFile.offset = file.offset;
+			newFile.offset = file.offset || nextOffset;
 			newFile.diskSize = newFile.nativeSize = file.diskSize;
 			newFile.getRaw = () => buffer.getU8(newFile.offset, newFile.diskSize);
 			archive.files.push(newFile);
-			nextOffset = file.offset + file.diskSize;
-		});
+			nextOffset = newFile.offset + file.diskSize;
+		}
 
+		if (nextOffset > content.length) {
+			throw new Error(`Final file started at offset ${nextOffset} but this is `
+				+ `beyond the end of the archive (${content.length} b).`);
+		}
 		if (nextOffset != content.length) {
 			// Keep the trailing data too
 			let ef = new Archive.File();
@@ -74,7 +81,7 @@ module.exports = class FixedArchive
 
 		let buffer = new RecordBuffer(finalSize);
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const diskData = file.getRaw();
 
 			// Safety check.
@@ -83,11 +90,9 @@ module.exports = class FixedArchive
 			}
 
 			buffer.put(diskData);
-		});
+		}
 
-		return {
-			main: buffer.getU8(),
-		};
+		return buffer.getU8();
 	}
 
 };
