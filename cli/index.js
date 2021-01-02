@@ -251,6 +251,25 @@ class Operations
 		this.origFormat = handler.metadata().id;
 	}
 
+	async replace(params) {
+		if (!params.target) {
+			throw new OperationsError('replace: missing filename');
+		}
+		const target = params.name || params.target;
+		const targetUC = target.toUpperCase();
+		for (const file of this.archive.files) {
+			if (file.name.toUpperCase() === targetUC) {
+				// Found the file
+				file.diskSize = file.nativeSize = fs.statSync(params.target).size;
+				file.getContent = () => fs.readFileSync(params.target);
+				this.log('replacing', target,
+					params.name ? '(from ' + params.target + ')' : '');
+				return;
+			}
+		}
+		throw new OperationsError(`replace: unable to find "${target}" in the archive.`);
+	}
+
 	async save(params) {
 		if (!params.target) {
 			throw new OperationsError('save: missing filename');
@@ -331,6 +350,10 @@ Operations.names = {
 		{ name: 'format', alias: 'f' },
 		{ name: 'target', defaultOption: true },
 	],
+	replace: [
+		{ name: 'name', alias: 'n' },
+		{ name: 'target', defaultOption: true },
+	],
 	save: [
 		{ name: 'format', alias: 'f' },
 		{ name: 'target', defaultOption: true },
@@ -399,7 +422,7 @@ Options:
 Commands:
 
   add [-n name] <file>
-    Append <file> to archive, storing it as <name>.
+    Append <file> to archive, storing it as <name>.  See 'replace' to overwrite.
 
   attrib [-c|-C][-e|-E] <file>
     Set single attribute for <file>, see 'list' command.
@@ -426,6 +449,12 @@ Commands:
     Open the local <file> as an archive, autodetecting the format unless -f is
     given.  Use --formats for a list of possible values.  If other commands are
     used without 'open', a new empty archive is used.
+
+  replace [-n name] <file>
+    Overwrite an existing file in the archive with new content read from <file>.
+    Will overwrite <name> if given, otherwise looks for <file>.  New file's
+    content is filtered (compressed/encrypted) during save if overwriting a
+    filtered file - use 'attrib' to change this if desired.
 
   save [-f format] <file>
     Save the current archive to local <file> in the given <format>.  -f defaults
