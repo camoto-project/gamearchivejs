@@ -91,7 +91,7 @@ module.exports = class Archive_BNK_Harry extends ArchiveHandler
 		if (lenArchive < FILEHEADER_LEN) {
 			return {
 				valid: false,
-				reason: `File length ${lenArchive} too short, min ${FILEHEADER_LEN}.`,
+				reason: `Content too short (< ${FILEHEADER_LEN} b).`,
 			};
 		}
 
