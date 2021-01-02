@@ -130,7 +130,13 @@ module.exports = class Archive_Fixed_DDave_EXE extends ArchiveHandler
 			});
 		}
 
-		return FixedArchive.parse(content.main, files);
+		// UNLZEXE the file if required.
+		let decomp = content.main;
+		if (cmp_lzexe.identify(content.main).valid) {
+			decomp = cmp_lzexe.reveal(content.main);
+		}
+
+		return FixedArchive.parse(decomp, files);
 	}
 
 	static generate(archive)
