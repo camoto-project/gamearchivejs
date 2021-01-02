@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+const Debug = require('./util/utl-debug.js');
+
 const fileTypes = [
 	// These file formats all have signatures so the autodetection is
 	// fast and they are listed first.
@@ -84,22 +86,28 @@ module.exports = class GameArchive
 	 */
 	static findHandler(content)
 	{
+		const debug = Debug.extend('findHandler');
+		debug('Autodetecting file format');
+
 		if (content.length === undefined) {
 			throw new Error('content parameter must be Uint8Array');
 		}
 		let handlers = [];
-		fileTypes.some(x => {
+		for (const x of fileTypes) {
 			const metadata = x.metadata();
 			const confidence = x.identify(content);
 			if (confidence.valid === true) {
+				debug(`Matched ${metadata.id}: ${confidence.reason}`);
 				handlers = [x];
-				return true; // exit loop early
-			}
-			if (confidence.valid === undefined) {
+				break;
+			} else if (confidence.valid === undefined) {
+				debug(`Possible match for ${metadata.id}: ${confidence.reason}`);
 				handlers.push(x);
 				// keep going to look for a better match
+			} else {
+				debug(`Not ${metadata.id}: ${confidence.reason}`);
 			}
-		});
+		}
 		return handlers;
 	}
 
