@@ -82,10 +82,10 @@ module.exports = class GameArchive
 	 * @example
 	 * const content = fs.readFileSync('duke3d.grp');
 	 * const handler = GameArchive.findHandler(content, 'duke3d.grp');
-	 * if (!handler) {
+	 * if (handler.length === 0) {
 	 *   console.log('Unable to identify file format.');
 	 * } else {
-	 *   const md = handler.metadata();
+	 *   const md = handler[0].metadata();
 	 *   console.log('File is in ' + md.id + ' format');
 	 * }
 	 */

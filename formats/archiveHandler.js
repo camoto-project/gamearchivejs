@@ -218,8 +218,8 @@ module.exports = class ArchiveHandler
 	static identify(content, filename) {
 		return {
 			valid: false,
-			reason: 'This function has not been implemented by the format handler, '
-				+ 'so autodetecting this format is not possible.',
+			reason: 'The identify() function has not been implemented by the format '
+				+ 'handler, so autodetecting this format is not possible.',
 		};
 	}
 
