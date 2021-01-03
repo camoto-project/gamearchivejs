@@ -1,6 +1,6 @@
 {
   "name": "@camoto/gamearchive",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Read and write archive files used by DOS games",
   "bin": {
     "gamearch": "./bin/gamearch"
