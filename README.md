@@ -15,6 +15,8 @@ system:
 
     npm install -g @camoto/gamearchive
 
+For Arch Linux users the AUR package `gamearchivejs` is also available.
+
 ### Command line interface
 
 The `gamearch` utility can be used to manipulate archive files.
