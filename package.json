@@ -7,7 +7,6 @@
   },
   "main": "index.js",
   "scripts": {
-    "serve-doc": "documentation serve --shallow -w index.js formats/archive.js formats/archiveHandler.js",
     "test": "./node_modules/mocha/bin/mocha"
   },
   "repository": {
@@ -36,7 +35,6 @@
     "debug": "^4.3.1"
   },
   "devDependencies": {
-    "documentation": "^13.1.0",
     "eslint": "^7.16.0",
     "mocha": "^8.2.1",
     "mocha-eslint": "^6.0.0"
