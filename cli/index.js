@@ -22,6 +22,7 @@ const g_debug = Debug.extend('cli');
 
 import fs from 'fs';
 import commandLineArgs from 'command-line-args';
+import minimatch from 'minimatch';
 import {
 	Archive,
 	File,
@@ -112,19 +113,46 @@ class Operations
 			throw new OperationsError('extract: missing filename');
 		}
 
-		const targetName = params.target.toUpperCase(); // nearly always ASCII
-		const targetFile = this.archive.files.find(file => file.name.toUpperCase() == targetName);
-		if (!targetFile) {
+		const targetFiles = this.archive.files.filter(
+			file => minimatch(file.name, params.target, { matchBase: true, nocase: true })
+		);
+		if (targetFiles.length === 0) {
 			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
 		}
-		let data;
-		if (params.raw) {
-			data = targetFile.getRaw();
-		} else {
-			data = targetFile.getContent();
+		if ((targetFiles.length > 1) && (params.name)) {
+			throw new OperationsError(`extract: can't use -n with multiple files `
+				+ `("${params.target}" matched ${targetFiles.length} files).`);
 		}
-		this.log('extracting', params.target, params.name ? 'as ' + params.name : '');
-		return fs.promises.writeFile(params.name || params.target, data);
+
+		// True if every filename is in all-caps, false if any files have lowercase letters.
+		const allFilesCaps = targetFiles.every(f => f.name === f.name.toUpperCase());
+
+		let pExtractedFiles = [];
+		for (const targetFile of targetFiles) {
+			let data;
+			if (params.raw) {
+				data = targetFile.getRaw();
+			} else {
+				data = targetFile.getContent();
+			}
+
+			// Figure out what to write the filename as
+			let outName;
+			if (params.name) {
+				outName = params.name;
+			} else {
+				outName = targetFile.name;
+				if (allFilesCaps) {
+					outName = outName.toLowerCase();
+				}
+			}
+
+			this.log('extracting', targetFile.name, (outName != targetFile.name) ? '-> ' + outName : '');
+			pExtractedFiles.push(
+				fs.promises.writeFile(outName, data)
+			);
+		}
+		return await Promise.all(pExtractedFiles);
 	}
 
 	identify(params) {
@@ -430,7 +458,8 @@ Commands:
 
   extract [-n name] [-r] <file>
     Extract <file> from archive and save into current directory as <name>.  File
-    is decompressed and decrypted as needed, unless -r is given.
+    is decompressed and decrypted as needed, unless -r is given.  <file> can be
+    a glob, e.g. '*' to extract all files.
 
   identify <file>
     Read local <file> and try to work out what archive format it is in.
@@ -466,7 +495,7 @@ Commands:
 
 Examples:
 
-  gamearch open duke3d.grp extract stalker.mid
+  gamearch open duke3d.grp extract '*.mid'
   gamearch add stalker.mid save -f arc-grp-build music.grp
 
   # The DEBUG environment variable can be used for troubleshooting.
