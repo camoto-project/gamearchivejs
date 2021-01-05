@@ -1,0 +1,14 @@
+{
+  "name": "@camoto/gamearchive-cli",
+  "version": "1.0.0",
+  "description": "CLI for gamearchive.js, for use with `npm install -g`",
+  "bin": {
+    "gamearch": "./node_modules/@camoto/gamearchive/bin/gamearch.js"
+  },
+  "author": "Adam Nielsen <malvineous@shikadi.net>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "@camoto/gamearchive": "*",
+    "command-line-args": "^5.1.1"
+  }
+}
