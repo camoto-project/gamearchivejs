@@ -1,5 +1,5 @@
-/**
- * @file Blood .RFF format handler.
+/*
+ * Blood .RFF format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/RFF_Format
@@ -22,13 +22,13 @@
 
 const FORMAT_ID = 'arc-rff-blood';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
-const GameCompression = require('@camoto/gamecomp');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const recordTypes = {
 	header: {
@@ -64,7 +64,7 @@ const RFFFlags = {
 	FILE_ENCRYPTED: 0x10,
 };
 
-class Archive_RFF_Blood extends ArchiveHandler
+export default class Archive_RFF_Blood extends ArchiveHandler
 {
 	static metadata() {
 		const vFull = this.version();
@@ -94,9 +94,6 @@ class Archive_RFF_Blood extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const md = this.metadata();
-		const debug = g_debug.extend(`${md.id}:identify`);
-
 		if (content.length < HEADER_LEN) {
 			return {
 				valid: false,
@@ -130,9 +127,6 @@ class Archive_RFF_Blood extends ArchiveHandler
 	}
 
 	static parse({main: content}) {
-		const md = this.metadata();
-		const debug = g_debug.extend(`${md.id}:parse`);
-
 		let archive = new Archive();
 		const lenArchive = content.length;
 
@@ -164,7 +158,7 @@ class Archive_RFF_Blood extends ArchiveHandler
 				break;
 			}
 
-			let file = new Archive.File();
+			let file = new File();
 			file.name = fatEntry.basename;
 			file.diskSize = fatEntry.diskSize;
 			file.nativeSize = fatEntry.diskSize;
@@ -302,67 +296,3 @@ class Archive_RFF_Blood extends ArchiveHandler
 	}
 
 }
-
-class Archive_RFF_Blood_v200 extends Archive_RFF_Blood
-{
-	static version() {
-		return 0x200;
-	}
-
-	static getCrypto() {
-		return null;
-	}
-
-	static getKeyOffset_File() {
-		return 0;
-	}
-
-	static getKeyOffset_FAT() {
-		return 0;
-	}
-}
-
-class Archive_RFF_Blood_v300 extends Archive_RFF_Blood
-{
-	static version() {
-		return 0x300;
-	}
-
-	static getCrypto() {
-		return GameCompression.getHandler('enc-xor-blood');
-	}
-
-	static getKeyOffset_File() {
-		// Even in v300 the files themselves were in the v301 format
-		return 0;
-	}
-
-	static getKeyOffset_FAT() {
-		return 1;
-	}
-}
-
-class Archive_RFF_Blood_v301 extends Archive_RFF_Blood
-{
-	static version() {
-		return 0x301;
-	}
-
-	static getCrypto() {
-		return GameCompression.getHandler('enc-xor-blood');
-	}
-
-	static getKeyOffset_File() {
-		return 0;
-	}
-
-	static getKeyOffset_FAT() {
-		return 0;
-	}
-}
-
-module.exports = [
-	Archive_RFF_Blood_v200,
-	Archive_RFF_Blood_v300,
-	Archive_RFF_Blood_v301,
-];

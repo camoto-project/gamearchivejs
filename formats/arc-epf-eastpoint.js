@@ -1,5 +1,5 @@
-/**
- * @file East Point Software .EPF format handler.
+/*
+ * East Point Software .EPF format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/EPF_Format
@@ -22,13 +22,14 @@
 
 const FORMAT_ID = 'arc-epf-eastpoint';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
-const GameCompression = require('@camoto/gamecomp');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import { cmp_lzw } from '@camoto/gamecomp';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const recordTypes = {
 	header: {
@@ -61,7 +62,7 @@ const cmpParams = {
 	flushOnReset: false,
 };
 
-module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
+export default class Archive_EPF_EastPoint extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -96,8 +97,6 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		if (content.length < HEADER_LEN) {
 			return {
 				valid: false,
@@ -122,7 +121,6 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 	}
 
 	static parse({main: content}) {
-		const comp = GameCompression.getHandler('cmp-lzw');
 		let archive = new Archive();
 		let buffer = new RecordBuffer(content);
 
@@ -133,7 +131,7 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 
-			let file = new Archive.File();
+			let file = new File();
 			file.name = fatEntry.name;
 			file.diskSize = fatEntry.diskSize;
 			file.nativeSize = fatEntry.nativeSize;
@@ -142,7 +140,7 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 
 			if (fatEntry.flags & EPFF_COMPRESSED) {
 				file.attributes.compressed = true;
-				file.getContent = () => comp.reveal(file.getRaw(), cmpParams);
+				file.getContent = () => cmp_lzw.reveal(file.getRaw(), cmpParams);
 			} else {
 				file.attributes.compressed = false;
 			}
@@ -156,8 +154,6 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 
 	static generate(archive)
 	{
-		const comp = GameCompression.getHandler('cmp-lzw');
-
 		// Work out where the FAT ends and the first file starts.
 		const lenFAT = FATENTRY_LEN * archive.files.length;
 
@@ -185,7 +181,7 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 			}
 
 			if (isCompressed) {
-				content = comp.obscure(content, cmpParams);
+				content = cmp_lzw.obscure(content, cmpParams);
 			}
 			file.diskSize = content.length;
 			buffer.put(content);
@@ -220,4 +216,4 @@ module.exports = class Archive_EPF_EastPoint extends ArchiveHandler
 			main: buffer.getU8(),
 		};
 	}
-};
+}

@@ -1,5 +1,5 @@
-/**
- * @file Raptor .GLB format handler.
+/*
+ * Raptor .GLB format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/GLB_Format
@@ -22,13 +22,14 @@
 
 const FORMAT_ID = 'arc-glb-raptor';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
-const GameCompression = require('@camoto/gamecomp');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import { enc_glb_raptor } from '@camoto/gamecomp';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const recordTypes = {
 	header: {
@@ -49,7 +50,7 @@ const FATENTRY_LEN = 28; // sizeof(fatEntry)
 // File flags.
 const GLBF_ENCRYPTED = 0x00000001;
 
-module.exports = class Archive_GRP_Build extends ArchiveHandler
+export default class Archive_GRP_Build extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -73,8 +74,6 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		if (content.length < FATENTRY_LEN) {
 			return {
 				valid: false,
@@ -99,11 +98,10 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 	}
 
 	static parse({main: content}) {
-		const crypto = GameCompression.getHandler('enc-glb-raptor');
 		let archive = new Archive();
 		let buffer = new RecordBuffer(content);
 
-		const rbHeader = new RecordBuffer(crypto.reveal(
+		const rbHeader = new RecordBuffer(enc_glb_raptor.reveal(
 			buffer.getU8(0, FATENTRY_LEN),
 			{
 				blockSize: FATENTRY_LEN,
@@ -111,7 +109,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		));
 		const header = rbHeader.readRecord(recordTypes.header);
 
-		const rbFAT = new RecordBuffer(crypto.reveal(
+		const rbFAT = new RecordBuffer(enc_glb_raptor.reveal(
 			buffer.getU8(FATENTRY_LEN, FATENTRY_LEN * header.fileCount),
 			{
 				blockSize: FATENTRY_LEN,
@@ -121,7 +119,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = rbFAT.readRecord(recordTypes.fatEntry);
 
-			let file = new Archive.File();
+			let file = new File();
 			file.name = fatEntry.name;
 			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = fatEntry.offset;
@@ -129,7 +127,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 
 			if (fatEntry.flags & GLBF_ENCRYPTED) {
 				file.attributes.encrypted = true;
-				file.getContent = () => crypto.reveal(file.getRaw());
+				file.getContent = () => enc_glb_raptor.reveal(file.getRaw());
 			} else {
 				file.attributes.encrypted = false;
 			}
@@ -177,9 +175,8 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 		});
 
 		// Encrypt the FAT and write it to the main output.
-		const crypto = GameCompression.getHandler('enc-glb-raptor');
 		buffer.put(
-			crypto.obscure(bufFAT.getU8(), {blockSize: FATENTRY_LEN})
+			enc_glb_raptor.obscure(bufFAT.getU8(), {blockSize: FATENTRY_LEN})
 		);
 
 		archive.files.forEach(file => {
@@ -192,7 +189,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 
 			if (file.attributes.encrypted !== false) {
 				buffer.put(
-					crypto.obscure(content)
+					enc_glb_raptor.obscure(content)
 				);
 			} else {
 				buffer.put(content);
@@ -203,4 +200,4 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			main: buffer.getU8(),
 		};
 	}
-};
+}

@@ -1,5 +1,5 @@
-/**
- * @file Descent .HOG format handler.
+/*
+ * Descent .HOG format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/HOG_Format
@@ -22,12 +22,13 @@
 
 const FORMAT_ID = 'arc-hog-descent';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const recordTypes = {
 	header: {
@@ -42,7 +43,7 @@ const recordTypes = {
 const HEADER_LEN = 3; // sizeof(header)
 const FATENTRY_LEN = 17; // sizeof(fatEntry)
 
-module.exports = class Archive_GRP_Build extends ArchiveHandler
+export default class Archive_GRP_Build extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -63,8 +64,6 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		if (content.length < HEADER_LEN) {
 			return {
 				valid: false,
@@ -99,7 +98,7 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 			offset += FATENTRY_LEN;
 
-			let file = new Archive.File();
+			let file = new File();
 			file.name = fatEntry.name;
 			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = offset;
@@ -149,4 +148,4 @@ module.exports = class Archive_GRP_Build extends ArchiveHandler
 			main: buffer.getU8(),
 		};
 	}
-};
+}

@@ -1,5 +1,5 @@
-/**
- * @file Command line interface to the library.
+/*
+ * Command line interface to the library.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,10 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const fs = require('fs');
-const commandLineArgs = require('command-line-args');
-const GameArchive = require('../index.js');
-const Debug = require('../util/utl-debug.js');
+import Debug from '../util/debug.js';
+const g_debug = Debug.extend('cli');
+
+import fs from 'fs';
+import commandLineArgs from 'command-line-args';
+import {
+	Archive,
+	File,
+	all as gamearchiveFormats,
+	findHandler as gamearchiveFindHandler,
+} from '../index.js';
 
 // https://stackoverflow.com/a/20732091/308237
 function humanFileSize(size) {
@@ -34,7 +41,7 @@ class OperationsError extends Error {
 class Operations
 {
 	constructor() {
-		this.archive = new GameArchive.Archive();
+		this.archive = new Archive();
 	}
 
 	log(action, ...params) {
@@ -45,7 +52,7 @@ class Operations
 		if (!params.target) {
 			throw new OperationsError('add: missing filename');
 		}
-		let file = new GameArchive.Archive.File();
+		let file = new File();
 		file.name = params.name || params.target;
 		file.diskSize = file.nativeSize = fs.statSync(params.target).size;
 		file.getRaw = () => fs.readFileSync(params.target);
@@ -124,13 +131,12 @@ class Operations
 		if (!params.target) {
 			throw new OperationsError('identify: missing filename');
 		}
-		Debug.mute(false);
 
 		console.log('Autodetecting file format...');
 		const content = {
 			main: fs.readFileSync(params.target),
 		};
-		let handlers = GameArchive.findHandler(content.main);
+		let handlers = gamearchiveFindHandler(content.main, params.target);
 
 		console.log(handlers.length + ' format handler(s) matched');
 		if (handlers.length === 0) {
@@ -165,8 +171,6 @@ class Operations
 				}
 			}
 		});
-
-		Debug.mute(true);
 	}
 
 	list() {
@@ -209,7 +213,7 @@ class Operations
 	open(params) {
 		let handler;
 		if (params.format) {
-			handler = GameArchive.getHandler(params.format);
+			handler = gamearchiveFormats.find(h => h.metadata().id === params.format);
 			if (!handler) {
 				throw new OperationsError('Invalid format code: ' + params.format);
 			}
@@ -222,7 +226,7 @@ class Operations
 			main: fs.readFileSync(params.target),
 		};
 		if (!handler) {
-			let handlers = GameArchive.findHandler(content.main);
+			let handlers = gamearchiveFindHandler(content.main, params.target);
 			if (handlers.length === 0) {
 				throw new OperationsError('Unable to identify this archive format.');
 			}
@@ -276,7 +280,7 @@ class Operations
 		}
 		if (!params.format) params.format = this.origFormat;
 
-		const handler = GameArchive.getHandler(params.format);
+		const handler = gamearchiveFormats.find(h => h.metadata().id === params.format);
 		if (!handler) {
 			throw new OperationsError('save: invalid format code: ' + params.format);
 		}
@@ -378,19 +382,18 @@ Object.keys(aliases).forEach(cmd => {
 
 function listFormats()
 {
-	GameArchive.listHandlers().forEach(handler => {
+	for (const handler of gamearchiveFormats) {
 		const md = handler.metadata();
 		console.log(`${md.id}: ${md.title}`);
 		if (md.params) Object.keys(md.params).forEach(p => {
 			console.log(`  * ${p}: ${md.params[p]}`);
 		});
-	});
+	}
 }
 
 async function processCommands()
 {
 	let cmdDefinitions = [
-		{ name: 'debug', type: Boolean },
 		{ name: 'help', type: Boolean },
 		{ name: 'formats', type: Boolean },
 		{ name: 'name', defaultOption: true },
@@ -405,19 +408,14 @@ async function processCommands()
 		return;
 	}
 
-	if (cmd.debug) Debug.mute(false);
-
 	if (!cmd.name || cmd.help) {
 		// No params, show help.
-		console.log(`Use: gamearch --formats | [--debug] [command1 [command2...]]
+		console.log(`Use: gamearch --formats | [command1 [command2...]]
 
 Options:
 
   --formats
     List all available file formats.
-
-  --debug
-    Show additional debug information for troubleshooting.
 
 Commands:
 
@@ -470,6 +468,9 @@ Examples:
 
   gamearch open duke3d.grp extract stalker.mid
   gamearch add stalker.mid save -f arc-grp-build music.grp
+
+  # The DEBUG environment variable can be used for troubleshooting.
+  DEBUG='gamearchive:*' gamearch ...
 `);
 		return;
 	}
@@ -499,4 +500,4 @@ Examples:
 	}
 }
 
-processCommands();
+export default processCommands;

@@ -1,5 +1,5 @@
-/**
- * @file Extra tests for fixedArchive.
+/*
+ * Extra tests for fixedArchive.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,11 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const assert = require('assert');
+import assert from 'assert';
+import TestUtil from './util.js';
+import FixedArchive from '../util/fixedArchive.js';
 
-const FixedArchive = require('../util/fixedArchive.js');
-
-const TestUtil = require('./util.js');
 let testutil = new TestUtil('fixedArchive');
 
 describe(`fixedArchive`, function() {

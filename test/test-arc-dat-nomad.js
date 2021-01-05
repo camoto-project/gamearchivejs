@@ -1,5 +1,5 @@
-/**
- * @file Extra tests for arc-dat-nomad.
+/*
+ * Extra tests for arc-dat-nomad.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,17 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const assert = require('assert');
+import assert from 'assert';
+import TestUtil from './util.js';
+import { arc_dat_nomad as handler, Archive, File } from '../index.js';
 
-const TestUtil = require('./util.js');
-const GameArchive = require('../index.js');
-const Archive = require('../formats/archive.js');
-
-const format = 'arc-dat-nomad';
-
-const handler = GameArchive.getHandler(format);
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);
+
 describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 	let content = {};
 
@@ -56,7 +52,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			it('should use uncompressed width/height prefix for raw image files', async function() {
 				let archive = new Archive();
 
-				let file = new Archive.File();
+				let file = new File();
 				file.name = 'RAWVGA.BIN';
 				file.nativeSize = 272; // 16 cols * 17 rows, 1 byte per pixel
 				file.attributes.compressed = false;

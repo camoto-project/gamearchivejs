@@ -1,5 +1,5 @@
-/**
- * @file Vinyl Goddess From Mars .LBR format handler.
+/*
+ * Vinyl Goddess From Mars .LBR format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/LBR_Format
@@ -22,12 +22,13 @@
 
 const FORMAT_ID = 'arc-lbr-vinyl';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const knownFilenames = [
 	'1000P.CMP',
@@ -350,7 +351,7 @@ const recordTypes = {
 const HEADER_LEN = 2; // sizeof(header)
 const FATENTRY_LEN = 6; // sizeof(fatEntry)
 
-module.exports = class Archive_LBR_Vinyl extends ArchiveHandler
+export default class Archive_LBR_Vinyl extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -369,7 +370,6 @@ module.exports = class Archive_LBR_Vinyl extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
 		const lenArchive = content.length;
 
 		if (lenArchive < HEADER_LEN) {
@@ -426,7 +426,7 @@ module.exports = class Archive_LBR_Vinyl extends ArchiveHandler
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 
-			let file = new Archive.File();
+			let file = new File();
 			file.name = hashes[fatEntry.hash];
 			file.offset = fatEntry.offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
@@ -507,4 +507,4 @@ module.exports = class Archive_LBR_Vinyl extends ArchiveHandler
 		}
 		return hash & 0xffff;
 	}
-};
+}

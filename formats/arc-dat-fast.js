@@ -1,5 +1,5 @@
-/**
- * @file F.A.S.T engine .DAT format handler.
+/*
+ * F.A.S.T engine .DAT format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/DAT_Format_%28Monster_Bash%29
@@ -22,13 +22,14 @@
 
 const FORMAT_ID = 'arc-dat-fast';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
-const GameCompression = require('@camoto/gamecomp');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import { cmp_lzw, cmp_rle_bash } from '@camoto/gamecomp';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const recordTypes = {
 	fatEntry: {
@@ -71,7 +72,7 @@ const cmpDefaultParams = {
 	flushOnReset: false,
 };
 
-module.exports = class Archive_DAT_FAST extends ArchiveHandler
+export default class Archive_DAT_FAST extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -95,7 +96,6 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
 		let buffer = new RecordBuffer(content);
 
 		for (let i = 0; i < MAX_FILES; i++) {
@@ -145,8 +145,6 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 	static parse({main: content}) {
 		let archive = new Archive();
-		const cmpLZW = GameCompression.getHandler('cmp-lzw');
-		const cmpRLE = GameCompression.getHandler('cmp-rle-bash');
 
 		let buffer = new RecordBuffer(content);
 
@@ -158,7 +156,7 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 			let offset = nextOffset; // copy inside closure for f.get()
 
-			let file = new Archive.File();
+			let file = new File();
 			file.diskSize = fatEntry.compressedSize;
 			file.offset = offset;
 
@@ -190,8 +188,8 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 						finalSize: fatEntry.nativeSize + 16,
 					};
 					// Decompress with LZW, then decode with RLE.
-					const decomp = cmpRLE.reveal(
-						cmpLZW.reveal(file.getRaw(), fileParams)
+					const decomp = cmp_rle_bash.reveal(
+						cmp_lzw.reveal(file.getRaw(), fileParams)
 					);
 
 					// Since the compression algorithm often leaves an extra null byte
@@ -213,9 +211,6 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 
 	static generate(archive)
 	{
-		const cmpLZW = GameCompression.getHandler('cmp-lzw');
-		const cmpRLE = GameCompression.getHandler('cmp-rle-bash');
-
 		// Calculate the size up front so we don't have to keep reallocating the
 		// buffer, improving performance.
 		const finalSize = archive.files.reduce(
@@ -264,8 +259,8 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 				entry.compressedSize = file.nativeSize;
 			} else { // compression wanted or don't care/default
 				// Compress the file
-				diskData = cmpLZW.obscure(
-					cmpRLE.obscure(nativeData),
+				diskData = cmp_lzw.obscure(
+					cmp_rle_bash.obscure(nativeData),
 					cmpDefaultParams
 				);
 
@@ -282,5 +277,4 @@ module.exports = class Archive_DAT_FAST extends ArchiveHandler
 			main: buffer.getU8(),
 		};
 	}
-
-};
+}

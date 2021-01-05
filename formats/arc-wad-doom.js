@@ -1,5 +1,5 @@
-/**
- * @file Doom .WAD format handler.
+/*
+ * Doom .WAD format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/WAD_Format
@@ -22,12 +22,13 @@
 
 const FORMAT_ID = 'arc-wad-doom';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const MAX_FILENAME_LEN = 8;
 const MAX_FOLDERNAME_LEN = MAX_FILENAME_LEN - 6; // length of "_START"
@@ -74,7 +75,7 @@ const levelEntryOrder = [
 	'BEHAVIOR',
 ];
 
-module.exports = class Archive_WAD_Doom extends ArchiveHandler
+export default class Archive_WAD_Doom extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -131,8 +132,6 @@ module.exports = class Archive_WAD_Doom extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		const lenArchive = content.length;
 
 		if (lenArchive < HEADER_LEN) {
@@ -223,7 +222,7 @@ module.exports = class Archive_WAD_Doom extends ArchiveHandler
 			// These files we don't want to include
 			if (isStart || isStartMap || isEnd) continue;
 
-			let file = new Archive.File();
+			let file = new File();
 			file.name = folderPrefix + fatEntry.name;
 			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = fatEntry.offset;
@@ -272,7 +271,7 @@ module.exports = class Archive_WAD_Doom extends ArchiveHandler
 					};
 					flatList.push(newFile);
 				} else {
-					let startEntry = new Archive.File();
+					let startEntry = new File();
 					const level = isLevel(name);
 					if (level) {
 						startEntry.name = name;
@@ -286,7 +285,7 @@ module.exports = class Archive_WAD_Doom extends ArchiveHandler
 					flatten(entry, level);
 
 					if (!level) {
-						let endEntry = new Archive.File();
+						let endEntry = new File();
 						endEntry.name = name + '_END';
 						endEntry.nativeSize = 0;
 						endEntry.getRaw = () => new Uint8Array();
@@ -341,4 +340,4 @@ module.exports = class Archive_WAD_Doom extends ArchiveHandler
 			main: buffer.getU8(),
 		};
 	}
-};
+}

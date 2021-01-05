@@ -1,5 +1,5 @@
-/**
- * @file Archive base class and defaults.
+/*
+ * Base class for a file inside an archive.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -18,43 +18,13 @@
  */
 
 /**
- * Base class describing the interface to an archive.
- *
- * Instances of this class are returned when reading archives, and are passed
- * to the format handlers to produce new archive files.
- *
- * @name Archive
- * @kind class
- */
-module.exports = class Archive {
-	constructor() {
-		/**
-		 * Any metadata describing the archive file itself goes here.
-		 *
-		 * Some archives have a description, comment, or other information that's
-		 * not otherwise part of any file inside the archive.
-		 */
-		this.tags = {};
-
-		/**
-		 * An array of all the files in the archive.
-		 *
-		 * Each element in the array is an Archive.File object.
-		 */
-		this.files = [];
-	}
-};
-
-/**
  * Base class describing the interface to a file inside an archive.
  *
- * Instances of this class are returned in the 'file' array in the {Archive}
+ * Instances of this class are returned in the `files` array in the `Archive`
  * instance.
- *
- * @name File
- * @kind class
  */
-module.exports.File = class File {
+export default class File
+{
 	constructor() {
 		/**
 		 * Filename, as it appears in the archive file (case is not changed).
@@ -168,4 +138,4 @@ module.exports.File = class File {
 	getRaw() {
 		throw new Error('getRaw() has not been supplied for this file!');
 	}
-};
+}

@@ -1,5 +1,5 @@
-/**
- * @file Extra tests for arc-epf-eastpoint.
+/*
+ * Extra tests for arc-epf-eastpoint.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,14 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ID_FORMAT = 'arc-epf-eastpoint';
-
-const assert = require('assert');
-
-const TestUtil = require('./util.js');
-const GameArchive = require('../index.js');
-
-const handler = GameArchive.getHandler(ID_FORMAT);
+import assert from 'assert';
+import TestUtil from './util.js';
+import { arc_epf_eastpoint as handler } from '../index.js';
 
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);

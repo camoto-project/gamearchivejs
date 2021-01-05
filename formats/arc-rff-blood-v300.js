@@ -1,5 +1,8 @@
-/**
- * @file Supplementary file functions.
+/*
+ * Blood .RFF format handler, version 3.0.
+ *
+ * This file format is fully documented on the ModdingWiki:
+ *   http://www.shikadi.net/moddingwiki/RFF_Format
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,24 +20,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const Path = require('path');
+import { enc_xor_blood } from '@camoto/gamecomp';
+import Archive_RFF_Blood_Common from './arc-rff-blood-common.js';
 
-/**
- * Place to group together helper functions for supplemental data files.
- *
- * @name Supp
- * @kind class
- */
-module.exports = class Supp {
-	static replaceBasename(name, newBase) {
-		return Path.format({
-			...Path.parse(name),
-			name: newBase,
-			base: undefined,
-		});
+export default class Archive_RFF_Blood_v200 extends Archive_RFF_Blood_Common
+{
+	static version() {
+		return 0x300;
 	}
 
-	static replaceExtension(name, newExt) {
-		return name.replace(/\.[^/.]+$/, '') + '.' + newExt;
+	static getCrypto() {
+		return enc_xor_blood;
 	}
-};
+
+	static getKeyOffset_File() {
+		// Even in v300 the files themselves were in the v301 format
+		return 0;
+	}
+
+	static getKeyOffset_FAT() {
+		return 1;
+	}
+}

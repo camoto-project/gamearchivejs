@@ -1,5 +1,5 @@
-/**
- * @file Test helper functions.
+/*
+ * Test helper functions.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,9 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
+import assert from 'assert';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function hexdump(d) {
 	let s = '', h = '', t = '';
@@ -55,7 +58,7 @@ function arrayEqual(a, b) {
 	return true;
 }
 
-module.exports = class TestUtil {
+export default class TestUtil {
 	constructor(idHandler) {
 		assert.ok(idHandler, 'Format handler ID must be specified');
 		this.idHandler = idHandler;
@@ -71,18 +74,20 @@ module.exports = class TestUtil {
 
 	loadContent(handler, ids) {
 		let content = {};
-		ids.forEach(name => {
+		for (const name of ids) {
 			const mainFilename = name + '.bin';
 			let input = {
 				main: this.loadData(mainFilename),
 			};
+			input.main.filename = mainFilename;
 
 			const suppList = handler.supps(mainFilename, input.main);
 			if (suppList) Object.keys(suppList).forEach(id => {
 				input[id] = this.loadData(suppList[id]);
+				input[id].filename = suppList[id];
 			});
 			content[name] = input;
-		});
+		}
 
 		return content;
 	}
@@ -121,4 +126,4 @@ module.exports = class TestUtil {
 	static u8FromString(s) {
 		return Uint8Array.from(s.split(''), s => s.charCodeAt(0));
 	}
-};
+}

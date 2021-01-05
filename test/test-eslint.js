@@ -1,8 +1,10 @@
-const lint = require('mocha-eslint');
+import lint from 'mocha-eslint';
 
 const paths = [
-	'cli',
+	'index.js',
+	'cli/*.js',
 	'formats',
+	'interface',
 	'test',
 	'util',
 ];

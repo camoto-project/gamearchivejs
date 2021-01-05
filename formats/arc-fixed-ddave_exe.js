@@ -1,5 +1,5 @@
-/**
- * @file Dangerous Dave .exe file handler.
+/*
+ * Dangerous Dave .exe file handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/Dangerous_Dave
@@ -22,15 +22,15 @@
 
 const FORMAT_ID = 'arc-fixed-ddave_exe';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
-const cmp_lzexe = require('@camoto/gamecomp/compress/cmp-lzexe.js');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const FixedArchive = require('../util/fixedArchive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import { cmp_lzexe } from '@camoto/gamecomp';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import FixedArchive from '../util/fixedArchive.js';
 
-module.exports = class Archive_Fixed_DDave_EXE extends ArchiveHandler
+export default class Archive_Fixed_DDave_EXE extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -52,8 +52,6 @@ module.exports = class Archive_Fixed_DDave_EXE extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		// UNLZEXE the file if required.
 		let output = content;
 		if (cmp_lzexe.identify(content).valid) {
@@ -145,5 +143,4 @@ module.exports = class Archive_Fixed_DDave_EXE extends ArchiveHandler
 			main: FixedArchive.generate(archive),
 		};
 	}
-
-};
+}

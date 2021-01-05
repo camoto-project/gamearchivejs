@@ -1,5 +1,8 @@
-/**
- * @file Debugging helper functions.
+/*
+ * Blood .RFF format handler, version 2.0.
+ *
+ * This file format is fully documented on the ModdingWiki:
+ *   http://www.shikadi.net/moddingwiki/RFF_Format
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,5 +20,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const Debug = require('debug');
-module.exports = Debug('gamearchive');
+import Archive_RFF_Blood_Common from './arc-rff-blood-common.js';
+
+export default class Archive_RFF_Blood_v200 extends Archive_RFF_Blood_Common
+{
+	static version() {
+		return 0x200;
+	}
+
+	static getCrypto() {
+		return null;
+	}
+
+	static getKeyOffset_File() {
+		return 0;
+	}
+
+	static getKeyOffset_FAT() {
+		return 0;
+	}
+}

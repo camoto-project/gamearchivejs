@@ -1,5 +1,5 @@
-/**
- * @file Cosmo .VOL format handler.
+/*
+ * Cosmo .VOL format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/VOL_Format
@@ -22,12 +22,13 @@
 
 const FORMAT_ID = 'arc-vol-cosmo';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const recordTypes = {
 	fatEntry: {
@@ -40,7 +41,7 @@ const recordTypes = {
 const FATENTRY_LEN = 20; // sizeof(fatEntry)
 const MAX_FILES = 200;
 
-module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
+export default class Archive_VOL_Cosmo extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -69,8 +70,6 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		const lenArchive = content.length;
 		const lenFAT = MAX_FILES * FATENTRY_LEN;
 
@@ -117,7 +116,7 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 
 			if (fatEntry.offset !== 0) {
-				let file = new Archive.File();
+				let file = new File();
 				file.name = fatEntry.name;
 				file.diskSize = file.nativeSize = fatEntry.size;
 				file.offset = fatEntry.offset;
@@ -174,4 +173,4 @@ module.exports = class Archive_VOL_Cosmo extends ArchiveHandler
 			main: buffer.getU8(),
 		};
 	}
-};
+}

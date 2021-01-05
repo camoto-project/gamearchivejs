@@ -1,5 +1,5 @@
-/**
- * @file Base class and defaults for archive format handlers.
+/*
+ * Base class and defaults for archive format handlers.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,17 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const Debug = require('../util/utl-debug.js');
+import Debug from '../util/debug.js';
+const debug = Debug.extend('archiveHandler');
 
 /**
  * Base class and defaults for archive format handlers.
  *
  * To implement a new archive file format, this is the class that will be
  * extended and its methods replaced with ones that perform the work.
- *
- * @name ArchiveHandler
  */
-module.exports = class ArchiveHandler
+export default class ArchiveHandler
 {
 	/**
 	 * Retrieve information about the archive file format.
@@ -257,4 +256,4 @@ module.exports = class ArchiveHandler
 	static generate(archive) {
 		throw new Error('Not implemented yet.');
 	}
-};
+}

@@ -1,5 +1,5 @@
-/**
- * @file Nomad .DAT format handler.
+/*
+ * Nomad .DAT format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/DAT_Format_(Nomad)
@@ -22,16 +22,14 @@
 
 const FORMAT_ID = 'arc-dat-nomad';
 
-const {
-	RecordBuffer,
-	RecordType
-} = require('@camoto/record-io-buffer');
-const GameCompression = require('@camoto/gamecomp');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import { cmp_lzss } from '@camoto/gamecomp';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
 const recordTypes = {
 	header: {
@@ -63,7 +61,8 @@ const cmpParams = {
 	lengthFieldInHighBits: true,
 };
 
-module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
+export default class Archive_DAT_Nomad extends ArchiveHandler
+{
 	static metadata() {
 		let md = {
 			...super.metadata(),
@@ -89,8 +88,6 @@ module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		if (content.length < HEADER_LEN) {
 			return {
 				valid: false,
@@ -134,10 +131,7 @@ module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
 		};
 	}
 
-	static parse({
-		main: content
-	}) {
-		const comp = GameCompression.getHandler('cmp-lzss');
+	static parse({main: content}) {
 		let archive = new Archive();
 		let buffer = new RecordBuffer(content);
 
@@ -147,7 +141,7 @@ module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 
-			let file = new Archive.File();
+			let file = new File();
 			file.name = fatEntry.name;
 			file.diskSize = fatEntry.diskSize;
 			file.nativeSize = fatEntry.nativeSize;
@@ -177,7 +171,7 @@ module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
 			// use LZSS decompression only if the 'compressed' flag is set
 			if (fatEntry.flags & NDAT_COMPRESSED) {
 				file.attributes.compressed = true;
-				file.getContent = () => comp.reveal(file.getRaw(), cmpParams);
+				file.getContent = () => cmp_lzss.reveal(file.getRaw(), cmpParams);
 			} else {
 				file.attributes.compressed = false;
 			}
@@ -189,7 +183,6 @@ module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
 	}
 
 	static generate(archive) {
-		const comp = GameCompression.getHandler('cmp-lzss');
 		const header = {
 			fileCount: archive.files.length,
 		};
@@ -228,7 +221,7 @@ module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
 			}
 
 			if (file.attributes.compressed === true) {
-				content = comp.obscure(content, cmpParams);
+				content = cmp_lzss.obscure(content, cmpParams);
 			}
 			file.diskSize = content.length;
 
@@ -269,4 +262,4 @@ module.exports = class Archive_DAT_Nomad extends ArchiveHandler {
 			main: buffer.getU8(),
 		};
 	}
-};
+}

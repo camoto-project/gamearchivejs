@@ -45,22 +45,21 @@ in the usual way:
 
 See `cli/index.js` for example use.  The quick start is:
 
-    const GameArchive = require('@camoto/gamearchive');
+    import { arc_grp_build } from '@camoto/gamearchive';
     
     // Read an archive into memory
-    const handler = GameArchive.getHandler('arc-grp-duke3d');
     const content = {
         main: fs.readFileSync('duke3d.grp'),
         // Some formats need additional files here, see handler.supps()
     };
-    let archive = handler.parse(content);
+    let archive = arc_grp_build.parse(content);
     
     // List the files in the archive
-    archive.files.forEach(file => {
+    for (const file of archive.files) {
         console.log(file.name);
-    });
+    }
     
-    // Extract a file
+    // Extract a file, decompressing it if necessary.
     const data = archive.files[0].getContent();
     fs.writeFileSync(archive.files[0].name, data);
 
@@ -71,7 +70,7 @@ See `cli/index.js` for example use.  The quick start is:
     delete archive.files[1];
     
     // Write the archive back to disk with the modifications
-    const outBuffer = handler.generate(archive);
+    const outBuffer = arc_grp_build.generate(archive);
     fs.writeFileSync('new.grp', outBuffer.main);
 
 ## Installation as a contributor

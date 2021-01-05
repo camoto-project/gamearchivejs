@@ -1,5 +1,5 @@
-/**
- * @file Halloween Harry .BNK format handler.
+/*
+ * Halloween Harry .BNK format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/BNK_Format_%28Halloween_Harry%29
@@ -22,13 +22,14 @@
 
 const FORMAT_ID = 'arc-bnk-harry';
 
-const { RecordBuffer, RecordType } = require('@camoto/record-io-buffer');
+import Debug from '../util/debug.js';
+const debug = Debug.extend(FORMAT_ID);
 
-const ArchiveHandler = require('./archiveHandler.js');
-const Archive = require('./archive.js');
-const Supp = require('./supp.js');
-const Debug = require('../util/utl-debug.js');
-const g_debug = Debug.extend(FORMAT_ID);
+import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import ArchiveHandler from '../interface/archiveHandler.js';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
+import { replaceExtension } from '../util/supp.js';
 
 const recordTypes = {
 	fileHeader: {
@@ -49,7 +50,7 @@ const recordTypes = {
 const FILEHEADER_LEN = 22; // sizeof(fileHeader)
 const FATENTRY_LEN = 21; // sizeof(fatEntry)
 
-module.exports = class Archive_BNK_Harry extends ArchiveHandler
+export default class Archive_BNK_Harry extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
@@ -72,13 +73,11 @@ module.exports = class Archive_BNK_Harry extends ArchiveHandler
 
 	static supps(name) {
 		return {
-			fat: Supp.replaceExtension(name, 'fat'),
+			fat: replaceExtension(name, 'fat'),
 		};
 	}
 
 	static identify(content) {
-		const debug = g_debug.extend('identify');
-
 		const lenArchive = content.length;
 		// Empty archive
 		if (lenArchive === 0) {
@@ -137,7 +136,7 @@ module.exports = class Archive_BNK_Harry extends ArchiveHandler
 		for (let i = 0; i < fileCount; i++) {
 			const fatEntry = bufferFAT.readRecord(recordTypes.fatEntry);
 
-			let file = new Archive.File();
+			let file = new File();
 			// Crop filename down to indicated length (Pascal-style string)
 			file.name = fatEntry.name.substr(0, fatEntry.lenName);
 			file.diskSize = file.nativeSize = fatEntry.diskSize;
@@ -204,4 +203,4 @@ module.exports = class Archive_BNK_Harry extends ArchiveHandler
 			fat: bufferFAT.getU8(),
 		};
 	}
-};
+}

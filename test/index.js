@@ -17,11 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const assert = require('assert');
+import assert from 'assert';
+import TestUtil from './util.js';
 
-const TestUtil = require('./util.js');
-const GameArchive = require('../index.js');
-const Archive = require('../formats/archive.js');
+import {
+	all as gamearchiveFormats,
+	Archive,
+	File,
+} from '../index.js';
 
 // These formats are skipped entirely.
 const skipFormats = [
@@ -29,7 +32,7 @@ const skipFormats = [
 ];
 
 // Override the default colours so we can actually see them
-var colors = require('mocha/lib/reporters/base').colors;
+import { colors } from 'mocha/lib/reporters/base.js';
 colors['diff added'] = '1;33';
 colors['diff removed'] = '1;31';
 colors['green'] = '1;32';
@@ -40,12 +43,11 @@ colors['error stack'] = '1;37';
 // An archive with no content.
 const emptyArchive = new Archive();
 
-const allHandlers = GameArchive.listHandlers();
-allHandlers.forEach(handler => {
+for (const handler of gamearchiveFormats) {
 	const md = handler.metadata();
 
 	if (skipFormats.some(id => id === md.id)) {
-		return;
+		continue;
 	}
 
 	let testutil = new TestUtil(md.id);
@@ -92,7 +94,7 @@ allHandlers.forEach(handler => {
 				// This is what we expect the default archive in any given format to
 				// look like.
 
-				let file = new Archive.File();
+				let file = new File();
 				file.name = 'ONE.TXT';
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.nativeSize = 22;
@@ -101,7 +103,7 @@ allHandlers.forEach(handler => {
 				// default setting for encryption, if supported
 				defaultArchive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'TWO.TXT';
 				file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
 				file.nativeSize = 23;
@@ -116,7 +118,7 @@ allHandlers.forEach(handler => {
 				}
 				defaultArchive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'THREE.TXT';
 
 				if (md.id === 'arc-wad-doom') {
@@ -138,7 +140,7 @@ allHandlers.forEach(handler => {
 				}
 				defaultArchive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'FOUR.TXT';
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.diskSize = 64; // intentionally wrong size
@@ -255,7 +257,7 @@ allHandlers.forEach(handler => {
 				if (md.caps.file.maxFilenameLen) {
 					it('maximum filename length is correct', function() {
 						let archive = new Archive();
-						let file = new Archive.File();
+						let file = new File();
 
 						let expectedName;
 						if (md.caps.file.maxFilenameLen >= 5) {
@@ -286,13 +288,13 @@ allHandlers.forEach(handler => {
 				it('filenames without extensions work', function() {
 					let archive = new Archive();
 
-					let file = new Archive.File();
+					let file = new File();
 					file.name = 'TEST1';
 					file.nativeSize = 5;
 					file.getRaw = () => TestUtil.u8FromString('test1');
 					archive.files.push(file);
 
-					file = new Archive.File();
+					file = new File();
 					file.name = 'TEST2';
 					file.nativeSize = 5;
 					file.getRaw = () => TestUtil.u8FromString('test2');
@@ -312,7 +314,7 @@ allHandlers.forEach(handler => {
 				it('inconsistent file lengths are detected', function() {
 					let archive = new Archive();
 
-					let file = new Archive.File();
+					let file = new File();
 					file.name = 'TEST1';
 					file.nativeSize = 2;
 					file.getRaw = () => TestUtil.u8FromString('test1');
@@ -357,12 +359,11 @@ allHandlers.forEach(handler => {
 					});
 				});
 
-				const allHandlers = GameArchive.listHandlers();
-				allHandlers.forEach(subhandler => {
+				for (const subhandler of gamearchiveFormats) {
 					const submd = subhandler.metadata();
 
 					// Skip ourselves
-					if (submd.id === md.id) return;
+					if (submd.id === md.id) continue;
 
 					// NOTE: If we ever get formats that identify each other and we can't
 					// work around it, copy the identifyConflicts code from this matching
@@ -371,11 +372,11 @@ allHandlers.forEach(handler => {
 						const result = subhandler.identify(content.default.main);
 						assert.notEqual(result.valid, true);
 					});
-				});
+				}
 
 			}); // identify()
 
 		}); // I/O
 	}); // Standard tests
 
-}); // for each handler
+} // for each handler

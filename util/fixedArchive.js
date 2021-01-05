@@ -1,5 +1,5 @@
-/**
- * @file Base class for fixed-file archives.
+/*
+ * Base class for fixed-file archives.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,11 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const { RecordBuffer } = require('@camoto/record-io-buffer');
+import { RecordBuffer } from '@camoto/record-io-buffer';
+import Archive from '../interface/archive.js';
+import File from '../interface/file.js';
 
-const Archive = require('../formats/archive.js');
-
-module.exports = class FixedArchive
+export default class FixedArchive
 {
 	static parse(content, files) {
 		let archive = new Archive();
@@ -35,7 +35,7 @@ module.exports = class FixedArchive
 				&& (nextOffset != file.offset) // and it's not where we're up to
 			) {
 				// There's unclaimed data before this file, so add a dummy file for it.
-				let ef = new Archive.File();
+				let ef = new File();
 				ef.name = `data${extraFileCount}.bin`;
 				ef.offset = nextOffset;
 				ef.diskSize = ef.nativeSize = file.offset - nextOffset;
@@ -44,7 +44,7 @@ module.exports = class FixedArchive
 				nextOffset = file.offset;
 				extraFileCount++;
 			}
-			let newFile = new Archive.File();
+			let newFile = new File();
 			newFile.name = file.name;
 			newFile.offset = file.offset || nextOffset;
 			newFile.diskSize = newFile.nativeSize = file.diskSize;
@@ -59,7 +59,7 @@ module.exports = class FixedArchive
 		}
 		if (nextOffset != content.length) {
 			// Keep the trailing data too
-			let ef = new Archive.File();
+			let ef = new File();
 			ef.name = `data${extraFileCount}.bin`;
 			ef.offset = nextOffset;
 			ef.diskSize = ef.nativeSize = content.length - nextOffset;
@@ -94,5 +94,4 @@ module.exports = class FixedArchive
 
 		return buffer.getU8();
 	}
-
-};
+}

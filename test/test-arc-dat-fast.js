@@ -1,5 +1,5 @@
-/**
- * @file Extra tests for arc-dat-fast.
+/*
+ * Extra tests for arc-dat-fast.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,15 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ID_FORMAT = 'arc-dat-fast';
-
-const assert = require('assert');
-
-const TestUtil = require('./util.js');
-const GameArchive = require('../index.js');
-const Archive = require('../formats/archive.js');
-
-const handler = GameArchive.getHandler(ID_FORMAT);
+import assert from 'assert';
+import TestUtil from './util.js';
+import { arc_dat_fast as handler, Archive, File } from '../index.js';
 
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);
@@ -102,31 +96,31 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			it('filenames are converted into type codes', async function() {
 				let archive = new Archive();
 
-				let file = new Archive.File();
+				let file = new File();
 				file.name = 'level1.mif';
 				file.nativeSize = 8;
 				file.getRaw = () => TestUtil.u8FromString('content1');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'LEVEL2.MIF';
 				file.nativeSize = 8;
 				file.getRaw = () => TestUtil.u8FromString('content2');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'test.tbg';
 				file.nativeSize = 8;
 				file.getRaw = () => TestUtil.u8FromString('content3');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'audio.snd';
 				file.nativeSize = 8;
 				file.getRaw = () => TestUtil.u8FromString('content4');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'ega.pal';
 				file.nativeSize = 8;
 				file.getRaw = () => TestUtil.u8FromString('content5');
@@ -139,7 +133,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			it('RLE codes are generated', function() {
 				let archive = new Archive();
 
-				let file = new Archive.File();
+				let file = new File();
 				file.name = 'data.rle';
 				file.nativeSize = 8;
 				file.getRaw = () => Uint8Array.from([0x12, 0x90, 0x34, 0xFE, 0xFE, 0xFE, 0xFE, 0x56]);

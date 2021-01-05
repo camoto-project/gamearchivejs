@@ -1,5 +1,5 @@
-/**
- * @file Extra tests for arc-rff-blood-v300.
+/*
+ * Extra tests for arc-rff-blood-v300.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -17,14 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const ID_FORMAT = 'arc-rff-blood-v300';
-
-const assert = require('assert');
-
-const TestUtil = require('./util.js');
-const GameArchive = require('../index.js');
-
-const handler = GameArchive.getHandler(ID_FORMAT);
+import assert from 'assert';
+import TestUtil from './util.js';
+import { arc_rff_blood_v300 as handler } from '../index.js';
 
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);

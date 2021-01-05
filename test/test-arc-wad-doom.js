@@ -17,15 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const assert = require('assert');
+import assert from 'assert';
+import TestUtil from './util.js';
+import { arc_wad_doom as handler, Archive, File } from '../index.js';
 
-const TestUtil = require('./util.js');
-const GameArchive = require('../index.js');
-const Archive = require('../formats/archive.js');
-
-const format = 'arc-wad-doom';
-
-const handler = GameArchive.getHandler(format);
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);
 describe(`Extra tests for ${md.title} [${md.id}]`, function() {
@@ -94,43 +89,43 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			it('folders are converted into start/end codes (ExMx)', async function() {
 				let archive = new Archive();
 
-				let file = new Archive.File();
+				let file = new File();
 				file.name = 'E1M1/THINGS';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the first file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'E1M1/BEHAVIOR';
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the second file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'E1M2/LINEDEFS';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the third file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'E1M2/BLOCKMAP';
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'ROOT';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the first file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'A/B/TEST';
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the second file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'ROOT2';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the third file');
@@ -143,43 +138,43 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			it('folders are converted into start/end codes (MAPxx)', async function() {
 				let archive = new Archive();
 
-				let file = new Archive.File();
+				let file = new File();
 				file.name = 'MAP01/THINGS';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the first file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'MAP01/BEHAVIOR';
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the second file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'MAP02/LINEDEFS';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the third file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'MAP02/BLOCKMAP';
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'ROOT';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the first file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'A/B/TEST';
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the second file');
 				archive.files.push(file);
 
-				file = new Archive.File();
+				file = new File();
 				file.name = 'ROOT2';
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the third file');
@@ -191,7 +186,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			it('maximum filename length is correct', function() {
 				let archive = new Archive();
-				let file = new Archive.File();
+				let file = new File();
 
 				let expectedName = 'AAAAAAAA';
 
@@ -223,7 +218,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 			it('maximum folder name length is correct', function() {
 				let archive = new Archive();
-				let file = new Archive.File();
+				let file = new File();
 
 				let expectedName = 'AA/TEST';
 
