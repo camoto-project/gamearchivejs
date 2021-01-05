@@ -1,11 +1,11 @@
 # gamearchive.js
 Copyright 2010-2021 Adam Nielsen <<malvineous@shikadi.net>>  
 
-This is a Javascript library that can read and write archive files
-used by a number of MS-DOS games from the 1990s.  Archive files are
-like `.zip` files, except many games used their own custom file
-formats.  This library is an attempt to provide a unified interface
-for reading and writing many of these formats.
+This is a Javascript library that can read and write archive files used by a
+number of MS-DOS games from the 1990s.  Archive files are like `.zip` files,
+except many games used their own custom file formats.  This library is an
+attempt to provide a unified interface for reading and writing many of these
+formats.
 
 ## Installation as an end-user
 
@@ -79,11 +79,11 @@ See `cli/index.js` for example use.  The quick start is:
 If you would like to help add more file formats to the library, great!
 Clone the repo, and to get started:
 
-    npm install --dev
+    npm install
 
 Run the tests to make sure everything worked:
 
-    npm run -s test
+    npm test
 
 You're ready to go!  To add a new file format:
 
@@ -105,7 +105,7 @@ You're ready to go!  To add a new file format:
     cause the archive file produced by your code to be saved to a temporary
     file in the current directory:
     
-        SAVE_FAILED_TEST=1 npm run -s test
+        SAVE_FAILED_TEST=1 npm test
         mv error1.bin test/arc-myformat/default.bin
 
 If your archive format has any sort of compression or encryption, these
