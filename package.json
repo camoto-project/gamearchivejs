@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "description": "Read and write archive files used by DOS games",
   "bin": {
-    "gamearch": "./bin/gamearch"
+    "gamearch": "./bin/gamearch.js"
   },
   "main": "index.js",
   "type": "module",
