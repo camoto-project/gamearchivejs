@@ -29,9 +29,9 @@ describe(`fixedArchive`, function() {
 	describe('I/O', function() {
 
 		before('load test data from local filesystem', function() {
-			content = {
-				default: testutil.loadData('default.bin'),
-			};
+			content = testutil.loadContent(null, [
+				'default',
+			]);
 		});
 
 		describe('parse()', function() {
@@ -57,7 +57,7 @@ describe(`fixedArchive`, function() {
 						filter: null,
 					},
 				];
-				const archive = FixedArchive.parse(content['default'], files);
+				const archive = FixedArchive.parse(content['default'].main, files);
 
 				assert.equal(archive.files[0].name, 'one.txt');
 				assert.equal(archive.files[0].diskSize, 22);
@@ -90,7 +90,7 @@ describe(`fixedArchive`, function() {
 						filter: null,
 					},
 				];
-				const archive = FixedArchive.parse(content['default'], files);
+				const archive = FixedArchive.parse(content['default'].main, files);
 
 				assert.equal(archive.files[0].name, 'data1.bin');
 				assert.equal(archive.files[0].diskSize, 22);
@@ -118,7 +118,7 @@ describe(`fixedArchive`, function() {
 						filter: null,
 					},
 				];
-				const archive = FixedArchive.parse(content['default'], files);
+				const archive = FixedArchive.parse(content['default'].main, files);
 
 				assert.equal(archive.files[0].name, 'data1.bin');
 				assert.equal(archive.files[0].diskSize, 45);
@@ -144,7 +144,7 @@ describe(`fixedArchive`, function() {
 				];
 
 				assert.throws(() => {
-					FixedArchive.parse(content['default'], files);
+					FixedArchive.parse(content['default'].main, files);
 				});
 			});
 
@@ -173,9 +173,11 @@ describe(`fixedArchive`, function() {
 						filter: null,
 					},
 				];
-				const archive = FixedArchive.parse(content['default'], files);
+				const archive = FixedArchive.parse(content['default'].main, files);
 
-				const contentGenerated = FixedArchive.generate(archive);
+				const contentGenerated = {
+					main: FixedArchive.generate(archive),
+				};
 				TestUtil.contentEqual(content['default'], contentGenerated);
 			});
 
@@ -193,9 +195,11 @@ describe(`fixedArchive`, function() {
 						filter: null,
 					},
 				];
-				const archive = FixedArchive.parse(content['default'], files);
+				const archive = FixedArchive.parse(content['default'].main, files);
 
-				const contentGenerated = FixedArchive.generate(archive);
+				const contentGenerated = {
+					main: FixedArchive.generate(archive),
+				};
 				TestUtil.contentEqual(content['default'], contentGenerated);
 			});
 

@@ -65,27 +65,32 @@ export default class TestUtil {
 	}
 
 	loadData(filename) {
-		const buffer = fs.readFileSync(path.resolve(__dirname, this.idHandler, filename));
+		const buffer = fs.readFileSync(filename);
 		let ab = new ArrayBuffer(buffer.length);
 		let u8 = new Uint8Array(ab);
 		u8.set(buffer);
+
+		// Save the filename for later use.
+		u8.filename = filename;
+
 		return u8;
 	}
 
 	loadContent(handler, ids) {
 		let content = {};
 		for (const name of ids) {
-			const mainFilename = name + '.bin';
+			const mainFilename = path.join(__dirname, this.idHandler, name + '.bin');
 			let input = {
 				main: this.loadData(mainFilename),
 			};
-			input.main.filename = mainFilename;
 
-			const suppList = handler.supps(mainFilename, input.main);
-			if (suppList) Object.keys(suppList).forEach(id => {
-				input[id] = this.loadData(suppList[id]);
-				input[id].filename = suppList[id];
-			});
+			const suppList = handler && handler.supps(mainFilename, input.main);
+			if (suppList) {
+				for (const [id, suppFilename] of Object.entries(suppList)) {
+					input[id] = this.loadData(suppFilename); // already includes full path
+				}
+			}
+
 			content[name] = input;
 		}
 
@@ -93,20 +98,17 @@ export default class TestUtil {
 	}
 
 	static buffersEqual(expected, actual, msg) {
+		const errorFilename = path.resolve(__dirname, expected.filename || 'error');
+
 		if (expected instanceof ArrayBuffer) {
 			expected = new Uint8Array(expected);
 		}
 		if (!arrayEqual(expected, actual)) {
 			if (process.env.SAVE_FAILED_TEST == 1) {
-				for (let i = 1; i <= 20; i++) {
-					const fn = `error${i}.bin`;
-					if (!fs.existsSync(fn)) {
-						// eslint-disable-next-line no-console
-						console.warn(`** Saving actual data to ${fn}`);
-						fs.writeFileSync(fn, actual);
-						break;
-					}
-				}
+				let fn = errorFilename + '.failed_test_output';
+				// eslint-disable-next-line no-console
+				console.warn(`** Saving actual data to ${fn}`);
+				fs.writeFileSync(fn, actual);
 			}
 
 			throw new assert.AssertionError({
