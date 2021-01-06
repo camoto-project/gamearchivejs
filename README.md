@@ -91,7 +91,7 @@ You're ready to go!  To add a new file format:
     considerably.  If you're not sure, `arc-grp-build.js` is a good
     starting point as it is fairly simple.
     
- 2. Edit the main `index.js` and add a `require()` statement for your new file.
+ 2. Edit `formats/index.js` and add an `import` statement for your new file.
     
  3. Make a folder in `test/` for your new format and populate it with
     files similar to the other formats.  The tests work by creating
@@ -107,11 +107,12 @@ You're ready to go!  To add a new file format:
         SAVE_FAILED_TEST=1 npm test
         mv error1.bin test/arc-myformat/default.bin
 
-If your archive format has any sort of compression or encryption, these
-algorithms should go into the gamecomp.js project instead.  This is to make it
-easier to reuse the algorithms, as many of them (particularly the compression
-ones) are used amongst many unrelated archive formats.  All the gamecomp.js
-algorithms are available to be used by any archive format in this library.
+If your file format has any sort of compression or encryption, these algorithms
+should go into the [gamecomp.js](https://github.com/Malvineous/gamecompjs)
+project instead.  This is to make it easier to reuse the algorithms, as many of
+them (particularly the compression ones) are used amongst many unrelated file
+formats.  All the gamecomp.js algorithms are available to be used by any format
+in this library.
 
 During development you can test your code like this:
 
