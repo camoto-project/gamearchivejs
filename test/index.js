@@ -47,6 +47,7 @@ for (const handler of gamearchiveFormats) {
 	const md = handler.metadata();
 
 	if (skipFormats.some(id => id === md.id)) {
+		it.skip(`Standard tests for ${md.title} [${md.id}]`);
 		continue;
 	}
 
