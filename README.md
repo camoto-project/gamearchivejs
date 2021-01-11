@@ -27,10 +27,10 @@ quick examples:
     gamearch open duke3d.grp extract stalker.mid
     
     # Create a new archive
-    gamearch add stalker.mid save -f arc-grp-build music.grp
+    gamearch add stalker.mid save -t arc-grp-build music.grp
     
     # Convert an archive into another format
-    gamearch open duke3d.grp save -f arc-rff-blood-v301 duke3d.rff
+    gamearch open duke3d.grp save -t arc-rff-blood-v301 duke3d.rff
 
 To get a list of supported file formats, run:
 
@@ -117,7 +117,7 @@ in this library.
 During development you can test your code like this:
 
     # Read a sample archive and list the files, with debug messages on
-    $ DEBUG='gamearchive:*' ./bin/gamearch open -f arc-myformat example.dat list
+    $ DEBUG='gamearchive:*' ./bin/gamearch open -t arc-myformat example.dat list
 
     # Make sure the format is identified correctly or if not why not
     $ DEBUG='gamearchive:*' ./bin/gamearch identify example.dat
