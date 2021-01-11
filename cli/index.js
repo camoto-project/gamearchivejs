@@ -171,7 +171,7 @@ class Operations
 			console.log('No file format handlers were able to identify this file format, sorry.');
 			return;
 		}
-		handlers.forEach(handler => {
+		for (const handler of handlers) {
 			const m = handler.metadata();
 			console.log(`\n>> Trying handler for ${m.id} (${m.title})`);
 
@@ -187,7 +187,7 @@ class Operations
 			} catch (e) {
 				console.log(` - Skipping format due to error loading additional files `
 					+ `required:\n   ${e}`);
-				return;
+				continue;
 			}
 
 			const tempArch = handler.parse(content);
@@ -198,7 +198,7 @@ class Operations
 					console.log(' - Second filename is:', tempArch.files[1].name);
 				}
 			}
-		});
+		}
 	}
 
 	list() {
@@ -270,14 +270,17 @@ class Operations
 		}
 
 		const suppList = handler.supps(params.target, content.main);
-		if (suppList) Object.keys(suppList).forEach(id => {
-			try {
-				content[id] = fs.readFileSync(suppList[id]);
-			} catch (e) {
-				throw new OperationsError(`open: unable to open supplementary file `
-					+ `"${suppList[id]}": ${e}`);
+		if (suppList) {
+			for (const [id, suppFilename] of Object.entries(suppList)) {
+				try {
+					content[id] = fs.readFileSync(suppFilename);
+					content[id].filename = suppFilename;
+				} catch (e) {
+					throw new OperationsError(`open: unable to open supplementary file `
+						+ `"${suppFilename}": ${e.message}`);
+				}
 			}
-		});
+		}
 
 		this.archive = handler.parse(content);
 		this.origFormat = handler.metadata().id;
@@ -328,15 +331,17 @@ class Operations
 
 		let promises = [];
 		const suppList = handler.supps(params.target, outContent.main);
-		if (suppList) Object.keys(suppList).forEach(id => {
-			console.warn(' - Saving supplemental file', suppList[id]);
-			promises.push(
-				fs.promises.writeFile(suppList[id], outContent[id])
-			);
-		});
+		if (suppList) {
+			for (const [id, suppFilename] of Object.entries(suppList)) {
+				console.warn(` - Saving supplemental file "${id}" to ${suppFilename}`);
+				promises.push(
+					fs.promises.writeFile(suppFilename, outContent[id])
+				);
+			}
+		}
 		promises.push(fs.promises.writeFile(params.target, outContent.main));
 
-		return Promise.all(promises);
+		return await Promise.all(promises);
 	}
 
 	type(params) {
