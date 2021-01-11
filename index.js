@@ -48,7 +48,7 @@ export const all = [
  *   formats where the filename extension is significant.  This can be
  *   omitted for less accurate autodetection.
  *
- * @return {Array<CodeHandler>} from formats/*.js that can handle the
+ * @return {Array<ArchiveHandler>} from formats/*.js that can handle the
  *   format, or an empty array if the format could not be identified.
  *
  * @example
