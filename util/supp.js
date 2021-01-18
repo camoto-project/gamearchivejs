@@ -42,3 +42,13 @@ export function replaceExtension(name, newExt)
 {
 	return name.replace(/\.[^/.]+$/, '') + '.' + newExt;
 }
+
+/**
+ * Replace the filename without affecting the path.
+ *
+ * "/folder/file.ext" -> "/folder/newfile.new"
+ */
+export function replaceFilename(name, newName)
+{
+	return name.replace(/(\/)?[^/]+$/, '$1') + newName;
+}

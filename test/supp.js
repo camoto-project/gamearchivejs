@@ -21,6 +21,7 @@ import assert from 'assert';
 import {
 	replaceBasename,
 	replaceExtension,
+	replaceFilename,
 } from '../util/supp.js';
 
 describe(`Extra tests for supplemental data functions`, function() {
@@ -103,6 +104,36 @@ describe(`Extra tests for supplemental data functions`, function() {
 			assert.equal(
 				replaceBasename('/blah/test', 'abc'),
 				'/blah/abc'
+			);
+		});
+	});
+
+	describe('replaceFilename()', function() {
+		it('replaces a normal filename', function() {
+			assert.equal(
+				replaceFilename('test.dat', 'abc.def'),
+				'abc.def'
+			);
+		});
+
+		it('replaces a filename with a path', function() {
+			assert.equal(
+				replaceFilename('/blah/test.dat', 'abc.def'),
+				'/blah/abc.def'
+			);
+		});
+
+		it('replaces a filename with no extension and a path', function() {
+			assert.equal(
+				replaceFilename('/blah/test', 'abc'),
+				'/blah/abc'
+			);
+		});
+
+		it('replaces a filename with an extension and a path with one without an extension', function() {
+			assert.equal(
+				replaceFilename('/blah/test.dat', 'def'),
+				'/blah/def'
 			);
 		});
 	});
