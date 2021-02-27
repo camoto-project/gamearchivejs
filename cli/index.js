@@ -18,7 +18,7 @@
  */
 
 import Debug from '../util/debug.js';
-const g_debug = Debug.extend('cli');
+const debug = Debug.extend('cli');
 
 import fs from 'fs';
 import commandLineArgs from 'command-line-args';
@@ -282,7 +282,12 @@ class Operations
 			}
 		}
 
-		this.archive = handler.parse(content);
+		try {
+			this.archive = handler.parse(content);
+		} catch (e) {
+			debug(e);
+			throw new OperationsError(`Unable to open file: ${e.message}`);
+		}
 		this.origFormat = handler.metadata().id;
 	}
 
