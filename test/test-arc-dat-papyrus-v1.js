@@ -1,5 +1,5 @@
 /*
- * Extra tests for arc-dat-nomad.
+ * Extra tests for arc-dat-papyrus-v1.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -19,7 +19,7 @@
 
 import assert from 'assert';
 import TestUtil from './util.js';
-import { arc_dat_nomad as handler, Archive, File } from '../index.js';
+import { arc_dat_papyrus_v1 as handler, Archive, File } from '../index.js';
 
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);

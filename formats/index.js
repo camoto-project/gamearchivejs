@@ -35,6 +35,6 @@ export { default as arc_fixed_ddave_exe } from './arc-fixed-ddave_exe.js';
 export { default as arc_dat_fast } from './arc-dat-fast.js';
 export { default as arc_dat_wacky } from './arc-dat-wacky.js';
 export { default as arc_pod_tv } from './arc-pod-tv.js';
-export { default as arc_dat_nomad } from './arc-dat-nomad.js';
+export { default as arc_dat_papyrus_v1 } from './arc-dat-papyrus-v1.js';
 export { default as arc_vol_cosmo } from './arc-vol-cosmo.js';
 export { default as arc_lbr_vinyl } from './arc-lbr-vinyl.js';

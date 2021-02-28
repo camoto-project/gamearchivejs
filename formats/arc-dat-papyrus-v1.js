@@ -1,8 +1,8 @@
 /*
- * Nomad .DAT format handler.
+ * Papyrus V1 .DAT format handler.
  *
  * This file format is fully documented on the ModdingWiki:
- *   http://www.shikadi.net/moddingwiki/DAT_Format_(Nomad)
+ *   http://www.shikadi.net/moddingwiki/DAT_Format_(Papyrus)
  *
  * Copyright (C) 2018-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const FORMAT_ID = 'arc-dat-nomad';
+const FORMAT_ID = 'arc-dat-papyrus-v1';
 
 import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
@@ -51,8 +51,8 @@ const recordTypes = {
 const HEADER_LEN = 2; // sizeof(header)
 const FATENTRY_LEN = 28; // sizeof(fatEntry)
 
-const NDAT_COMPRESSED = 0x0100;
-const NDAT_NOPREFIXWORDS = 0x0004;
+const PDAT_COMPRESSED = 0x0100;
+const PDAT_NOPREFIXWORDS = 0x0004;
 
 const cmpParams = {
 	sizeLength: 4,
@@ -61,14 +61,15 @@ const cmpParams = {
 	lengthFieldInHighBits: true,
 };
 
-export default class Archive_DAT_Nomad extends ArchiveHandler
+export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
 			...super.metadata(),
 			id: FORMAT_ID,
-			title: 'Nomad DAT File',
+			title: 'Papyrus v1 DAT File',
 			games: [
+				'J.R.R. Tolkien\'s Riders of Rohan',
 				'Nomad',
 			],
 			glob: [
@@ -153,7 +154,7 @@ export default class Archive_DAT_Nomad extends ArchiveHandler
 			// prefixed by two 16-bit words that describe width and height. These
 			// two words are not included in the LZ compressed data, nor are they
 			// included in the file size.
-			if ((fatEntry.flags & NDAT_NOPREFIXWORDS) === 0) {
+			if ((fatEntry.flags & PDAT_NOPREFIXWORDS) === 0) {
 
 				// save the current offset we're parsing in the FAT so that we can
 				// return to it after reading the uncompressed prefix words
@@ -169,7 +170,7 @@ export default class Archive_DAT_Nomad extends ArchiveHandler
 			}
 
 			// use LZSS decompression only if the 'compressed' flag is set
-			if (fatEntry.flags & NDAT_COMPRESSED) {
+			if (fatEntry.flags & PDAT_COMPRESSED) {
 				file.attributes.compressed = true;
 				file.getContent = () => cmp_lzss.reveal(file.getRaw(), cmpParams);
 			} else {
@@ -235,9 +236,9 @@ export default class Archive_DAT_Nomad extends ArchiveHandler
 		archive.files.forEach(file => {
 
 			const isCompressed = (file.attributes.compressed === true);
-			const compressedFlag = (isCompressed ? NDAT_COMPRESSED : 0);
+			const compressedFlag = (isCompressed ? PDAT_COMPRESSED : 0);
 			const hasPrefixWords = (file.attributes.hasPrefixWords === true);
-			const prefixWordFlag = (hasPrefixWords ? 0 : NDAT_NOPREFIXWORDS);
+			const prefixWordFlag = (hasPrefixWords ? 0 : PDAT_NOPREFIXWORDS);
 
 			const entry = {
 				flags: 0x0001 | compressedFlag | prefixWordFlag,
