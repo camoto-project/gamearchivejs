@@ -7,6 +7,32 @@ except many games used their own custom file formats.  This library is an
 attempt to provide a unified interface for reading and writing many of these
 formats.
 
+## Supported file formats
+
+| Game                      | Files     | Format                    | Code                |
+|---------------------------|-----------|---------------------------|---------------------|
+| Blood                     | *.rff     | Monolith Resource File Format v2.0/3.0/3.1 | arc-rff-blood-* |
+| Cosmo's Cosmic Adventures | *.vol, *.stn | Cosmo Data Volume      | arc-vol-cosmo       |
+| Dangerous Dave            | dave.exe  | Dangerous Dave .exe       | arc-fixed-ddave_exe |
+| Descent                   | *.hog     | Descent HOG File          | arc-hog-descent     |
+| Doom                      | *.wad     | Where's All the Data File | arc-wad-doom        |
+| Duke Nukem 3D             | *.grp     | BUILD Group File          | arc-grp-build       |
+| Duke Nukem II             | *.cmp     | Cosmo Data Volume         | arc-vol-cosmo       |
+| Halloween Harry           | *.bnk     | SubZero Data Bank         | arc-bnk-harry       |
+| IndyCar Racing            | *.dat     | Papyrus Data File         | arc-dat-nomad       |
+| J.R.R Tolkien's Riders of Rohan | *.dat | Papyrus Data File       | arc-dat-nomad       |
+| Lion King, The            | *.dat     | East Point File Storage   | arc-epf-eastpoint   |
+| Major Stryker             | *.ms[123] | Cosmo Data Volume         | arc-vol-cosmo       |
+| Monster Bash              | *.dat     | F.A.S.T. Data File        | arc-dat-fast        |
+| Nomad                     | *.dat     | Papyrus Data File         | arc-dat-nomad       |
+| Raptor                    | *.glb     | Raptor Game Library       | arc-glb-raptor      |
+| Redneck Rampage           | *.grp     | BUILD Group File          | arc-grp-build       |
+| Scubaventure              | *.dat     | F.A.S.T. Data File        | arc-dat-fast        |
+| Shadow Warrior            | *.grp     | BUILD Group File          | arc-grp-build       |
+| Terminal Velocity         | *.pod     | Terminal Reality POD File | arc-pod-tv          |
+| Vinyl Goddess From Mars   | *.lbr     | Vinyl Library File        | arc-lbr-vinyl       |
+| Wacky Wheels              | *.dat     | Wacky Wheels Data File    | arc-dat-wacky       |
+
 ## Installation as an end-user
 
 If you wish to use the command-line `gamearch` utility to work with game
