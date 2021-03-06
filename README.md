@@ -18,13 +18,18 @@ formats.
 | Doom                      | *.wad     | Where's All the Data File | arc-wad-doom        |
 | Duke Nukem 3D             | *.grp     | BUILD Group File          | arc-grp-build       |
 | Duke Nukem II             | *.cmp     | Cosmo Data Volume         | arc-vol-cosmo       |
+| Grand Prix Legends        | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
 | Halloween Harry           | *.bnk     | SubZero Data Bank         | arc-bnk-harry       |
-| IndyCar Racing            | *.dat     | Papyrus Data File         | arc-dat-papyrus-v1  |
-| J.R.R Tolkien's Riders of Rohan | *.dat | Papyrus Data File       | arc-dat-papyrus-v1  |
+| IndyCar Racing            | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| IndyCar Racing II         | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| J.R.R. Tolkien's Riders of Rohan | *.dat | Papyrus Data File (V1) | arc-dat-papyrus-v1  |
 | Lion King, The            | *.dat     | East Point File Storage   | arc-epf-eastpoint   |
 | Major Stryker             | *.ms[123] | Cosmo Data Volume         | arc-vol-cosmo       |
 | Monster Bash              | *.dat     | F.A.S.T. Data File        | arc-dat-fast        |
-| Nomad                     | *.dat     | Papyrus Data File         | arc-dat-papyrus-v1  |
+| NASCAR Racing             | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| NASCAR Racing 2           | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| NASCAR Racing 3           | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| Nomad                     | *.dat     | Papyrus Data File (V1)    | arc-dat-papyrus-v1  |
 | Raptor                    | *.glb     | Raptor Game Library       | arc-glb-raptor      |
 | Redneck Rampage           | *.grp     | BUILD Group File          | arc-grp-build       |
 | Scubaventure              | *.dat     | F.A.S.T. Data File        | arc-dat-fast        |
