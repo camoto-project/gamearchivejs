@@ -52,3 +52,14 @@ export function replaceFilename(name, newName)
 {
 	return name.replace(/(\/)?[^/]+$/, '$1') + newName;
 }
+
+/**
+ * Extract the basename from the filename.
+ *
+ * "/folder/file.ext" -> "file"
+ */
+export function getBasename(name)
+{
+	const p = Path.parse(name);
+	return (p && p.name) || null;
+}
