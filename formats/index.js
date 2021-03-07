@@ -30,6 +30,10 @@ export { default as arc_rff_blood_v301 } from './arc-rff-blood-v301.js';
 export { default as arc_wad_doom } from './arc-wad-doom.js';
 export { default as arc_fixed_ddave_exe } from './arc-fixed-ddave_exe.js';
 
+// These files have supps so they'll be discounted quickly if the extra files
+// are unavailable.
+export { default as arc_gamemaps_id } from './arc-gamemaps-id.js';
+
 // These formats require enumeration, sometimes all the way to the end of the
 // file, so they are next.
 export { default as arc_dat_fast } from './arc-dat-fast.js';

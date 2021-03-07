@@ -1,5 +1,5 @@
-/**
- * @file Standard tests.
+/*
+ * Standard tests.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -96,7 +96,16 @@ for (const handler of gamearchiveFormats) {
 				// look like.
 
 				let file = new File();
-				file.name = 'ONE.TXT';
+				switch (md.id) {
+					case 'arc-gamemaps-id':
+						// Only certain filenames allowed
+						file.name = '00/plane0';
+						break;
+					default:
+						file.name = 'ONE.TXT';
+						break;
+				}
+
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the first file');
@@ -105,7 +114,16 @@ for (const handler of gamearchiveFormats) {
 				defaultArchive.files.push(file);
 
 				file = new File();
-				file.name = 'TWO.TXT';
+				switch (md.id) {
+					case 'arc-gamemaps-id':
+						// Only certain filenames allowed
+						file.name = '00/plane1';
+						break;
+					default:
+						file.name = 'TWO.TXT';
+						break;
+				}
+
 				file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the second file');
@@ -120,11 +138,18 @@ for (const handler of gamearchiveFormats) {
 				defaultArchive.files.push(file);
 
 				file = new File();
-				file.name = 'THREE.TXT';
-
-				if (md.id === 'arc-wad-doom') {
-					// Default name is too long
-					file.name = 'THREE';
+				switch (md.id) {
+					case 'arc-wad-doom':
+						// Default name is too long
+						file.name = 'THREE';
+						break;
+					case 'arc-gamemaps-id':
+						// Only certain filenames allowed
+						file.name = '00/plane2';
+						break;
+					default:
+						file.name = 'THREE.TXT';
+						break;
 				}
 
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
@@ -142,13 +167,24 @@ for (const handler of gamearchiveFormats) {
 				defaultArchive.files.push(file);
 
 				file = new File();
-				file.name = 'FOUR.TXT';
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.diskSize = 64; // intentionally wrong size
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the fourth file');
 				// default setting for compression, if supported
 				// default setting for encryption, if supported
+
+				switch (md.id) {
+					case 'arc-gamemaps-id':
+						// Only certain filenames allowed
+						file.name = '00/info';
+						file.nativeSize = 20; // fixed length
+						file.getRaw = () => TestUtil.u8FromString('This is the inf file');
+						break;
+					default:
+						file.name = 'FOUR.TXT';
+						break;
+				}
 				defaultArchive.files.push(file);
 
 				const mdTags = Object.keys(md.caps.tags);
@@ -170,14 +206,31 @@ for (const handler of gamearchiveFormats) {
 				});
 
 				it('should have the standard number of files', function() {
-					assert.equal(archive.files.length, 4);
+					switch (md.id) {
+						case 'arc-gamemaps-id':
+							// This format pads out with empty folders
+							assert.equal(archive.files.length, 100 + 1 * 3);
+							break;
+						default:
+							assert.equal(archive.files.length, 4);
+							break;
+					}
 				});
 
 				it('should extract files correctly', function() {
 					TestUtil.buffersEqual(TestUtil.u8FromString('This is the first file'), archive.files[0].getContent());
 					TestUtil.buffersEqual(TestUtil.u8FromString('This is the second file'), archive.files[1].getContent());
 					TestUtil.buffersEqual(TestUtil.u8FromString('This is the third file'), archive.files[2].getContent());
-					TestUtil.buffersEqual(TestUtil.u8FromString('This is the fourth file'), archive.files[3].getContent());
+					let exp4;
+					switch (md.id) {
+						case 'arc-gamemaps-id':
+							exp4 = 'This is the inf file';
+							break;
+						default:
+							exp4 = 'This is the fourth file';
+							break;
+					}
+					TestUtil.buffersEqual(TestUtil.u8FromString(exp4), archive.files[3].getContent());
 				});
 
 				it('should retrieve the correct filenames', function() {
@@ -191,7 +244,15 @@ for (const handler of gamearchiveFormats) {
 					assert.equal(archive.files[0].nativeSize, 22);
 					assert.equal(archive.files[1].nativeSize, 23);
 					assert.equal(archive.files[2].nativeSize, 22);
-					assert.equal(archive.files[3].nativeSize, 23);
+					switch (md.id) {
+						case 'arc-gamemaps-id':
+							// 'info' is fixed length.
+							assert.equal(archive.files[3].nativeSize, 20);
+							break;
+						default:
+							assert.equal(archive.files[3].nativeSize, 23);
+							break;
+					}
 				});
 
 				if (md.caps.file.lastModified) {
@@ -262,7 +323,7 @@ for (const handler of gamearchiveFormats) {
 					TestUtil.contentEqual(content.empty, contentGenerated);
 				});
 
-				if (md.caps.file.maxFilenameLen) {
+				if (md.caps.file.maxFilenameLen && (md.id !== 'arc-gamemaps-id')) {
 					it('maximum filename length is correct', function() {
 						let archive = new Archive();
 						let file = new File();
@@ -293,31 +354,33 @@ for (const handler of gamearchiveFormats) {
 					});
 				}
 
-				it('filenames without extensions work', function() {
-					let archive = new Archive();
+				if (md.id !== 'arc-gamemaps-id') {
+					it('filenames without extensions work', function() {
+						let archive = new Archive();
 
-					let file = new File();
-					file.name = 'TEST1';
-					file.nativeSize = 5;
-					file.getRaw = () => TestUtil.u8FromString('test1');
-					archive.files.push(file);
+						let file = new File();
+						file.name = 'TEST1';
+						file.nativeSize = 5;
+						file.getRaw = () => TestUtil.u8FromString('test1');
+						archive.files.push(file);
 
-					file = new File();
-					file.name = 'TEST2';
-					file.nativeSize = 5;
-					file.getRaw = () => TestUtil.u8FromString('test2');
-					archive.files.push(file);
+						file = new File();
+						file.name = 'TEST2';
+						file.nativeSize = 5;
+						file.getRaw = () => TestUtil.u8FromString('test2');
+						archive.files.push(file);
 
-					const contentGenerated = handler.generate(archive);
+						const contentGenerated = handler.generate(archive);
 
-					const parsedArchive = handler.parse(contentGenerated);
-					assert.ok(parsedArchive.files, 'Incorrect archive returned');
-					assert.ok(parsedArchive.files[0], 'First file did not get added to archive');
-					assert.equal(parsedArchive.files[0].name.toUpperCase(), 'TEST1', 'Name does not match');
+						const parsedArchive = handler.parse(contentGenerated);
+						assert.ok(parsedArchive.files, 'Incorrect archive returned');
+						assert.ok(parsedArchive.files[0], 'First file did not get added to archive');
+						assert.equal(parsedArchive.files[0].name.toUpperCase(), 'TEST1', 'Name does not match');
 
-					assert.ok(parsedArchive.files[1], 'Second file did not get added to archive');
-					assert.equal(parsedArchive.files[1].name.toUpperCase(), 'TEST2', 'Name does not match');
-				});
+						assert.ok(parsedArchive.files[1], 'Second file did not get added to archive');
+						assert.equal(parsedArchive.files[1].name.toUpperCase(), 'TEST2', 'Name does not match');
+					});
+				}
 
 				it('inconsistent file lengths are detected', function() {
 					let archive = new Archive();
