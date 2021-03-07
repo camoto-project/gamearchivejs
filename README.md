@@ -14,6 +14,7 @@ formats.
 | Blood                     | *.rff     | Monolith Resource File Format v2.0/3.0/3.1 | arc-rff-blood-* |
 | Cosmo's Cosmic Adventures | *.vol, *.stn | Cosmo Data Volume      | arc-vol-cosmo       |
 | Dangerous Dave            | dave.exe  | Dangerous Dave .exe       | arc-fixed-ddave_exe |
+| Death Rally               | *.bpa     | Death Rally BPA File      | arc-bpa-drally      |
 | Descent                   | *.hog     | Descent HOG File          | arc-hog-descent     |
 | Doom                      | *.wad     | Where's All the Data File | arc-wad-doom        |
 | Duke Nukem 3D             | *.grp     | BUILD Group File          | arc-grp-build       |
