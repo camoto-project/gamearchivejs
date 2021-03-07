@@ -124,10 +124,10 @@ You're ready to go!  To add a new file format:
     
  2. Edit `formats/index.js` and add an `import` statement for your new file.
     
- 3. Make a folder in `test/` for your new format and populate it with
-    files similar to the other formats.  The tests work by creating
-    a standard archive file with some preset files in it, and
-    comparing the result to what is inside this folder.
+ 3. Make a folder in `test/` for your new format and populate it with files
+    similar to the other formats.  The tests work by creating a standard
+    archive file with some preset files in it, and comparing the result to
+    what is inside this folder.
     
     You can either create these archives by hand, with another utility, or if
     you are confident that your code is correct, from the code itself.  This is
@@ -137,6 +137,22 @@ You're ready to go!  To add a new file format:
     
         SAVE_FAILED_TEST=1 npm test
         mv error1.bin test/arc-myformat/default.bin
+    
+    It is helpful however, to create these files first before implementing your
+    new format, as then you only need to keep running the tests and tweaking
+    your code until all the tests pass.
+    
+ 4. Create a file in `test/` for any extra tests your new format needs.
+    Typically all formats will at least have tests that confirm the
+    `identify()` function is correctly rejecting files, but you can also add
+    additional tests here if your format needs it.  See
+    [test-arc-pod-tv.js](test/test-arc-pod-tv.js) for a minimal example
+    that only has tests for the `identify()` function, or
+    [test-arc-dat-fast.js](test/test-arc-dat-fast.js) for an example with
+    a number of extra tests, in this case testing that filenames are correctly
+    converted into code numbers, something that is unique to that file format.
+    
+ 5. Update the `README.md` with details of your new format and supported games.
 
 If your file format has any sort of compression or encryption, these algorithms
 should go into the [gamecomp.js](https://github.com/Malvineous/gamecompjs)
@@ -150,8 +166,11 @@ During development you can test your code like this:
     # Read a sample archive and list the files, with debug messages on
     $ DEBUG='gamearchive:*' ./bin/gamearch open -t arc-myformat example.dat list
 
-    # Make sure the format is identified correctly or if not why not
+    # Make sure the format is autodetected correctly or if not why not
     $ DEBUG='gamearchive:*' ./bin/gamearch identify example.dat
+
+    # Run only unit tests for the new format, with debugging on
+    $ DEBUG='gamearchive:*' npm test -- -g arc-myformat
 
 If you use `debug()` rather than `console.log()` in your code then these
 messages can be left in for future diagnosis as they will only appear when the
