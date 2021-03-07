@@ -136,8 +136,16 @@ You're ready to go!  To add a new file format:
     cause the archive file produced by your code to be saved to a temporary
     file in the current directory:
     
+        # Prepare the location for the test files.
+        mkdir test/arc-myformat/
+        touch test/arc-myformat/default.bin   # Repeat for all needed files
+        
+        # Run the tests and save the output.
         SAVE_FAILED_TEST=1 npm test
-        mv error1.bin test/arc-myformat/default.bin
+        
+        # Check the failed output and if it's correct, overwrite the expected
+        # output with the test result.
+        mv test/arc-myformat/default.bin.failed_test_output test/arc-myformat/default.bin
     
     It is helpful however, to create these files first before implementing your
     new format, as then you only need to keep running the tests and tweaking
