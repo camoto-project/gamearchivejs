@@ -33,6 +33,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			content = testutil.loadContent(handler, [
 				'short',
 				'short_fat',
+				'file_inside_fat',
 				'file_past_eof',
 			]);
 		});
@@ -54,6 +55,15 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['short_fat'].main.filename
 				);
 				assert.equal(result.reason, `Content too short for file count (< 244 b).`);
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file inside FAT', function() {
+				const result = handler.identify(
+					content['file_inside_fat'].main,
+					content['file_inside_fat'].main.filename
+				);
+				assert.equal(result.reason, 'File 1 starts inside the FAT.');
 				assert.equal(result.valid, false);
 			});
 

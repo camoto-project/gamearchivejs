@@ -94,6 +94,12 @@ export default class Archive_POD_TV extends ArchiveHandler
 		// Read each offset and length and ensure it is valid.
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
+			if (fatEntry.offset < offEndFAT) {
+				return {
+					valid: false,
+					reason: `File ${i} starts inside the FAT.`,
+				};
+			}
 			if (fatEntry.offset + fatEntry.size > content.length) {
 				return {
 					valid: false,
