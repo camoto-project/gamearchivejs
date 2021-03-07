@@ -330,10 +330,10 @@ const knownFilenames = [
 	'TEXTBOX2.GRA',
 
 	// Files used by test code
-	'ONE.DAT',
-	'TWO.DAT',
-	'THREE.DAT',
-	'FOUR.DAT',
+	'ONE.TXT',
+	'TWO.TXT',
+	'THREE.TXT',
+	'FOUR.TXT',
 	'TEST1',
 	'TEST2',
 ];
