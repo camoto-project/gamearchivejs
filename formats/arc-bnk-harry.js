@@ -166,7 +166,7 @@ export default class Archive_BNK_Harry extends ArchiveHandler
 
 		let nextOffset = FILEHEADER_LEN;
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const fatEntry = {
 				lenName: file.name.length,
 				name: file.name,
@@ -196,7 +196,7 @@ export default class Archive_BNK_Harry extends ArchiveHandler
 			bufferFAT.writeRecord(recordTypes.fatEntry, fatEntry);
 
 			nextOffset += fatEntry.diskSize + FILEHEADER_LEN;
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

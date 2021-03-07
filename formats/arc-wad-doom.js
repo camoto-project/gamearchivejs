@@ -105,7 +105,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 		// folders) because that will often be too long, so instead we need to split
 		// it up into filenames and folder names and check the length of those
 		// individually.
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const parts = file.name.split('/');
 			parts.forEach((p, i) => {
 				if (i === parts.length - 1) {
@@ -126,7 +126,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 					}
 				}
 			});
-		});
+		}
 
 		return issues;
 	}
@@ -238,7 +238,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 	{
 		// Group entries by folder
 		let groupedFiles = {};
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			let target = groupedFiles;
 			let path = file.name.split('/');
 			while (path.length > 1) {
@@ -250,7 +250,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 				shortName: path[0],
 				file: file,
 			};
-		});
+		}
 
 		// Turn the grouped list into a flat one with the correct start/end entries.
 		let flatList = [];
@@ -262,7 +262,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 					return levelEntryOrder.indexOf(a) - levelEntryOrder.indexOf(b);
 				});
 			}
-			keys.forEach(name => {
+			for (const name of keys) {
 				const entry = list[name];
 				if (entry.file) {
 					const newFile = {
@@ -292,7 +292,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 						flatList.push(endEntry);
 					}
 				}
-			});
+			}
 		};
 		flatten(groupedFiles);
 
@@ -315,7 +315,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
 		let offset = lenFAT;
-		flatList.forEach(file => {
+		for (const file of flatList) {
 			const entry = {
 				name: file.name,
 				size: file.nativeSize,
@@ -323,9 +323,9 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 			};
 			buffer.writeRecord(recordTypes.fatEntry, entry);
 			offset += file.nativeSize;
-		});
+		}
 
-		flatList.forEach(file => {
+		for (const file of flatList) {
 			const content = file.getContent();
 
 			// Safety check.
@@ -334,7 +334,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 			}
 
 			buffer.put(content);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

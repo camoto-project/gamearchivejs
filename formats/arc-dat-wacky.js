@@ -153,7 +153,7 @@ export default class Archive_GRP_Build extends ArchiveHandler
 		buffer.writeRecord(recordTypes.header, header);
 
 		let offset = lenFAT - HEADER_LEN;
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const entry = {
 				name: file.name,
 				size: file.nativeSize,
@@ -161,9 +161,9 @@ export default class Archive_GRP_Build extends ArchiveHandler
 			};
 			buffer.writeRecord(recordTypes.fatEntry, entry);
 			offset += file.nativeSize;
-		});
+		}
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const content = file.getContent();
 
 			// Safety check.
@@ -172,7 +172,7 @@ export default class Archive_GRP_Build extends ArchiveHandler
 			}
 
 			buffer.put(content);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

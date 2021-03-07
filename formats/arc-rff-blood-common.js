@@ -222,7 +222,7 @@ export default class Archive_RFF_Blood extends ArchiveHandler
 		const tzOffset = new Date().getTimezoneOffset() * 60;
 		let now = Math.round(Date.now() / 1000) - tzOffset;
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			let content = file.getContent();
 
 			// Safety check.
@@ -263,7 +263,7 @@ export default class Archive_RFF_Blood extends ArchiveHandler
 			fat.writeRecord(recordTypes.fatEntry, rffFile);
 
 			nextOffset += rffFile.diskSize;
-		});
+		}
 
 		const header = {
 			signature: RFF_SIG,

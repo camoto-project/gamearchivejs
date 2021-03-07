@@ -208,7 +208,7 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 		// as they are compressed (if necessary)
 		buffer.seekAbs(offEndFAT);
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 
 			if (file.attributes.hasPrefixWords === true) {
 				buffer.writeRecord(recordTypes.prefixWords, file.attributes.uncompressedPrefixWords);
@@ -227,13 +227,13 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 			file.diskSize = content.length;
 
 			buffer.put(content);
-		});
+		}
 
 		// now, go back and write the FAT
 		buffer.seekAbs(HEADER_LEN);
 		let nextOffset = offEndFAT;
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 
 			const isCompressed = (file.attributes.compressed === true);
 			const compressedFlag = (isCompressed ? PDAT_COMPRESSED : 0);
@@ -257,7 +257,7 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 			}
 
 			buffer.writeRecord(recordTypes.fatEntry, entry);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

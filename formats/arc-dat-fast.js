@@ -220,7 +220,7 @@ export default class Archive_DAT_FAST extends ArchiveHandler
 
 		let buffer = new RecordBuffer(finalSize);
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const entry = {
 				typeCode: 32,
 				name: file.name,
@@ -271,7 +271,7 @@ export default class Archive_DAT_FAST extends ArchiveHandler
 
 			buffer.writeRecord(recordTypes.fatEntry, entry);
 			buffer.put(diskData);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

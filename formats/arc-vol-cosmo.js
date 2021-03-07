@@ -143,7 +143,7 @@ export default class Archive_VOL_Cosmo extends ArchiveHandler
 		let buffer = new RecordBuffer(finalSize);
 
 		let offset = lenFAT;
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const entry = {
 				name: file.name,
 				offset: offset,
@@ -151,14 +151,14 @@ export default class Archive_VOL_Cosmo extends ArchiveHandler
 			};
 			buffer.writeRecord(recordTypes.fatEntry, entry);
 			offset += file.nativeSize;
-		});
+		}
 
 		// Write out the remaining empty FAT entries
 		const lenPadFAT = (200 - archive.files.length) * FATENTRY_LEN;
 		buffer.put(new Uint8Array(lenPadFAT));
 
 		// Write the file data.
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const content = file.getContent();
 
 			// Safety check.
@@ -167,7 +167,7 @@ export default class Archive_VOL_Cosmo extends ArchiveHandler
 			}
 
 			buffer.put(content);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

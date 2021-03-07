@@ -151,7 +151,7 @@ export default class Archive_POD_TV extends ArchiveHandler
 		buffer.writeRecord(recordTypes.header, header);
 
 		let nextOffset = offEndFAT;
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const entry = {
 				name: file.name,
 				offset: nextOffset,
@@ -159,9 +159,9 @@ export default class Archive_POD_TV extends ArchiveHandler
 			};
 			nextOffset += entry.size;
 			buffer.writeRecord(recordTypes.fatEntry, entry);
-		});
+		}
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const content = file.getContent();
 
 			// Safety check.
@@ -170,7 +170,7 @@ export default class Archive_POD_TV extends ArchiveHandler
 			}
 
 			buffer.put(content);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

@@ -139,15 +139,15 @@ export default class Archive_GRP_Build extends ArchiveHandler
 		let buffer = new RecordBuffer(finalSize);
 		buffer.writeRecord(recordTypes.header, header);
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const entry = {
 				name: file.name,
 				size: file.nativeSize,
 			};
 			buffer.writeRecord(recordTypes.fatEntry, entry);
-		});
+		}
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const content = file.getContent();
 
 			// Safety check.
@@ -156,7 +156,7 @@ export default class Archive_GRP_Build extends ArchiveHandler
 			}
 
 			buffer.put(content);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

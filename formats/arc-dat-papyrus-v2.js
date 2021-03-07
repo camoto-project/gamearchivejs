@@ -179,7 +179,7 @@ export default class Archive_DAT_PapyrusV2 extends ArchiveHandler {
 		// seek to the end of the FAT so that the file content can be written
 		buffer.seekAbs(offEndFAT);
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 
 			let content = file.getContent();
 
@@ -191,13 +191,13 @@ export default class Archive_DAT_PapyrusV2 extends ArchiveHandler {
 			file.diskSize = content.length;
 
 			buffer.put(content);
-		});
+		}
 
 		// now, go back and write the FAT
 		buffer.seekAbs(HEADER_LEN);
 		let nextOffset = offEndFAT;
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 
 			const entry = {
 				flags: DEFAULT_FLAGS,
@@ -209,7 +209,7 @@ export default class Archive_DAT_PapyrusV2 extends ArchiveHandler {
 			nextOffset += entry.diskSize;
 
 			buffer.writeRecord(recordTypes.fatEntry, entry);
-		});
+		}
 
 		return {
 			main: buffer.getU8(),

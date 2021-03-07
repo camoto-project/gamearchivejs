@@ -169,7 +169,7 @@ export default class Archive_EPF_EastPoint extends ArchiveHandler
 		// Skip over header, we'll write it last.
 		buffer.seekAbs(HEADER_LEN);
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			// Compress if attribute is either on or "don't care".
 			const isCompressed = file.attributes.compressed !== false;
 
@@ -185,11 +185,11 @@ export default class Archive_EPF_EastPoint extends ArchiveHandler
 			}
 			file.diskSize = content.length;
 			buffer.put(content);
-		});
+		}
 
 		const offFAT = buffer.getPos();
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			// Compress if attribute is either on or "don't care".
 			const isCompressed = file.attributes.compressed !== false;
 
@@ -200,7 +200,7 @@ export default class Archive_EPF_EastPoint extends ArchiveHandler
 				name: file.name,
 			};
 			buffer.writeRecord(recordTypes.fatEntry, entry);
-		});
+		}
 
 		// Go back and write the header now we know where the FAT starts.
 		const header = {

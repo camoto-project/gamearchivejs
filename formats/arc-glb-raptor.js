@@ -162,7 +162,7 @@ export default class Archive_GRP_Build extends ArchiveHandler
 		bufFAT.writeRecord(recordTypes.header, header);
 
 		let offset = lenFAT;
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const entry = {
 				// Encrypt if attribute is either on or "don't care"
 				flags: file.attributes.encrypted !== false ? GLBF_ENCRYPTED : 0,
@@ -172,14 +172,14 @@ export default class Archive_GRP_Build extends ArchiveHandler
 			};
 			bufFAT.writeRecord(recordTypes.fatEntry, entry);
 			offset += file.nativeSize;
-		});
+		}
 
 		// Encrypt the FAT and write it to the main output.
 		buffer.put(
 			enc_glb_raptor.obscure(bufFAT.getU8(), {blockSize: FATENTRY_LEN})
 		);
 
-		archive.files.forEach(file => {
+		for (const file of archive.files) {
 			const content = file.getContent();
 
 			// Safety check.
@@ -194,7 +194,7 @@ export default class Archive_GRP_Build extends ArchiveHandler
 			} else {
 				buffer.put(content);
 			}
-		});
+		}
 
 		return {
 			main: buffer.getU8(),
