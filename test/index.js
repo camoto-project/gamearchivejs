@@ -369,9 +369,9 @@ for (const handler of gamearchiveFormats) {
 					// NOTE: If we ever get formats that identify each other and we can't
 					// work around it, copy the identifyConflicts code from this matching
 					// section in gamemusic.js.
-					it(`should not positively identify ${submd.id} files`, function() {
+					it(`should not be positively identified by ${submd.id} handler`, function() {
 						const result = subhandler.identify(content.default.main);
-						assert.notEqual(result.valid, true);
+						assert.notEqual(result.valid, true, `${submd.id} thinks it can handle ${md.id} files`);
 					});
 				}
 
