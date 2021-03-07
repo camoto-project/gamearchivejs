@@ -180,6 +180,13 @@ for (const handler of gamearchiveFormats) {
 					TestUtil.buffersEqual(TestUtil.u8FromString('This is the fourth file'), archive.files[3].getContent());
 				});
 
+				it('should retrieve the correct filenames', function() {
+					assert.equal(archive.files[0].name, defaultArchive.files[0].name);
+					assert.equal(archive.files[1].name, defaultArchive.files[1].name);
+					assert.equal(archive.files[2].name, defaultArchive.files[2].name);
+					assert.equal(archive.files[3].name, defaultArchive.files[3].name);
+				});
+
 				it('should set the file size', function() {
 					assert.equal(archive.files[0].nativeSize, 22);
 					assert.equal(archive.files[1].nativeSize, 23);
