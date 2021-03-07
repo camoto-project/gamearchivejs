@@ -332,7 +332,13 @@ class Operations
 		}
 
 		console.warn('Saving to', params.target, 'as', params.format);
-		const outContent = handler.generate(this.archive);
+		let outContent;
+		try {
+			outContent = handler.generate(this.archive);
+		} catch (e) {
+			debug(e);
+			throw new OperationsError(`Failed to generate archive: ${e.message}`);
+		}
 
 		let promises = [];
 		const suppList = handler.supps(params.target, outContent.main);
@@ -519,7 +525,13 @@ Examples:
 	while (cmd.name) {
 		const def = Operations.names[cmd.name];
 		if (def) {
-			const runOptions = commandLineArgs(def, { argv, stopAtFirstUnknown: true });
+			let runOptions;
+			try {
+				runOptions = commandLineArgs(def, { argv, stopAtFirstUnknown: true });
+			} catch (e) {
+				console.error(`Error processing command line: ${e.message}`);
+				process.exit(1);
+			}
 			argv = runOptions._unknown || [];
 			try {
 				await proc[cmd.name](runOptions);
