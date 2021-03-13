@@ -26,9 +26,12 @@ import {
 	File,
 } from '../index.js';
 
-// These formats are skipped entirely.
+// The standard tests for these formats are skipped entirely.
 const skipFormats = [
 	'arc-fixed-ddave_exe',
+	'arc-fixed-keen4_exe',
+	'arc-fixed-keen5_exe',
+	'arc-fixed-keen6_exe',
 ];
 
 // Override the default colours so we can actually see them

@@ -12,6 +12,7 @@ formats.
 | Game                      | Files     | Format                    | Code                |
 |---------------------------|-----------|---------------------------|---------------------|
 | Blood                     | *.rff     | Monolith Resource File Format v2.0/3.0/3.1 | arc-rff-blood-* |
+| Commander Keen 4-6        | *.exe     | Keen 4/5/6 .exe           | arc-fixed-keen[456]_exe |
 | Cosmo's Cosmic Adventures | *.vol, *.stn | Cosmo Data Volume      | arc-vol-cosmo       |
 | Dangerous Dave            | dave.exe  | Dangerous Dave .exe       | arc-fixed-ddave_exe |
 | Death Rally               | *.bpa     | Death Rally BPA File      | arc-bpa-drally      |

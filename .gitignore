@@ -1,1 +1,5 @@
 node_modules/
+
+# Ignore the real game files used for tests.  These can't be distributed but
+# if they are missing, those tests will be skipped.
+test/arc-fixed-*exe/*.exe
