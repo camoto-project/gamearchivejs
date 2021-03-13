@@ -118,7 +118,7 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 					reason: `File ${i} @ offset ${fatEntry.offset} starts beyond the end of the archive.`,
 				};
 			}
-			if (fatEntry.offset + fatEntry.compSize > content.length) {
+			if (fatEntry.offset + fatEntry.diskSize > content.length) {
 				return {
 					valid: false,
 					reason: `File ${i} ends beyond the end of the archive.`,

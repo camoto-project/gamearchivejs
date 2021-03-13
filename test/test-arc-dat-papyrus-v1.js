@@ -32,8 +32,52 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 		before('load test data from local filesystem', function() {
 			content = testutil.loadContent(handler, [
 				'raw_image',
+				'short',
+				'short_fat',
+				'file_starts_past_eof',
+				'file_ends_past_eof',
 			]);
 		});
+
+		describe('identify()', function() {
+
+			it('should reject short files', function() {
+				const result = handler.identify(
+					content['short'].main,
+					content['short'].main.filename
+				);
+				assert.equal(result.reason, 'Content too short (< 2 b).');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject truncated FAT', function() {
+				const result = handler.identify(
+					content['short_fat'].main,
+					content['short_fat'].main.filename
+				);
+				assert.equal(result.reason, `Content too short for file count.`);
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file that starts past archive EOF', function() {
+				const result = handler.identify(
+					content['file_starts_past_eof'].main,
+					content['file_starts_past_eof'].main.filename
+				);
+				assert.equal(result.reason, 'File 3 @ offset 183 starts beyond the end of the archive.');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file that ends past archive EOF', function() {
+				const result = handler.identify(
+					content['file_ends_past_eof'].main,
+					content['file_ends_past_eof'].main.filename
+				);
+				assert.equal(result.reason, 'File 3 ends beyond the end of the archive.');
+				assert.equal(result.valid, false);
+			});
+
+		}); // identify()
 
 		describe('parse()', function() {
 

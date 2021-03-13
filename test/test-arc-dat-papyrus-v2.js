@@ -33,7 +33,10 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			content = testutil.loadContent(handler, [
 				'short',
 				'short_fat',
-				'file_past_eof',
+				'bad_flags',
+				'file_starts_past_eof',
+				'file_ends_past_eof',
+				'size_mismatch',
 			]);
 		});
 
@@ -57,12 +60,39 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 				assert.equal(result.valid, false);
 			});
 
-			it('should reject file past archive EOF', function() {
+			it('should reject invalid storage flags', function() {
 				const result = handler.identify(
-					content['file_past_eof'].main,
-					content['file_past_eof'].main.filename
+					content['bad_flags'].main,
+					content['bad_flags'].main.filename
+				);
+				assert.equal(result.reason, `File 2 @ offset 155 does not use the only valid flags for this format.`);
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file that starts past archive EOF', function() {
+				const result = handler.identify(
+					content['file_starts_past_eof'].main,
+					content['file_starts_past_eof'].main.filename
 				);
 				assert.equal(result.reason, 'File 3 @ offset 200 starts beyond the end of the archive.');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file that ends past archive EOF', function() {
+				const result = handler.identify(
+					content['file_ends_past_eof'].main,
+					content['file_ends_past_eof'].main.filename
+				);
+				assert.equal(result.reason, 'File 3 ends beyond the end of the archive.');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file that has mismatched disk/native sizes', function() {
+				const result = handler.identify(
+					content['size_mismatch'].main,
+					content['size_mismatch'].main.filename
+				);
+				assert.equal(result.reason, 'File 0 lists a different diskSize and nativeSize, despite compression being unsupported.');
 				assert.equal(result.valid, false);
 			});
 
