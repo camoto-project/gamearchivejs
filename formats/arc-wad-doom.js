@@ -265,10 +265,8 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 			for (const name of keys) {
 				const entry = list[name];
 				if (entry.file) {
-					const newFile = {
-						...entry.file,
-						name: entry.shortName,
-					};
+					let newFile = new File(entry.file);
+					newFile.name = entry.shortName;
 					flatList.push(newFile);
 				} else {
 					let startEntry = new File();

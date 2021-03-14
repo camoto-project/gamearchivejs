@@ -25,13 +25,13 @@
  */
 export default class File
 {
-	constructor() {
+	constructor(clone = {}) {
 		/**
 		 * Filename, as it appears in the archive file (case is not changed).
 		 *
 		 * @type {string}
 		 */
-		this.name = null;
+		this.name = clone.name || null;
 
 		/**
 		 * File type if known, as "major/minor".
@@ -42,7 +42,7 @@ export default class File
 		 * minor is the file format.  This should only be set if the information is
 		 * provided by the archive metadata.
 		 */
-		this.type = undefined;
+		this.type = clone.type || undefined;
 
 		/**
 		 * Date the file was last modified.
@@ -52,7 +52,7 @@ export default class File
 		 * This is only set if it is supported by the archive format.  It is either
 		 * undefined or a Date object in local time.
 		 */
-		this.lastModified = undefined;
+		this.lastModified = clone.lastModified || undefined;
 
 		/**
 		 * On-disk file size.
@@ -72,7 +72,7 @@ export default class File
 		 * After creating an archive with generate(), this field may be populated to
 		 * reflect the newly written format.
 		 */
-		this.diskSize = undefined;
+		this.diskSize = clone.diskSize || undefined;
 
 		/**
 		 * Native file size.
@@ -93,7 +93,7 @@ export default class File
 		 * After creating an archive with generate(), this field may be populated to
 		 * reflect the newly written format.
 		 */
-		this.nativeSize = undefined;
+		this.nativeSize = clone.nativeSize || undefined;
 
 		/**
 		 * Attributes for this specific file.
@@ -105,37 +105,37 @@ export default class File
 		 * archive.
 		 */
 		this.attributes = {
-			compressed: undefined,
-			encrypted: undefined,
+			compressed: clone.attributes && clone.attributes.compressed,
+			encrypted: clone.attributes && clone.attributes.encrypted,
 		};
 
-		this.getContent = () => this.getRaw();
-	}
+		/**
+		 * Read this file.
+		 *
+		 * By default the content returned is exactly the same as the raw data.
+		 * This function should be overridden if processing needs to be performed on
+		 * the raw data before it is suitable for use, e.g. by decompressing it.
+		 *
+		 * @return {Buffer} containing the file data in its native (decompressed,
+		 *   decrypted) format.
+		 */
+		this.getContent = clone.getContent || (
+			() => this.getRaw()
+		);
 
-	/**
-	 * Read this file.
-	 *
-	 * By default the content returned is exactly the same as the raw data.
-	 * This function should be overridden if processing needs to be performed on
-	 * the raw data before it is suitable for use, e.g. by decompressing it.
-	 *
-	 * @return {Buffer} containing the file data in its native (decompressed,
-	 *   decrypted) format.
-	 */
-	getContent() {
-		return this.getRaw();
-	}
-
-	/**
-	 * Read the file exactly as it is in the archive.
-	 *
-	 * This function will need to be overridden in every file, otherwise it will
-	 * not be possible to extract files from the archive.
-	 *
-	 * @return {Buffer} containing the file data in its on-disk (compressed,
-	 *   encrypted) format.
-	 */
-	getRaw() {
-		throw new Error('getRaw() has not been supplied for this file!');
+		/**
+		 * Read the file exactly as it is in the archive.
+		 *
+		 * This function will need to be overridden in every file, otherwise it will
+		 * not be possible to extract files from the archive.
+		 *
+		 * @return {Buffer} containing the file data in its on-disk (compressed,
+		 *   encrypted) format.
+		 */
+		this.getRaw = clone.getRaw || (
+			() => {
+				throw new Error('getRaw() has not been supplied for this file!');
+			}
+		);
 	}
 }
