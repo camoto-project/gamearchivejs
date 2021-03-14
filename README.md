@@ -174,10 +174,10 @@ in this library.
 During development you can test your code like this:
 
     # Read a sample archive and list the files, with debug messages on
-    $ DEBUG='gamearchive:*' ./bin/gamearch open -t arc-myformat example.dat list
+    $ DEBUG='gamearchive:*' ./bin/gamearch.js open -t arc-myformat example.dat list
 
     # Make sure the format is autodetected correctly or if not why not
-    $ DEBUG='gamearchive:*' ./bin/gamearch identify example.dat
+    $ DEBUG='gamearchive:*' ./bin/gamearch.js identify example.dat
 
     # Run only unit tests for the new format, with debugging on
     $ DEBUG='gamearchive:*' npm test -- -g arc-myformat
