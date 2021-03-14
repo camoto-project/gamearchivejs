@@ -30,16 +30,16 @@
   },
   "homepage": "https://github.com/Malvineous/gamearchivejs#readme",
   "dependencies": {
-    "@camoto/gamecomp": "^2.1.0",
-    "@camoto/record-io-buffer": "^3.1.0",
+    "@camoto/gamecomp": "^2.3.0",
+    "@camoto/record-io-buffer": "^3.1.1",
     "debug": "^4.3.1"
   },
   "devDependencies": {
     "command-line-args": "^5.1.1",
-    "eslint": "^7.16.0",
+    "eslint": "^7.22.0",
     "minimatch": "^3.0.4",
-    "mocha": "^8.2.1",
-    "mocha-eslint": "^6.0.0"
+    "mocha": "^8.3.2",
+    "mocha-eslint": "^7.0.0"
   },
   "files": [
     "bin/",
