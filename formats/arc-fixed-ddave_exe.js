@@ -26,7 +26,7 @@ import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
 
 import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
-import { cmp_lzexe } from '@camoto/gamecomp';
+import { cmp_lzexe, cmp_rle_id } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 
@@ -82,17 +82,51 @@ export default class Archive_Fixed_DDave_EXE extends ArchiveHandler
 	}
 
 	static parse(content) {
+		// UNLZEXE the file if required.
+		let decomp = content.main;
+		if (cmp_lzexe.identify(content.main).valid) {
+			decomp = cmp_lzexe.reveal(content.main);
+		}
+
+		let buffer = new RecordBuffer(decomp);
+		buffer.seekAbs(0x0c620);
+		const lenCGA = buffer.read(RecordType.int.u32le);
+		buffer.seekAbs(0x120f0);
+		const lenVGA = buffer.read(RecordType.int.u32le);
+
+		function revealDDaveRLE(content) {
+			let buffer = new RecordBuffer(content);
+			const len = buffer.read(RecordType.int.u32le);
+			const rle = cmp_rle_id.reveal(buffer.getU8(4));
+			// Truncate to length field.
+			return rle.slice(0, len);
+		}
+
+		function obscureDDaveRLE(content) {
+			const rle = cmp_rle_id.obscure(content);
+			let buffer = new RecordBuffer(rle.length + 4);
+			buffer.write(RecordType.int.u32le, content.length);
+			buffer.put(rle);
+			return buffer.getU8();
+		}
+
 		let files = [
 			{
 				name: 'cgadave.dav',
 				offset: 0x0c620,
 				diskSize: 0x120f0 - 0x0c620,
-				filter: 'rle-ddave',
+				nativeSize: lenCGA,
+				reveal: revealDDaveRLE,
+				obscure: obscureDDaveRLE,
+				compressed: true,
 			}, {
 				name: 'vgadave.dav',
 				offset: 0x120f0,
 				diskSize: 0x1c4e0 - 0x120f0,
-				filter: 'rle-ddave',
+				nativeSize: lenVGA,
+				reveal: revealDDaveRLE,
+				obscure: obscureDDaveRLE,
+				compressed: true,
 			}, {
 				name: 'sounds.spk',
 				offset: 0x1c4e0,
@@ -126,12 +160,6 @@ export default class Archive_Fixed_DDave_EXE extends ArchiveHandler
 				offset: 0x26e0a + lenLevel * i,
 				diskSize: lenLevel,
 			});
-		}
-
-		// UNLZEXE the file if required.
-		let decomp = content.main;
-		if (cmp_lzexe.identify(content.main).valid) {
-			decomp = cmp_lzexe.reveal(content.main);
 		}
 
 		return FixedArchive.parse(decomp, files);

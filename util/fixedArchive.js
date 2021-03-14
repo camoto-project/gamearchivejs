@@ -40,6 +40,8 @@ export default class FixedArchive
 				ef.offset = nextOffset;
 				ef.diskSize = ef.nativeSize = file.offset - nextOffset;
 				ef.getRaw = () => buffer.getU8(ef.offset, ef.diskSize);
+				ef.getRaw.fixedArchive = true;
+				ef.getContent.fixedArchive = true;
 				archive.files.push(ef);
 				nextOffset = file.offset;
 				extraFileCount++;
@@ -47,8 +49,15 @@ export default class FixedArchive
 			let newFile = new File();
 			newFile.name = file.name;
 			newFile.offset = file.offset || nextOffset;
-			newFile.diskSize = newFile.nativeSize = file.diskSize;
+			newFile.diskSize = file.diskSize;
+			newFile.nativeSize = file.nativeSize || file.diskSize;
 			newFile.getRaw = () => buffer.getU8(newFile.offset, newFile.diskSize);
+			if (file.reveal) {
+				newFile.getContent = () => file.reveal(newFile.getRaw());
+			}
+			newFile.getRaw.fixedArchive = true;
+			newFile.getContent.fixedArchive = true;
+			newFile.attributes.compressed = file.compressed;
 			archive.files.push(newFile);
 			nextOffset = newFile.offset + file.diskSize;
 		}
@@ -64,14 +73,27 @@ export default class FixedArchive
 			ef.offset = nextOffset;
 			ef.diskSize = ef.nativeSize = content.length - nextOffset;
 			ef.getRaw = () => buffer.getU8(ef.offset, ef.diskSize);
+			ef.getRaw.fixedArchive = true;
+			ef.getContent.fixedArchive = true;
 			archive.files.push(ef);
 		}
+
+		// Save the original file list for when we generate() later, so we can look
+		// up which files are supposed to be compressed/encrypted.
+		archive.fixedArchive = {
+			originalFiles: files,
+		};
 
 		return archive;
 	}
 
 	static generate(archive)
 	{
+		// Make sure we are processing something previously produced by parse().
+		if (!archive.fixedArchive.originalFiles) {
+			throw new Error('Cannot build this archive format from scratch, sorry.');
+		}
+
 		// Calculate the size up front so we don't have to keep reallocating the
 		// buffer, improving performance.
 		const finalSize = archive.files.reduce(
@@ -82,11 +104,27 @@ export default class FixedArchive
 		let buffer = new RecordBuffer(finalSize);
 
 		for (const file of archive.files) {
-			const diskData = file.getRaw();
 
-			// Safety check.
-			if (diskData.length != file.diskSize) {
-				throw new Error('Length of data and diskSize field do not match!');
+			let diskData;
+			if (file.getRaw.fixedArchive && file.getContent.fixedArchive) {
+				// This file hasn't been modified so leave it as is.
+				diskData = file.getRaw();
+			} else {
+				const orig = archive.fixedArchive.originalFiles.find(f => f.name === file.name);
+				if (!orig) {
+					throw new Error(`File ${file.name} does not exist inside the archive `
+						+ `already, only existing files can be overwritten.`);
+				}
+				diskData = file.getContent();
+				if (orig.obscure) {
+					console.log(`Compressing ${diskData.length}`);
+					// Have to compress/encrypt this first.
+					diskData = orig.obscure(diskData);
+				}
+				if (diskData.length !== orig.diskSize) {
+					throw new Error(`File "${file.name}" is ${diskData.length} bytes, but `
+						+ `it must be exactly ${orig.diskSize} bytes.`);
+				}
 			}
 
 			buffer.put(diskData);
