@@ -32,6 +32,8 @@ import {
 
 // https://stackoverflow.com/a/20732091/308237
 function humanFileSize(size) {
+	if (size === undefined) return '?';
+	if (size < 0) return '!!';
 	let i = (size == 0) ? 0 : Math.floor(Math.log(size) / Math.log(1024));
 	return (size / Math.pow(1024, i)).toFixed(1) * 1 + '' + ['', 'k', 'M', 'G', 'T'][i];
 }
