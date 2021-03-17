@@ -53,7 +53,7 @@ export default class FixedArchive
 			newFile.nativeSize = file.nativeSize || file.diskSize;
 			newFile.getRaw = () => buffer.getU8(newFile.offset, newFile.diskSize);
 			if (file.reveal) {
-				newFile.getContent = () => file.reveal(newFile.getRaw());
+				newFile.getContent = () => file.reveal(newFile.getRaw(), file);
 			}
 			newFile.getRaw.fixedArchive = true;
 			newFile.getContent.fixedArchive = true;
@@ -117,9 +117,8 @@ export default class FixedArchive
 				}
 				diskData = file.getContent();
 				if (orig.obscure) {
-					console.log(`Compressing ${diskData.length}`);
 					// Have to compress/encrypt this first.
-					diskData = orig.obscure(diskData);
+					diskData = orig.obscure(diskData, orig);
 				}
 				if (diskData.length !== orig.diskSize) {
 					throw new Error(`File "${file.name}" is ${diskData.length} bytes, but `
