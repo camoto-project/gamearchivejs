@@ -26,7 +26,7 @@ import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
 
 import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
-import { cmp_lzexe, cmp_rle_id } from '@camoto/gamecomp';
+import { cmp_lzexe, cmp_rle_id, pad_chunked } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 
@@ -97,16 +97,33 @@ export default class Archive_Fixed_DDave_EXE extends ArchiveHandler
 		function revealDDaveRLE(content) {
 			let buffer = new RecordBuffer(content);
 			const len = buffer.read(RecordType.int.u32le);
-			const rle = cmp_rle_id.reveal(buffer.getU8(4));
-			// Truncate to length field.
-			return rle.slice(0, len);
+
+			// Skip the length field we just read and RLE-decode the rest.
+			return cmp_rle_id.reveal(buffer.getU8(4), { outputLength: len });
 		}
 
-		function obscureDDaveRLE(content) {
-			const rle = cmp_rle_id.obscure(content);
-			let buffer = new RecordBuffer(rle.length + 4);
+		function obscureDDaveRLE(content, file) {
+			// Need to ensure RLE codes don't run across 65281-byte boundaries.
+			const chunkedRLE = pad_chunked.obscure(content, {
+				length: 0xFF01,
+				callback: chunk => cmp_rle_id.obscure(chunk),
+			});
+			let buffer = new RecordBuffer(chunkedRLE.length + 4);
 			buffer.write(RecordType.int.u32le, content.length);
-			buffer.put(rle);
+			buffer.put(chunkedRLE);
+			const padding = file.diskSize - buffer.length;
+			if (padding < 0) {
+				throw new Error(`File "${file.name}" is too big to fit back into the `
+					+ `game .exe file.  It is ${buffer.length} bytes long, but there are `
+					+ `only ${file.diskSize} bytes available.  Since the format is `
+					+ `compressed, you can increase the compression and thus reduce the `
+					+ `file size by having longer horizontal runs of the same colour `
+					+ `pixels within each tile.`
+				);
+			}
+			if (padding > 0) {
+				buffer.write(RecordType.padding(padding));
+			}
 			return buffer.getU8();
 		}
 
