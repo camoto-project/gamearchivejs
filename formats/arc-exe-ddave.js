@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const FORMAT_ID = 'arc-fixed-ddave_exe';
+const FORMAT_ID = 'arc-exe-ddave';
 
 import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
@@ -32,7 +32,7 @@ import FixedArchive from '../util/fixedArchive.js';
 
 const DDAVE_BLOCK_SIZE = 0xFF00;
 
-export default class Archive_Fixed_DDave_EXE extends ArchiveHandler
+export default class Archive_EXE_DDave extends ArchiveHandler
 {
 	static metadata() {
 		let md = {

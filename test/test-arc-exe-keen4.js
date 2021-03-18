@@ -1,5 +1,5 @@
 /*
- * Extra tests for arc-fixed-keen4_exe.
+ * Extra tests for arc-exe-keen4.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -19,9 +19,9 @@
 
 import assert from 'assert';
 import TestUtil from './util.js';
-import { arc_fixed_keen4_exe as handler } from '../index.js';
-import { arc_fixed_keen5_exe } from '../index.js';
-import { arc_fixed_keen6_exe } from '../index.js';
+import { arc_exe_keen4 as handler } from '../index.js';
+import { arc_exe_keen5 } from '../index.js';
+import { arc_exe_keen6 } from '../index.js';
 
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);
@@ -76,16 +76,16 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					assert.equal(result.reason, 'Keen ' + version);
 				});
 
-				it(`arc-fixed-keen5_exe should not recognise ${id}`, function() {
-					const result = arc_fixed_keen5_exe.identify(
+				it(`arc-exe-keen5 should not recognise ${id}`, function() {
+					const result = arc_exe_keen5.identify(
 						content[id + '.exe'].main,
 						content[id + '.exe'].main.filename
 					);
 					assert.equal(result.valid, false);
 				});
 
-				it(`arc-fixed-keen6_exe should not recognise ${id}`, function() {
-					const result = arc_fixed_keen6_exe.identify(
+				it(`arc-exe-keen6 should not recognise ${id}`, function() {
+					const result = arc_exe_keen6.identify(
 						content[id + '.exe'].main,
 						content[id + '.exe'].main.filename
 					);

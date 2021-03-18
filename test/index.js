@@ -28,10 +28,10 @@ import {
 
 // The standard tests for these formats are skipped entirely.
 const skipFormats = [
-	'arc-fixed-ddave_exe',
-	'arc-fixed-keen4_exe',
-	'arc-fixed-keen5_exe',
-	'arc-fixed-keen6_exe',
+	'arc-exe-ddave',
+	'arc-exe-keen4',
+	'arc-exe-keen5',
+	'arc-exe-keen6',
 ];
 
 // Override the default colours so we can actually see them

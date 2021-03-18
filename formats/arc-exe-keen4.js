@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const FORMAT_ID = 'arc-fixed-keen4_exe';
+const FORMAT_ID = 'arc-exe-keen4';
 
 import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
@@ -30,7 +30,7 @@ import { cmp_lzexe } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 
-export default class Archive_Fixed_Keen4_EXE extends ArchiveHandler
+export default class Archive_EXE_Keen4 extends ArchiveHandler
 {
 	static metadata() {
 		let md = {

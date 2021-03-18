@@ -12,9 +12,9 @@ formats.
 | Game                      | Files     | Format                    | Code                |
 |---------------------------|-----------|---------------------------|---------------------|
 | Blood                     | *.rff     | Monolith Resource File Format v2.0/3.0/3.1 | arc-rff-blood-* |
-| Commander Keen 4-6        | *.exe     | Keen 4/5/6 .exe           | arc-fixed-keen[456]_exe |
+| Commander Keen 4-6        | *.exe     | Keen 4/5/6 .exe           | arc-exe-keen[456]   |
 | Cosmo's Cosmic Adventures | *.vol, *.stn | Cosmo Data Volume      | arc-vol-cosmo       |
-| Dangerous Dave            | dave.exe  | Dangerous Dave .exe       | arc-fixed-ddave_exe |
+| Dangerous Dave            | dave.exe  | Dangerous Dave .exe       | arc-exe-ddave       |
 | Death Rally               | *.bpa     | Death Rally BPA File      | arc-bpa-drally      |
 | Descent                   | *.hog     | Descent HOG File          | arc-hog-descent     |
 | Doom                      | *.wad     | Where's All the Data File | arc-wad-doom        |

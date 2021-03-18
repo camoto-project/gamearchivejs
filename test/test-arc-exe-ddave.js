@@ -1,5 +1,5 @@
 /*
- * Extra tests for arc-fixed-ddave_exe.
+ * Extra tests for arc-exe-ddave.
  *
  * Copyright (C) 2010-2021 Adam Nielsen <malvineous@shikadi.net>
  *
@@ -19,7 +19,7 @@
 
 import assert from 'assert';
 import TestUtil from './util.js';
-import { arc_fixed_ddave_exe as handler } from '../index.js';
+import { arc_exe_ddave as handler } from '../index.js';
 
 const md = handler.metadata();
 let testutil = new TestUtil(md.id);
