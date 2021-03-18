@@ -26,9 +26,11 @@ import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
 
 import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
-import { cmp_lzexe, cmp_rle_id, pad_chunked } from '@camoto/gamecomp';
+import { cmp_lzexe, cmp_rle_id, pad_chunked, pad_generic } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
+
+const DDAVE_BLOCK_SIZE = 0xFF00;
 
 export default class Archive_Fixed_DDave_EXE extends ArchiveHandler
 {
@@ -99,15 +101,28 @@ export default class Archive_Fixed_DDave_EXE extends ArchiveHandler
 			const len = buffer.read(RecordType.int.u32le);
 
 			// Skip the length field we just read and RLE-decode the rest.
-			return cmp_rle_id.reveal(buffer.getU8(4), { outputLength: len });
+			let unRLE = cmp_rle_id.reveal(buffer.getU8(4), { outputLength: len });
+
+			// Then remove the extra padding byte inserted every RLE block.
+			return pad_generic.reveal(unRLE, {
+				pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
+				pad: 1,                  // ...drop this many bytes.
+			});
 		}
 
 		function obscureDDaveRLE(content, file) {
+			// Add the extra padding byte inserted every RLE block.
+			let bufPadded = pad_generic.obscure(content, {
+				pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
+				pad: 1,                  // ...add this many bytes.
+			});
+
 			// Need to ensure RLE codes don't run across 65281-byte boundaries.
-			const chunkedRLE = pad_chunked.obscure(content, {
+			const chunkedRLE = pad_chunked.obscure(bufPadded, {
 				length: 0xFF01,
 				callback: chunk => cmp_rle_id.obscure(chunk),
 			});
+
 			let buffer = new RecordBuffer(chunkedRLE.length + 4);
 			buffer.write(RecordType.int.u32le, content.length);
 			buffer.put(chunkedRLE);

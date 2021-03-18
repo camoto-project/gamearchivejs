@@ -68,8 +68,8 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 
 				assert.equal(archive.files[2].name, 'vgadave.dav');
 				const data = archive.files[2].getContent();
-				assert.equal(data.length, 71239);
-				assert.equal(TestUtil.hash(data), '46jXzX+iw9HZP5YkgxjcOZe2wYw=');
+				assert.equal(data.length, 71238);
+				assert.equal(TestUtil.hash(data), 'tpHYAQ4TX4gx5SFZRS3Zp7kbiek=');
 			});
 
 		}); // parse()
