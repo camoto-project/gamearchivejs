@@ -103,7 +103,7 @@ class Operations
 		for (let i = 0; i < this.archive.files.length; i++) {
 			if (this.archive.files[i].name.toUpperCase() == targetName) {
 				this.log('deleting', this.archive.files[i].name);
-				delete this.archive.files[i];
+				this.archive.files.splice(i, 1);
 				return;
 			}
 		}

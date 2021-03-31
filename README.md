@@ -100,7 +100,12 @@ See `cli/index.js` for example use.  The quick start is:
     archive.files[0].name = 'RENAMED.BIN';
     
     // Remove a file
-    delete archive.files[1];
+    archive.files.splice(i, 1);
+    
+    // Replace a file
+    let f = archive.files[1];
+    f.diskSize = f.nativeSize = fs.statSync('new.bin').size;
+    f.getContent = () => fs.readFileSync('new.bin');
     
     // Write the archive back to disk with the modifications
     const outBuffer = arc_grp_build.generate(archive);
