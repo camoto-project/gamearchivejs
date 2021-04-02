@@ -179,13 +179,17 @@ class Operations
 
 			try {
 				const suppList = handler.supps(params.target, content.main);
-				if (suppList) Object.keys(suppList).forEach(id => {
-					try {
-						content[id] = fs.readFileSync(suppList[id]);
-					} catch (e) {
-						throw new Error(`Unable to open supp file ${suppList[id]}:\n     ${e}`);
+				if (suppList) {
+					for (const [id, suppFilename] of Object.entries(suppList)) {
+						if (id === 'main') continue;
+						try {
+							content[id] = fs.readFileSync(suppFilename);
+							content[id].filename = suppFilename;
+						} catch (e) {
+							throw new Error(`Unable to open supp file ${suppList[id]}:\n     ${e}`);
+						}
 					}
-				});
+				}
 			} catch (e) {
 				console.log(` - Skipping format due to error loading additional files `
 					+ `required:\n   ${e}`);
@@ -274,6 +278,7 @@ class Operations
 		const suppList = handler.supps(params.target, content.main);
 		if (suppList) {
 			for (const [id, suppFilename] of Object.entries(suppList)) {
+				if (id === 'main') continue;
 				try {
 					content[id] = fs.readFileSync(suppFilename);
 					content[id].filename = suppFilename;
@@ -346,6 +351,7 @@ class Operations
 		const suppList = handler.supps(params.target, outContent.main);
 		if (suppList) {
 			for (const [id, suppFilename] of Object.entries(suppList)) {
+				if (id === 'main') continue;
 				console.warn(` - Saving supplemental file "${id}" to ${suppFilename}`);
 				promises.push(
 					fs.promises.writeFile(suppFilename, outContent[id])
