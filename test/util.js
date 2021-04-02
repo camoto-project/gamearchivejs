@@ -102,6 +102,7 @@ export default class TestUtil {
 			const suppList = handler && handler.supps(mainFilename, input.main);
 			if (suppList) {
 				for (const [id, suppFilename] of Object.entries(suppList)) {
+					if (id === 'main') continue; // already loaded
 					input[id] = this.loadData(suppFilename); // already includes full path
 				}
 			}

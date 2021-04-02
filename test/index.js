@@ -199,6 +199,13 @@ for (const handler of gamearchiveFormats) {
 
 			});
 
+			describe('supp()', function() {
+				it('should return the main archive filename', function() {
+					const supps = handler.supps('default.bin', content.default);
+					assert.ok(supps.main, 'Handler did not supply a supp entry for "main"');
+				});
+			});
+
 			describe('parse()', function() {
 				let archive;
 
@@ -443,7 +450,7 @@ for (const handler of gamearchiveFormats) {
 					// work around it, copy the identifyConflicts code from this matching
 					// section in gamemusic.js.
 					it(`should not be positively identified by ${submd.id} handler`, function() {
-						const result = subhandler.identify(content.default.main);
+						const result = subhandler.identify(content.default.main, content.default.main.filename);
 						assert.notEqual(result.valid, true, `${submd.id} thinks it can handle ${md.id} files`);
 					});
 				}
