@@ -37,6 +37,33 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			]);
 		});
 
+		describe('supps()', function() {
+			it('should leave the .vol extension alone', function() {
+				const supps = handler.supps('test.vol');
+				assert.equal(supps.main, 'test.vol');
+			});
+
+			it('should leave the .stn extension alone', function() {
+				const supps = handler.supps('test.stn');
+				assert.equal(supps.main, 'test.stn');
+			});
+
+			it('should leave the .ms1 extension alone', function() {
+				const supps = handler.supps('test.ms1');
+				assert.equal(supps.main, 'test.ms1');
+			});
+
+			it('should not be case-sensitive', function() {
+				const supps = handler.supps('TEST.STN');
+				assert.equal(supps.main, 'TEST.STN');
+			});
+
+			it('should change an unknown extension', function() {
+				const supps = handler.supps('unknown.abc');
+				assert.equal(supps.main, 'unknown.vol');
+			});
+		});
+
 		describe('identify()', function() {
 
 			it('should reject short files', function() {

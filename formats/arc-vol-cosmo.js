@@ -72,8 +72,9 @@ export default class Archive_VOL_Cosmo extends ArchiveHandler
 
 	static supps(filename) {
 		let ext = getExtension(filename);
+		const extCheck = ext.toLowerCase();
 		const validExt = ['vol', 'stn', 'cmp', 'ms1', 'ms2', 'ms3'];
-		if (!validExt.find(e => e === ext)) {
+		if (!validExt.find(e => e === extCheck)) {
 			// Extension isn't one in the list, force it to a valid one.
 			ext = 'vol';
 		}
