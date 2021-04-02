@@ -17,8 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Path from 'path';
-
 /**
  * Replace the base filename without affecting the path or extension.
  *
@@ -26,11 +24,9 @@ import Path from 'path';
  */
 export function replaceBasename(name, newBase)
 {
-	return Path.format({
-		...Path.parse(name),
-		name: newBase,
-		base: undefined,
-	});
+	const origExt = getExtension(name);
+	const newSuffix = origExt.length && ('.' + origExt) || '';
+	return replaceFilename(name, newBase + newSuffix);
 }
 
 /**
@@ -54,12 +50,38 @@ export function replaceFilename(name, newName)
 }
 
 /**
+ * Remove any path from the front of the filename.
+ *
+ * "/folder/file.ext" -> "file.ext"
+ */
+export function getFilename(name)
+{
+	const m = name.match(/(\/)?([^/]+)$/);
+	return (m && m[2]) || '';
+}
+
+/**
  * Extract the basename from the filename.
  *
  * "/folder/file.ext" -> "file"
  */
 export function getBasename(name)
 {
-	const p = Path.parse(name);
-	return (p && p.name) || null;
+	const f = getFilename(name);
+	const dot = f.lastIndexOf('.');
+	if (dot < 0) {
+		return f;
+	}
+	return f.slice(0, dot);
+}
+
+/**
+ * Extract the extension from the filename.
+ *
+ * "/folder/file.ext" -> "ext"
+ */
+export function getExtension(name)
+{
+	const m = name.match(/\.([^.]+)$/);
+	return (m && m[1]) || '';
 }

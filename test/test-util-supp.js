@@ -19,6 +19,9 @@
 
 import assert from 'assert';
 import {
+	getBasename,
+	getExtension,
+	getFilename,
 	replaceBasename,
 	replaceExtension,
 	replaceFilename,
@@ -106,6 +109,13 @@ describe(`Extra tests for supplemental data functions`, function() {
 				'/blah/abc'
 			);
 		});
+
+		it('replaces a basename with a long path', function() {
+			assert.equal(
+				replaceBasename('/one/two/three/test.dat', 'abc'),
+				'/one/two/three/abc.dat'
+			);
+		});
 	});
 
 	describe('replaceFilename()', function() {
@@ -134,6 +144,103 @@ describe(`Extra tests for supplemental data functions`, function() {
 			assert.equal(
 				replaceFilename('/blah/test.dat', 'def'),
 				'/blah/def'
+			);
+		});
+
+		it('replaces a filename with a long path', function() {
+			assert.equal(
+				replaceFilename('/one/two/three/test.dat', 'abc.def'),
+				'/one/two/three/abc.def'
+			);
+		});
+	});
+
+	describe('getFilename()', function() {
+		it('extract from a normal filename', function() {
+			assert.equal(
+				getFilename('test.dat'),
+				'test.dat'
+			);
+		});
+
+		it('extract from a filename with a path', function() {
+			assert.equal(
+				getFilename('/one/two/three/test.dat'),
+				'test.dat'
+			);
+		});
+
+		it('extract from a path without an extension', function() {
+			assert.equal(
+				getFilename('/one/two/test'),
+				'test'
+			);
+		});
+
+		it('extract from no path without an extension', function() {
+			assert.equal(
+				getFilename('test'),
+				'test'
+			);
+		});
+	});
+
+	describe('getBasename()', function() {
+		it('extract from a normal filename', function() {
+			assert.equal(
+				getBasename('test.dat'),
+				'test'
+			);
+		});
+
+		it('extract from a filename with a path', function() {
+			assert.equal(
+				getBasename('/one/two/three/test.dat'),
+				'test'
+			);
+		});
+
+		it('extract from a path without an extension', function() {
+			assert.equal(
+				getBasename('/one/two/test'),
+				'test'
+			);
+		});
+
+		it('extract from no path without an extension', function() {
+			assert.equal(
+				getBasename('test'),
+				'test'
+			);
+		});
+	});
+
+	describe('getExtension()', function() {
+		it('extract from a normal filename', function() {
+			assert.equal(
+				getExtension('test.dat'),
+				'dat'
+			);
+		});
+
+		it('extract from a filename with a path', function() {
+			assert.equal(
+				getExtension('/one/two/three/test.dat'),
+				'dat'
+			);
+		});
+
+		it('extract from a path without an extension', function() {
+			assert.equal(
+				getExtension('/one/two/test'),
+				''
+			);
+		});
+
+		it('extract from no path without an extension', function() {
+			assert.equal(
+				getExtension('test'),
+				''
 			);
 		});
 	});
