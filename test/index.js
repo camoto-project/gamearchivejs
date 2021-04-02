@@ -324,6 +324,31 @@ for (const handler of gamearchiveFormats) {
 					TestUtil.contentEqual(content.default, contentGenerated);
 				});
 
+				it('only generates files included in supps()', function() {
+					const contentGenerated = handler.generate(defaultArchive);
+					const supps = handler.supps('default.bin', contentGenerated.main);
+
+					for (const g of Object.keys(contentGenerated)) {
+						if (!supps[g]) {
+							throw new assert.AssertionError({
+								message: `Generated file "${g}" missing from supps() return value.`,
+								expected: g,
+								actual: null,
+							});
+						}
+					}
+
+					for (const s of Object.keys(supps)) {
+						if (!contentGenerated[s]) {
+							throw new assert.AssertionError({
+								message: `generate() did not produce supplementary file "${s}".`,
+								expected: s,
+								actual: null,
+							});
+						}
+					}
+				});
+
 				it('empty archives can be produced', function() {
 					const issues = handler.checkLimits(emptyArchive);
 					assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);

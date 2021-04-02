@@ -32,7 +32,7 @@ function hexdump(d) {
 		h = t = '';
 	}
 	let i;
-	for (i = 0; i < d.length; i++) {
+	for (i = 0; i < (d && d.length || 0); i++) {
 		const v = d[i];
 		h += v.toString(16).padStart(2, '0') + ' ';
 		t += ((v < 32) || (v > 126)) ? '.' : String.fromCharCode(v);
@@ -52,6 +52,7 @@ function hexdump(d) {
 }
 
 function arrayEqual(a, b) {
+	if (!a || !b) return false;
 	if (a.length != b.length) return false;
 	for (let i = 0; i < a.length; i++) {
 		if (a[i] != b[i]) return false;
@@ -132,6 +133,7 @@ export default class TestUtil {
 				const suppList = handler && handler.supps(mainFilename, input.main);
 				if (suppList) {
 					for (const [id, suppFilename] of Object.entries(suppList)) {
+						if (id === 'main') continue;
 						lastSuppFilename = suppFilename;
 						input[id] = this.loadData(suppFilename); // already includes full path
 					}
@@ -170,7 +172,7 @@ export default class TestUtil {
 
 	static contentEqual(contentExpected, contentActual) {
 		Object.keys(contentExpected).forEach(id => {
-			this.buffersEqual(contentExpected[id], contentActual[id]);
+			this.buffersEqual(contentExpected[id], contentActual[id], `supp "${id}"`);
 		});
 	}
 
