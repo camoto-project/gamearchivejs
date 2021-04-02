@@ -104,6 +104,28 @@ export default class Archive_BNK_Harry extends ArchiveHandler
 			};
 		}
 
+		if (lenArchive < FILEHEADER_LEN + file1.diskSize) {
+			return {
+				valid: false,
+				reason: `First file is truncated.`,
+			};
+		}
+
+		if (lenArchive === FILEHEADER_LEN + file1.diskSize) {
+			return {
+				valid: true,
+				reason: `Only one file.`,
+			};
+		}
+
+		if (lenArchive < FILEHEADER_LEN*2 + file1.diskSize) {
+			return {
+				valid: false,
+				reason: `Second file header truncated.`,
+			};
+		}
+
+
 		// Read the second file signature too, as this will tell us whether it's
 		// Halloween Harry or Alien Carnage.
 		buffer.seekRel(file1.diskSize);

@@ -34,6 +34,9 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 				'empty',
 				'short',
 				'wrong_sig1',
+				'trunc_f1',
+				'only_f1',
+				'trunc_f2',
 				'wrong_sig2',
 			]);
 		});
@@ -64,6 +67,33 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['wrong_sig1'].main.filename
 				);
 				assert.equal(result.reason, `Wrong signature "-OD-".`);
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject where first file is truncated', function() {
+				const result = handler.identify(
+					content['trunc_f1'].main,
+					content['trunc_f1'].main.filename
+				);
+				assert.equal(result.reason, `First file is truncated.`);
+				assert.equal(result.valid, false);
+			});
+
+			it('should accept archive with only one file', function() {
+				const result = handler.identify(
+					content['only_f1'].main,
+					content['only_f1'].main.filename
+				);
+				assert.equal(result.reason, `Only one file.`);
+				assert.equal(result.valid, true);
+			});
+
+			it('should accept archive with only one file', function() {
+				const result = handler.identify(
+					content['trunc_f2'].main,
+					content['trunc_f2'].main.filename
+				);
+				assert.equal(result.reason, `Second file header truncated.`);
 				assert.equal(result.valid, false);
 			});
 
