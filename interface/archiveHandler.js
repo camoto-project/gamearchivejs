@@ -171,21 +171,27 @@ export default class ArchiveHandler
 	 * either of these are needed to construct the name of the supplementary
 	 * files.
 	 *
-	 * @param {string} name
+	 * This function also serves another purpose, in providing a canonical
+	 * filename for the main archive file even if there are no supplementary
+	 * files.  This is used when converting from one archive format to another,
+	 * which in most cases will take the supplied filename and change the
+	 * extension to match that for this file format.
+	 *
+	 * @param {string} filename
 	 *   Archive filename.
 	 *
 	 * @param {Uint8Array} content
 	 *   Archive content.
 	 *
-	 * @return `null` if there are no supplementary files, otherwise an `object`
-	 *   where each key is an identifier specific to the handler, and the value
-	 *   is the expected case-insensitive filename.  Don't convert passed names
-	 *   to lowercase, but any changes (e.g. appending a filename extension)
-	 *   should be lowercase.
+	 * @return `Object<id, string>` where the key is an ID specific to this format
+	 *   handler, and the value is the case-insensitive filename.  There must
+	 *   always be a `main` key for the main archive filename.  Don't convert
+	 *   passed names to uppercase or lowercase, but any changes (e.g. appending
+	 *   a filename extension) should be lowercase.
 	 */
 	// eslint-disable-next-line no-unused-vars
-	static supps(name, content) {
-		return null;
+	static supps(filename, content) {
+		throw new Error('Not implemented yet.');
 	}
 
 	/**
