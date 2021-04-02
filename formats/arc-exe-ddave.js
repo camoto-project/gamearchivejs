@@ -53,6 +53,12 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 		return md;
 	}
 
+	static supps() {
+		return {
+			main: 'dave.exe',
+		};
+	}
+
 	static identify(content) {
 		// UNLZEXE the file if required.
 		let output = content;

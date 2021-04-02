@@ -29,6 +29,7 @@ import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
+import { replaceExtension } from '../util/supp.js';
 
 const MAX_FILENAME_LEN = 8;
 const MAX_FOLDERNAME_LEN = MAX_FILENAME_LEN - 6; // length of "_START"
@@ -129,6 +130,12 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 		}
 
 		return issues;
+	}
+
+	static supps(filename) {
+		return {
+			main: replaceExtension(filename, 'wad'),
+		};
 	}
 
 	static identify(content) {

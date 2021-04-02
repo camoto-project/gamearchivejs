@@ -29,6 +29,7 @@ import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
 import { cmp_lzexe } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
+import { replaceExtension } from '../util/supp.js';
 
 export default class Archive_EXE_Keen4 extends ArchiveHandler
 {
@@ -52,6 +53,12 @@ export default class Archive_EXE_Keen4 extends ArchiveHandler
 		md.caps.file.attributes.compressed = false;
 
 		return md;
+	}
+
+	static supps(filename) {
+		return {
+			main: replaceExtension(filename, 'exe'),
+		};
 	}
 
 	static identify(content) {

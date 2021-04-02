@@ -29,6 +29,7 @@ import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
+import { replaceExtension, getExtension } from '../util/supp.js';
 
 const recordTypes = {
 	fatEntry: {
@@ -67,6 +68,18 @@ export default class Archive_VOL_Cosmo extends ArchiveHandler
 		md.caps.maxFileCount = MAX_FILES;
 
 		return md;
+	}
+
+	static supps(filename) {
+		let ext = getExtension(filename);
+		const validExt = ['vol', 'stn', 'cmp', 'ms1', 'ms2', 'ms3'];
+		if (!validExt.find(e => e === ext)) {
+			// Extension isn't one in the list, force it to a valid one.
+			ext = 'vol';
+		}
+		return {
+			main: replaceExtension(filename, ext),
+		};
 	}
 
 	static identify(content) {

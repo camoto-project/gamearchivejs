@@ -71,9 +71,10 @@ export default class Archive_BNK_Harry extends ArchiveHandler
 		return md;
 	}
 
-	static supps(name) {
+	static supps(filename) {
 		return {
-			fat: replaceExtension(name, 'fat'),
+			main: replaceExtension(filename, 'bnk'),
+			fat: replaceExtension(filename, 'fat'),
 		};
 	}
 

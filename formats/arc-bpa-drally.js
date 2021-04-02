@@ -30,6 +30,7 @@ import { enc_bpa_drally_filename } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
+import { replaceExtension } from '../util/supp.js';
 
 const HEADER_LEN = 4 + 255 * (13 + 4);   // sizeof(header) + FAT
 const FATENTRY_LEN = 13 + 4; // sizeof(fatEntry)
@@ -52,6 +53,12 @@ export default class Archive_BPA_DeathRally extends ArchiveHandler
 		md.caps.file.maxFilenameLen = 12;
 
 		return md;
+	}
+
+	static supps(filename) {
+		return {
+			main: replaceExtension(filename, 'bpa'),
+		};
 	}
 
 	static identify(content) {

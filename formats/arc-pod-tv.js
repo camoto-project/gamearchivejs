@@ -29,6 +29,7 @@ import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
+import { replaceExtension } from '../util/supp.js';
 
 const recordTypes = {
 	header: {
@@ -70,6 +71,12 @@ export default class Archive_POD_TV extends ArchiveHandler
 		};
 
 		return md;
+	}
+
+	static supps(filename) {
+		return {
+			main: replaceExtension(filename, 'pod'),
+		};
 	}
 
 	static identify(content) {

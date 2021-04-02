@@ -29,6 +29,7 @@ import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
+import { replaceExtension } from '../util/supp.js';
 
 const knownFilenames = [
 	'1000P.CMP',
@@ -367,6 +368,12 @@ export default class Archive_LBR_Vinyl extends ArchiveHandler
 		};
 
 		return md;
+	}
+
+	static supps(filename) {
+		return {
+			main: replaceExtension(filename, 'lbr'),
+		};
 	}
 
 	static identify(content) {

@@ -29,6 +29,7 @@ import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
+import { replaceExtension } from '../util/supp.js';
 
 const recordTypes = {
 	header: {
@@ -63,6 +64,12 @@ export default class Archive_GRP_Build extends ArchiveHandler
 		md.caps.file.maxFilenameLen = 12;
 
 		return md;
+	}
+
+	static supps(filename) {
+		return {
+			main: replaceExtension(filename, 'dat'),
+		};
 	}
 
 	static identify(content) {
