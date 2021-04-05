@@ -209,7 +209,8 @@ export default class Archive_BNK_Harry extends ArchiveHandler
 
 			// Safety check.
 			if (nativeData.length != file.nativeSize) {
-				throw new Error('Length of data and nativeSize field do not match!');
+				throw new Error(`Length of data (${nativeData.length}) and nativeSize `
+					+ `(${file.nativeSize}) field do not match for ${file.name}!`);
 			}
 
 			// @todo Handle compression/decompression
