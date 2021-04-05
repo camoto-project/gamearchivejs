@@ -27,12 +27,16 @@ import TestUtil from './util.js';
 import { all as allFormats } from '../index.js';
 
 const gameFiles = {
-	'arc-grp-build': [
-		'duke3d.grp',
-	],
-	'arc-glb-raptor': [
-		'file0000.glb',
-	],
+	'arc-grp-build': {
+		'duke3d.grp': {
+			'stalker.mid': 'IMvGH7NFxcIq19h3yMK3Vhg9CiM=',
+		},
+	},
+	'arc-glb-raptor': {
+		'file0000.glb': {
+			'file_id_diz': 'bV4tAoHmqCFQ4JF/OcewRIJLZgc=',
+		},
+	},
 };
 
 describe(`Tests with real game files (if present)`, function() {
@@ -55,7 +59,7 @@ describe(`Tests with real game files (if present)`, function() {
 		for (const [ idFormat, files ] of Object.entries(gameFiles)) {
 			const { testutil, handler } = format[idFormat];
 			try {
-				format[idFormat].content = testutil.loadDirect(handler, files);
+				format[idFormat].content = testutil.loadDirect(handler, Object.keys(files));
 			} catch (e) {
 				console.log(e.message);
 			}
@@ -69,16 +73,16 @@ describe(`Tests with real game files (if present)`, function() {
 
 			describe('identify()', function() {
 
-				for (const id of files) {
-					it(`should recognise ${id}`, function() {
+				for (const archiveFilename of Object.keys(files)) {
+					it(`should recognise ${archiveFilename}`, function() {
 						// The next line has to be inside the it() otherwise it evaluates
 						// too early, before the before() block above has populated the
 						// object.
 						const { handler, content } = format[idFormat];
 						if (!content) this.skip();
 						const result = handler.identify(
-							content[id].main,
-							content[id].main.filename
+							content[archiveFilename].main,
+							content[archiveFilename].main.filename
 						);
 						assert.equal(result.valid, true);
 					});
@@ -90,15 +94,15 @@ describe(`Tests with real game files (if present)`, function() {
 					if (!format[idFormat2]) {
 						throw new Error(`BUG: Tests tried to access non-existent format "${idFormat2}".`);
 					}
-					for (const id2 of files2) {
-						it(`should not recognise ${idFormat2} file ${id2}`, function() {
+					for (const archiveFilename2 of Object.keys(files2)) {
+						it(`should not recognise ${idFormat2} file ${archiveFilename2}`, function() {
 							// These also have to be inside the it() the same as above.
 							const { content: content2 } = format[idFormat2];
 							if (!content2) this.skip();
 							const { handler } = format[idFormat];
 							const result = handler.identify(
-								content2[id2].main,
-								content2[id2].main.filename
+								content2[archiveFilename2].main,
+								content2[archiveFilename2].main.filename
 							);
 							assert.equal(result.valid, false);
 						});
@@ -109,19 +113,38 @@ describe(`Tests with real game files (if present)`, function() {
 
 			describe('parse()/generate()', function() {
 
-				for (const id of files) {
-					it(`should read and rewrite ${id}`, function() {
+				for (const [ archiveFilename, targetFiles ] of Object.entries(files)) {
+					it(`should read and rewrite ${archiveFilename}`, function() {
 						const { handler, content } = format[idFormat];
 						if (!content) this.skip();
-						const archive = handler.parse(content[id]);
+						const archive = handler.parse(content[archiveFilename]);
+
+						function checkArchive(arch) {
+							for (const [ targetFile, targetHash ] of Object.entries(targetFiles)) {
+								const file = arch.files.find(f => f.name.toLowerCase() === targetFile.toLowerCase());
+								assert.ok(file, `Unable to find "${targetFile}" inside "${archiveFilename}"`);
+								const content = file.getContent();
+								assert.equal(TestUtil.hash(content), targetHash,
+									`Content for "${targetFile}" inside "${archiveFilename}" `
+									+ `differs to what was expected.`);
+							}
+						}
+						// Check the original archive.
+						checkArchive(archive);
+
+						// Generate a new archive that should be identical to the original.
 						const output = handler.generate(archive);
+
+						// Now try re-reading the new one..
+						const archive2 = handler.parse(output);
+						checkArchive(archive2);
 					});
 				}
 
-			});
+			}); // parse()/generate()
 
-		}); // parse()/generate()
+		}); // describe(format)
 
-	} // each format
+	} // foreach format
 
 }); // Real game file tests
