@@ -2,8 +2,18 @@ node_modules/
 
 # Ignore the real game files used for tests.  These can't be distributed but
 # if they are missing, those tests will be skipped.
+test/arc-bnk-harry/sfx.*
+test/arc-bpa-drally/ibfiles.bpa
+test/arc-dat-fast/bash1.dat
+test/arc-dat-wacky/wacky.dat
+test/arc-epf-eastpoint/lionking.epf
 test/arc-exe-*/*.exe
 test/arc-gamemaps-id/*.ck4
 test/arc-gamemaps-id/*.wl6
 test/arc-glb-raptor/file0000.glb
 test/arc-grp-build/duke3d.grp
+test/arc-hog-descent/descent.hog
+test/arc-lbr-vinyl/goddess.lbr
+test/arc-pod-tv/startup.pod
+test/arc-rff-blood-v301/gui.rff
+test/arc-vol-cosmo/cosmo1.vol

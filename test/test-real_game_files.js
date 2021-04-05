@@ -27,6 +27,36 @@ import TestUtil from './util.js';
 import { all as allFormats } from '../index.js';
 
 const gameFiles = {
+	'arc-bnk-harry': {
+		'sfx.bnk': {
+			'coin.4bt': '+IXuGOTsqUq6m3A0VsDsY2qzLfU=',
+		},
+	},
+	'arc-bpa-drally': {
+		'ibfiles.bpa': {
+			'rasti1.bpk': 'uO/QATW2iRwsJjepOWZOCN57xtA=',
+		},
+	},
+	'arc-dat-fast': {
+		'bash1.dat': {
+			'main.imf': 'vrkhbVklGu+zXJ50yx8kFbERCQM=',
+		},
+	},
+	'arc-dat-wacky': {
+		'wacky.dat': {
+			'giggles.sp': 'K8LYN1pXWnP/xiM4S7YM5l4nKQM=',
+		},
+	},
+	'arc-epf-eastpoint': {
+		'lionking.epf': {
+			'level1.map': '86gn5r9wamypIqu8QVOfRpl4KB8=',
+		},
+	},
+	'arc-gamemaps-id': {
+		'gamemaps.ck4': {
+			'00/plane0': 'p3lhBx/mYqB8UWbV7IgVyBRNMsA=',
+		},
+	},
 	'arc-grp-build': {
 		'duke3d.grp': {
 			'stalker.mid': 'IMvGH7NFxcIq19h3yMK3Vhg9CiM=',
@@ -37,13 +67,38 @@ const gameFiles = {
 			'file_id_diz': 'bV4tAoHmqCFQ4JF/OcewRIJLZgc=',
 		},
 	},
+	'arc-hog-descent': {
+		'descent.hog': {
+			'mars01.pcx': '1I2GeA+DJMCezPFwdRGk19HDT/o=',
+		},
+	},
+	'arc-lbr-vinyl': {
+		'goddess.lbr': {
+			'prowler.mus': 'JgjwQkMd5Um9KBJ33c9S5sv4dfU=',
+		},
+	},
+	'arc-pod-tv': {
+		'startup.pod': {
+			'fog\\vga.map': 'hxJZ7TpTNE/7C4tYqUo6ncw2N7s=',
+		},
+	},
+	'arc-rff-blood-v301': {
+		'gui.rff': {
+			'uparrow.qbm': '6g5PDHpIjBhNcKc84H7ui/VhGUo=',
+		},
+	},
+	'arc-vol-cosmo': {
+		'cosmo1.vol': {
+			'mzztop.mni': 'CfsTVENVO16mqSCcP4DajWbGNkM=',
+		},
+	},
 };
 
 describe(`Tests with real game files (if present)`, function() {
 
 	let format = {};
 
-	for (const [ idFormat, files ] of Object.entries(gameFiles)) {
+	for (const idFormat of Object.keys(gameFiles)) {
 		const f = {};
 		f.handler = allFormats.find(t => t.metadata().id === idFormat);
 		if (!f.handler) {
@@ -119,25 +174,25 @@ describe(`Tests with real game files (if present)`, function() {
 						if (!content) this.skip();
 						const archive = handler.parse(content[archiveFilename]);
 
-						function checkArchive(arch) {
+						function checkArchive(arch, msgSuffix) {
 							for (const [ targetFile, targetHash ] of Object.entries(targetFiles)) {
 								const file = arch.files.find(f => f.name.toLowerCase() === targetFile.toLowerCase());
 								assert.ok(file, `Unable to find "${targetFile}" inside "${archiveFilename}"`);
 								const content = file.getContent();
 								assert.equal(TestUtil.hash(content), targetHash,
 									`Content for "${targetFile}" inside "${archiveFilename}" `
-									+ `differs to what was expected.`);
+									+ `differs to what was expected ${msgSuffix}.`);
 							}
 						}
 						// Check the original archive.
-						checkArchive(archive);
+						checkArchive(archive, 'upon initial read');
 
 						// Generate a new archive that should be identical to the original.
 						const output = handler.generate(archive);
 
 						// Now try re-reading the new one..
 						const archive2 = handler.parse(output);
-						checkArchive(archive2);
+						checkArchive(archive2, 'after rewriting the archive');
 					});
 				}
 
