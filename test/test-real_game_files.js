@@ -53,8 +53,19 @@ const gameFiles = {
 		},
 	},
 	'arc-gamemaps-id': {
+		'maptemp.bm1': {
+			'00/plane0': 'l5EuS0F4jMCeuagaCcEOI1s4hlg=',
+		},
+		'maptemp.wl1': {
+			'00/plane0': 'NRg+/uMmRwulXNF05eaVj8IbrH4=',
+		},
+	},
+	'arc-gamemaps-id-carmack': {
 		'gamemaps.ck4': {
-			'00/plane0': 'p3lhBx/mYqB8UWbV7IgVyBRNMsA=',
+			'00/plane0': 'OEjwjwhWvCqZmGUFnMuDI8YQekI=',
+		},
+		'gamemaps.wl6': {
+			'00/plane0': '1yFmmL3MtrvlM82jsHws0Uu7piA=',
 		},
 	},
 	'arc-grp-build': {
@@ -139,7 +150,7 @@ describe(`Tests with real game files (if present)`, function() {
 							content[archiveFilename].main,
 							content[archiveFilename].main.filename
 						);
-						assert.equal(result.valid, true);
+						assert.equal(result.valid, true, `Handler did not recognise ${archiveFilename}: ${result.reason}`);
 					});
 				}
 
@@ -174,25 +185,46 @@ describe(`Tests with real game files (if present)`, function() {
 						if (!content) this.skip();
 						const archive = handler.parse(content[archiveFilename]);
 
-						function checkArchive(arch, msgSuffix) {
-							for (const [ targetFile, targetHash ] of Object.entries(targetFiles)) {
-								const file = arch.files.find(f => f.name.toLowerCase() === targetFile.toLowerCase());
-								assert.ok(file, `Unable to find "${targetFile}" inside "${archiveFilename}"`);
-								const content = file.getContent();
-								assert.equal(TestUtil.hash(content), targetHash,
-									`Content for "${targetFile}" inside "${archiveFilename}" `
-									+ `differs to what was expected ${msgSuffix}.`);
-							}
-						}
+						let origContent = {};
+
 						// Check the original archive.
-						checkArchive(archive, 'upon initial read');
+						for (const [ targetFile, targetHash ] of Object.entries(targetFiles)) {
+							const file = archive.files.find(f => f.name.toLowerCase() === targetFile.toLowerCase());
+							assert.ok(file, `Unable to find "${targetFile}" inside "${archiveFilename}"`);
+
+							// Use decompressed/decrypted content so that differences in
+							// compression algorithms don't affect the result.
+							const content = file.getContent();
+
+							assert.equal(TestUtil.hash(content), targetHash,
+								`Content for "${targetFile}" extracted from "${archiveFilename}" `
+								+ `differs to what was expected.`);
+
+							origContent[targetFile] = content;
+						}
 
 						// Generate a new archive that should be identical to the original.
 						const output = handler.generate(archive);
-
-						// Now try re-reading the new one..
 						const archive2 = handler.parse(output);
-						checkArchive(archive2, 'after rewriting the archive');
+
+						// Now try re-reading the new one.  It won't matter whether any
+						// compression algorithms produce different data because we'll be
+						// comparing the file content after decompression.
+						for (const targetFile of Object.keys(targetFiles)) {
+							const file = archive2.files.find(f => f.name.toLowerCase() === targetFile.toLowerCase());
+							assert.ok(file, `Unable to find "${targetFile}" inside the `
+								+ `regenerated version of "${archiveFilename}"`);
+
+							// Use decompressed/decrypted content so that differences in
+							// compression algorithms don't affect the result.
+							const content = file.getContent();
+
+							// Compare the content against what was read from the first file,
+							// which also passed the hash check.  This way if the content is
+							// wrong, we get a hex dump of the differences rather than just
+							// a "hash doesn't match" error.
+							TestUtil.buffersEqual(origContent[targetFile], content);
+						}
 					});
 				}
 

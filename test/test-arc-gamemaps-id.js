@@ -25,9 +25,9 @@ const md = handler.metadata();
 let testutil = new TestUtil(md.id);
 
 describe(`Extra tests for ${md.title} [${md.id}]`, function() {
-	let content = {};
 
 	describe('I/O', function() {
+		let content = {};
 
 		before('load test data from local filesystem', function() {
 			content = testutil.loadContent(handler, [

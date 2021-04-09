@@ -9,36 +9,50 @@ formats.
 
 ## Supported file formats
 
-| Game                      | Files     | Format                    | Code                |
-|---------------------------|-----------|---------------------------|---------------------|
-| Blood                     | *.rff     | Monolith Resource File Format v2.0/3.0/3.1 | arc-rff-blood-* |
-| Commander Keen 4-6        | *.exe     | Keen 4/5/6 .exe           | arc-exe-keen[456]   |
-| Cosmo's Cosmic Adventures | *.vol, *.stn | Cosmo Data Volume      | arc-vol-cosmo       |
-| Dangerous Dave            | dave.exe  | Dangerous Dave .exe       | arc-exe-ddave       |
-| Death Rally               | *.bpa     | Death Rally BPA File      | arc-bpa-drally      |
-| Descent                   | *.hog     | Descent HOG File          | arc-hog-descent     |
-| Doom                      | *.wad     | Where's All the Data File | arc-wad-doom        |
-| Duke Nukem 3D             | *.grp     | BUILD Group File          | arc-grp-build       |
-| Duke Nukem II             | *.cmp     | Cosmo Data Volume         | arc-vol-cosmo       |
-| Grand Prix Legends        | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
-| Halloween Harry           | *.bnk     | SubZero Data Bank         | arc-bnk-harry       |
-| IndyCar Racing            | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
-| IndyCar Racing II         | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
-| J.R.R. Tolkien's Riders of Rohan | *.dat | Papyrus Data File (V1) | arc-dat-papyrus-v1  |
-| Lion King, The            | *.dat     | East Point File Storage   | arc-epf-eastpoint   |
-| Major Stryker             | *.ms[123] | Cosmo Data Volume         | arc-vol-cosmo       |
-| Monster Bash              | *.dat     | F.A.S.T. Data File        | arc-dat-fast        |
-| NASCAR Racing             | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
-| NASCAR Racing 2           | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
-| NASCAR Racing 3           | *.dat     | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
-| Nomad                     | *.dat     | Papyrus Data File (V1)    | arc-dat-papyrus-v1  |
-| Raptor                    | *.glb     | Raptor Game Library       | arc-glb-raptor      |
-| Redneck Rampage           | *.grp     | BUILD Group File          | arc-grp-build       |
-| Scubaventure              | *.dat     | F.A.S.T. Data File        | arc-dat-fast        |
-| Shadow Warrior            | *.grp     | BUILD Group File          | arc-grp-build       |
-| Terminal Velocity         | *.pod     | Terminal Reality POD File | arc-pod-tv          |
-| Vinyl Goddess From Mars   | *.lbr     | Vinyl Library File        | arc-lbr-vinyl       |
-| Wacky Wheels              | *.dat     | Wacky Wheels Data File    | arc-dat-wacky       |
+| Game                      | Files      | Format                    | Code                |
+|---------------------------|------------|---------------------------|---------------------|
+| Blood                     | *.rff      | Monolith Resource File Format v2.0/3.0/3.1 | arc-rff-blood-* |
+| Bio Menace                | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
+| Blake Stone               | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
+| Catacomb 3-D              | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Catacomb Abyss            | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Catacomb Armageddon       | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Catacomb Apocalypse       | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Corridor 7                | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
+| Commander Keen 4-6        | *.exe      | Keen 4/5/6 .exe           | arc-exe-keen[456]   |
+| Commander Keen 4-6        | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Cosmo's Cosmic Adventures | *.vol, *.stn | Cosmo Data Volume       | arc-vol-cosmo       |
+| Dangerous Dave            | dave.exe   | Dangerous Dave .exe       | arc-exe-ddave       |
+| Death Rally               | *.bpa      | Death Rally BPA File      | arc-bpa-drally      |
+| Descent                   | *.hog      | Descent HOG File          | arc-hog-descent     |
+| Doom                      | *.wad      | Where's All the Data File | arc-wad-doom        |
+| Duke Nukem 3D             | *.grp      | BUILD Group File          | arc-grp-build       |
+| Duke Nukem II             | *.cmp      | Cosmo Data Volume         | arc-vol-cosmo       |
+| Grand Prix Legends        | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| Halloween Harry           | *.bnk      | SubZero Data Bank         | arc-bnk-harry       |
+| IndyCar Racing            | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| IndyCar Racing II         | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| J.R.R. Tolkien's Riders of Rohan | *.dat | Papyrus Data File (V1)  | arc-dat-papyrus-v1  |
+| Lion King, The            | *.dat      | East Point File Storage   | arc-epf-eastpoint   |
+| Major Stryker             | *.ms[123]  | Cosmo Data Volume         | arc-vol-cosmo       |
+| Monster Bash              | *.dat      | F.A.S.T. Data File        | arc-dat-fast        |
+| NASCAR Racing             | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| NASCAR Racing 2           | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| NASCAR Racing 3           | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
+| Nomad                     | *.dat      | Papyrus Data File (V1)    | arc-dat-papyrus-v1  |
+| Operation Body Count      | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
+| Raptor                    | *.glb      | Raptor Game Library       | arc-glb-raptor      |
+| Rescue Rover 2            | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Redneck Rampage           | *.grp      | BUILD Group File          | arc-grp-build       |
+| Scubaventure              | *.dat      | F.A.S.T. Data File        | arc-dat-fast        |
+| Shadow Warrior            | *.grp      | BUILD Group File          | arc-grp-build       |
+| Spear of Destiny          | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Super 3-D Noah's Ark      | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Terminal Velocity         | *.pod      | Terminal Reality POD File | arc-pod-tv          |
+| Vinyl Goddess From Mars   | *.lbr      | Vinyl Library File        | arc-lbr-vinyl       |
+| Wacky Wheels              | *.dat      | Wacky Wheels Data File    | arc-dat-wacky       |
+| Wolfenstein 3-D v1.0      | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id  |
+| Wolfenstein 3-D v1.1+     | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
 
 ## Installation as an end-user
 

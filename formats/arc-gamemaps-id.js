@@ -1,5 +1,5 @@
 /*
- * id Software Gamemaps format handler.
+ * id Software Gamemaps format handler for underlying RLEW-compressed data.
  *
  * This file format is fully documented on the ModdingWiki:
  *   http://www.shikadi.net/moddingwiki/GameMaps_Format
@@ -26,15 +26,16 @@ import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
 
 import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
+import { cmp_rlew_id } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
-import { replaceBasename, getBasename } from '../util/supp.js';
+import { replaceBasename } from '../util/supp.js';
 
 const recordTypes = {
 	maphead: {
 		header: {
-			flag: RecordType.int.u16le,
+			rlewCode: RecordType.int.u16le,
 		},
 	},
 	gamemaps: {
@@ -48,13 +49,13 @@ const recordTypes = {
 			lenPlane0: RecordType.int.u16le,
 			lenPlane1: RecordType.int.u16le,
 			lenPlane2: RecordType.int.u16le,
-			/*
-			 * This is technically part of the header but we will treat it as a
-			 * separate file so that the data is available to users.
+		},
+		// This is technically part of the header but we will treat it as a
+		// separate file so that the data is available to users.
+		levelHeaderPart2: {
 			width: RecordType.int.u16le,
 			height: RecordType.int.u16le,
 			name: RecordType.string.fixed.reqTerm(16),
-			*/
 		},
 	},
 };
@@ -65,25 +66,23 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 		let md = {
 			...super.metadata(),
 			id: FORMAT_ID,
-			title: 'id Software GAMEMAPS File',
+			title: 'id Software GAMEMAPS File (RLEW)',
 			games: [
 				'Bio Menace',
 				'Blake Stone',
-				'Catacomb 3-D',
-				'Catacomb Abyss',
-				'Catacomb Armageddon',
-				'Catacomb Apocalypse',
+				'Commander Keen 4-6',
 				'Corridor 7',
-				'Commander Keen 4-6 + Dreams',
 				'Noah\'s Ark 3D',
 				'Operation Body Count',
-				'Spear of Destiny',
-				'Wolfenstein 3-D',
+				'Wolfenstein 3-D v1.0',
 			],
 			glob: [
-				'gamemaps.*',
+				'maptemp.*',
 			],
 		};
+
+		// Files can be compressed.
+		md.caps.file.attributes.compressed = true;
 
 		md.caps.file.maxFilenameLen = 15;
 
@@ -91,26 +90,11 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 	}
 
 	static supps(name) {
-		const basename = getBasename(name);
-		let supps = {};
-		switch (basename.toLowerCase()) {
-
-			// maptemp.xxx -> mapthead.xxx
-			case 'maptemp':
-				supps.fat = replaceBasename(name, 'mapthead');
-				break;
-
-			// gamemaps.xxx -> maphead.xxx
-			case 'gamemaps':
-				supps.fat = replaceBasename(name, 'maphead');
-				break;
-
-			default:
-				supps.fat = replaceBasename(name, 'maphead');
-				break;
-		}
-
-		return supps;
+		return {
+			// maptemp.xxx -> maphead.xxx
+			fat: replaceBasename(name, 'maphead'),
+			main: replaceBasename(name, 'maptemp'),
+		};
 	}
 
 	static identify(content) {
@@ -124,17 +108,62 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 
 		let buffer = new RecordBuffer(content);
 
-		const sig = recordTypes.gamemaps.header.signature.read(buffer);
-		if (sig !== 'TED5v1.0') {
+		const head = buffer.readRecord(recordTypes.gamemaps.header);
+		if (head.signature !== 'TED5v1.0') {
 			return {
 				valid: false,
 				reason: `Wrong signature.`,
 			};
 		}
 
+		// Search for an '!ID!' signature.
+		const expSig = [...'!ID!'].map(a => a.charCodeAt(0));
+		for (let i = 8; i < content.length - 4; i++) {
+			if (
+				(content[i] === expSig[0])
+				&& (content[i + 1] === expSig[1])
+				&& (content[i + 2] === expSig[2])
+				&& (content[i + 3] === expSig[3])
+			) {
+				// Found a signature, look for the header.
+				if (i + 4 + 38 > content.length) {
+					return {
+						valid: false,
+						reason: `Found !ID! header, but at EOF.`,
+					};
+				}
+				buffer.seekAbs(i + 4);
+				const levelHeader = buffer.readRecord(recordTypes.gamemaps.levelHeader);
+				const levelHeaderPart2 = buffer.readRecord(recordTypes.gamemaps.levelHeaderPart2);
+				const expectedPlaneLength = levelHeaderPart2.width * levelHeaderPart2.height * 2;
+				debug(levelHeader, levelHeaderPart2);
+				if (levelHeader.offPlane0 + 2 > content.length) {
+					return {
+						valid: false,
+						reason: `Found !ID! header, but plane is too short.`,
+					};
+				}
+				buffer.seekAbs(levelHeader.offPlane0);
+				const lenDecompressed = buffer.read(RecordType.int.u16le);
+				if (lenDecompressed === expectedPlaneLength) {
+					return {
+						valid: true,
+						reason: 'Signature matched and first level plane is expected length.',
+					};
+				}
+
+				// This means there's another level of decompression that has to
+				// happen, so it's one of the other variants.
+				return {
+					valid: false,
+					reason: `Found !ID! header, but plane is wrong length.`,
+				};
+			}
+		}
+
 		return {
-			valid: true,
-			reason: `Signature matched.`,
+			valid: undefined,
+			reason: `Signature matched but no !ID! marker found.`,
 		};
 	}
 
@@ -146,14 +175,9 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 		let fatBuffer = new RecordBuffer(fat);
 
 		let fatHeader = fatBuffer.readRecord(recordTypes.maphead.header);
-		let hasRLEW = fatHeader.flag == 0xABCD;
-
-		if (hasRLEW) {
-			debug('RLEW not implemented yet!');
-		}
 
 		for (let i = 0; i < 100; i++) {
-			const offLevelHeader = fatBuffer.read(RecordType.int.u32le);
+			const offLevelHeader = fatBuffer.read(RecordType.int.s32le);
 			if (offLevelHeader > lenArchive) {
 				debug(`Level ${i + 1}'s offset ${offLevelHeader} is beyond the end of `
 					+ `the level data (${lenArchive}).`);
@@ -176,17 +200,25 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 
 			buffer.seekAbs(offLevelHeader);
 			const levelHeader = buffer.readRecord(recordTypes.gamemaps.levelHeader);
-			// Skip over remaining header data we aren't using (width, height, name).
-			buffer.seekRel(2 * 2 + 16);
+			const levelHeaderPart2 = buffer.readRecord(recordTypes.gamemaps.levelHeaderPart2);
 
 			for (let p = 0; p < 3; p++) {
 				const offset = levelHeader[`offPlane${p}`];
-				if (offset === 0) continue; // plane not present
+				if (offset <= 0) continue; // plane not present
+
 				let file = new File();
 				file.name = `${levelCode}/plane${p}`;
-				file.diskSize = file.nativeSize = levelHeader[`lenPlane${p}`];
+				file.attributes.compressed = true;
+				file.diskSize = levelHeader[`lenPlane${p}`];
+				file.nativeSize = levelHeaderPart2.width * levelHeaderPart2.height * 2;
 				file.offset = offset;
 				file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+
+				// Override getContent() to decompress the file first.
+				file.getContent = () => {
+					const raw = buffer.getU8(file.offset, file.diskSize);
+					return this.decompress(raw, fatHeader.rlewCode);
+				};
 				archive.files.push(file);
 			}
 
@@ -196,6 +228,7 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 			file.diskSize = file.nativeSize = 20;
 			file.offset = offLevelHeader + (4 + 2) * 3;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			// This data is never compressed so no need to override getContent().
 			archive.files.push(file);
 		}
 
@@ -207,6 +240,7 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 			file.diskSize = file.nativeSize = fatBuffer.length - lenOffsets;
 			file.offset = lenOffsets;
 			file.getRaw = () => fatBuffer.getU8(file.offset, file.diskSize);
+			// This data is never compressed so no need to override getContent().
 			archive.files.push(file);
 		}
 
@@ -215,9 +249,14 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 
 	static generate(archive)
 	{
+		const header = {
+			rlewCode: 0xABCD,
+		};
+
 		let output = [];
 		let fileCount = 0;
 		let tileinfo;
+		let lenCompressed = 0;
 		for (const file of archive.files) {
 			if (file.name === 'tileinfo') {
 				tileinfo = file.getContent();
@@ -237,38 +276,39 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 			fileCount++;
 
 			const filename = file.name.substr(3);
+			let plane, compressed;
 			switch (filename) {
-				case 'plane0':
-					output[intLevel][0] = file.getContent();
-					break;
-				case 'plane1':
-					output[intLevel][1] = file.getContent();
-					break;
-				case 'plane2':
-					output[intLevel][2] = file.getContent();
-					break;
-				case 'info': {
-					output[intLevel][3] = file.getContent();
-					const actualSize = output[intLevel][3].length;
-					const expectedSize = 2 + 2 + 16;
-					if (actualSize != expectedSize) {
-						throw new Error(`File "${file.name}" is ${actualSize} bytes in `
-							+ `size, but it must be exactly ${expectedSize} bytes.`);
-					}
-					break;
+				case '': continue; // empty/placeholder level
+				case 'plane0': plane = 0; compressed = true; break;
+				case 'plane1': plane = 1; compressed = true; break;
+				case 'plane2': plane = 2; compressed = true; break;
+				default: plane = 3; compressed = false; break; // info file
+			}
+
+			if (compressed) {
+				const comp = this.compress(file.getContent(), header.rlewCode);
+				output[intLevel][plane] = comp;
+				// Only planes 0-2 are included here, the info file goes into the header
+				// so isn't counted here.
+				lenCompressed += comp.length;
+			} else {
+				output[intLevel][plane] = file.getContent();
+			}
+
+			if (filename === 'info') {
+				const actualSize = output[intLevel][3].length;
+				const expectedSize = 2 + 2 + 16;
+				if (actualSize != expectedSize) {
+					throw new Error(`File "${file.name}" is ${actualSize} bytes in `
+						+ `size, but it must be exactly ${expectedSize} bytes.`);
 				}
 			}
 		}
 
-		// TODO: Compress files in output[].
-		let lenCompressed = 0; // size of output[][0..2], not output[][3].
-
 		let lenFAT = 2 + 4 * 100;
 		if (tileinfo) lenFAT += tileinfo.length;
 		let fatBuffer = new RecordBuffer(lenFAT);
-		fatBuffer.writeRecord(recordTypes.maphead.header, {
-			flag: 0xABCD,
-		});
+		fatBuffer.writeRecord(recordTypes.maphead.header, header);
 
 		const lenHeader = 3 * (4 + 2) + 2 + 2 + 16;
 		let buffer = new RecordBuffer(8 + lenCompressed + fileCount * lenHeader);
@@ -278,19 +318,13 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 
 		for (let i = 0; i < 100; i++) {
 			// If there are no files for this level number treat it as an empty level.
-			if (!output[i]) {
+			if (!output[i] || (output[i].length === 0)) {
 				fatBuffer.write(RecordType.int.u32le, 0);
 				continue;
 			}
 
-			// We have at least one subfile, so make sure we have them all.
-			/*
-			for (let p = 0; p < 3; p++) {
-				if (!output[i][p]) {
-					throw new Error(`Missing mandatory file "${i.toString().padStart(2, '0')}/plane${p}".`);
-				}
-			}
-			*/
+			// This file is mandatory because we split it out from the header, so it's
+			// not technically a file but the end of the header.
 			if (!output[i][3]) {
 				throw new Error(`Missing mandatory file "${i.toString().padStart(2, '0')}/info".`);
 			}
@@ -331,6 +365,13 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 					buffer.put(output[i][p]);
 				}
 			}
+			// Put an !ID! signature after the plane data.  This isn't strictly
+			// necessary but matches the format.  Note that RLEW-only variants
+			// (arc-gamemaps-id) have the levelHeader last, after the plane data,
+			// while Carmackized versions (arc-gamemaps-id-carmack) put the
+			// levelHeader before the plane data.  Either way in both formats the !ID!
+			// signature is placed after each level has been written.
+			buffer.write(RecordType.string.fixed.noTerm(4), '!ID!');
 		}
 
 		// Put the tileinfo (if any) at the end of the maphead.
@@ -342,5 +383,26 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 			main: buffer.getU8(),
 			fat: fatBuffer.getU8(),
 		};
+	}
+
+	static compress(content, rlewCode) {
+		const comp = cmp_rlew_id.obscure(content, { code: rlewCode });
+
+		// Write the original size in the header.
+		const buffer = new RecordBuffer(comp.length + 2);
+		buffer.write(RecordType.int.u16le, content.length);
+		buffer.put(comp);
+
+		return buffer.getU8();
+	}
+
+	static decompress(content, rlewCode) {
+		const buffer = new RecordBuffer(content);
+		const lenDecompressed = buffer.read(RecordType.int.u16le);
+		const body = buffer.getU8(2, buffer.length - 2);
+		const decomp = cmp_rlew_id.reveal(body, { code: rlewCode } );
+
+		// Trim the decompressed data in case there are trailing bytes.
+		return decomp.slice(0, lenDecompressed);
 	}
 }

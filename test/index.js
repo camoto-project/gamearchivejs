@@ -99,34 +99,30 @@ for (const handler of gamearchiveFormats) {
 				// look like.
 
 				let file = new File();
-				switch (md.id) {
-					case 'arc-gamemaps-id':
-						// Only certain filenames allowed
-						file.name = '00/plane0';
-						break;
-					default:
-						file.name = 'ONE.TXT';
-						break;
-				}
-
+				file.name = 'ONE.TXT';
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the first file');
 				// default setting for compression, if supported
 				// default setting for encryption, if supported
-				defaultArchive.files.push(file);
 
-				file = new File();
 				switch (md.id) {
-					case 'arc-gamemaps-id':
+					case 'arc-gamemaps-id': // fall through
+					case 'arc-gamemaps-id-carmack': // fall through
+					case 'arc-gamemaps-id-huffman':
 						// Only certain filenames allowed
-						file.name = '00/plane1';
+						file.name = '00/plane0';
+						file.nativeSize = 14; // fixed length
+						file.getRaw = () => TestUtil.u8FromString('This is file 1');
 						break;
 					default:
-						file.name = 'TWO.TXT';
 						break;
 				}
 
+				defaultArchive.files.push(file);
+
+				file = new File();
+				file.name = 'TWO.TXT';
 				file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the second file');
@@ -138,23 +134,24 @@ for (const handler of gamearchiveFormats) {
 					// Always encrypt this file, if supported
 					file.attributes.encrypted = true;
 				}
-				defaultArchive.files.push(file);
 
-				file = new File();
 				switch (md.id) {
-					case 'arc-wad-doom':
-						// Default name is too long
-						file.name = 'THREE';
-						break;
-					case 'arc-gamemaps-id':
+					case 'arc-gamemaps-id': // fall through
+					case 'arc-gamemaps-id-carmack': // fall through
+					case 'arc-gamemaps-id-huffman':
 						// Only certain filenames allowed
-						file.name = '00/plane2';
+						file.name = '00/plane1';
+						file.nativeSize = 14; // fixed length
+						file.getRaw = () => TestUtil.u8FromString('This is file 2');
 						break;
 					default:
-						file.name = 'THREE.TXT';
 						break;
 				}
 
+				defaultArchive.files.push(file);
+
+				file = new File();
+				file.name = 'THREE.TXT';
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.diskSize = 64; // intentionally wrong size
 				file.nativeSize = 22;
@@ -167,9 +164,28 @@ for (const handler of gamearchiveFormats) {
 					// Never encrypt this file, if supported
 					file.attributes.encrypted = false;
 				}
+
+				switch (md.id) {
+					case 'arc-wad-doom':
+						// Default name is too long
+						file.name = 'THREE';
+						break;
+					case 'arc-gamemaps-id': // fall through
+					case 'arc-gamemaps-id-carmack': // fall through
+					case 'arc-gamemaps-id-huffman':
+						// Only certain filenames allowed
+						file.name = '00/plane2';
+						file.nativeSize = 14; // fixed length
+						file.getRaw = () => TestUtil.u8FromString('This is file 3');
+						break;
+					default:
+						break;
+				}
+
 				defaultArchive.files.push(file);
 
 				file = new File();
+				file.name = 'FOUR.TXT';
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.diskSize = 64; // intentionally wrong size
 				file.nativeSize = 23;
@@ -178,14 +194,18 @@ for (const handler of gamearchiveFormats) {
 				// default setting for encryption, if supported
 
 				switch (md.id) {
-					case 'arc-gamemaps-id':
+					case 'arc-gamemaps-id': // fall through
+					case 'arc-gamemaps-id-carmack': // fall through
+					case 'arc-gamemaps-id-huffman':
 						// Only certain filenames allowed
 						file.name = '00/info';
 						file.nativeSize = 20; // fixed length
-						file.getRaw = () => TestUtil.u8FromString('This is the inf file');
+						file.getRaw = () => new Uint8Array([
+							7, 0x00, 1, 0x00,
+							...TestUtil.u8FromString('This is the info')
+						]);
 						break;
 					default:
-						file.name = 'FOUR.TXT';
 						break;
 				}
 				defaultArchive.files.push(file);
@@ -217,7 +237,9 @@ for (const handler of gamearchiveFormats) {
 
 				it('should have the standard number of files', function() {
 					switch (md.id) {
-						case 'arc-gamemaps-id':
+						case 'arc-gamemaps-id': // fall through
+						case 'arc-gamemaps-id-carmack': // fall through
+						case 'arc-gamemaps-id-huffman':
 							// This format pads out with empty folders
 							assert.equal(archive.files.length, 100 + 1 * 3);
 							break;
@@ -228,19 +250,32 @@ for (const handler of gamearchiveFormats) {
 				});
 
 				it('should extract files correctly', function() {
-					TestUtil.buffersEqual(TestUtil.u8FromString('This is the first file'), archive.files[0].getContent());
-					TestUtil.buffersEqual(TestUtil.u8FromString('This is the second file'), archive.files[1].getContent());
-					TestUtil.buffersEqual(TestUtil.u8FromString('This is the third file'), archive.files[2].getContent());
-					let exp4;
+					let exp1 = TestUtil.u8FromString('This is the first file');
+					let exp2 = TestUtil.u8FromString('This is the second file');
+					let exp3 = TestUtil.u8FromString('This is the third file');
+					let exp4 = TestUtil.u8FromString('This is the fourth file');
+
 					switch (md.id) {
-						case 'arc-gamemaps-id':
-							exp4 = 'This is the inf file';
+						case 'arc-gamemaps-id': // fall through
+						case 'arc-gamemaps-id-carmack': // fall through
+						case 'arc-gamemaps-id-huffman':
+							exp1 = TestUtil.u8FromString('This is file 1');
+							exp2 = TestUtil.u8FromString('This is file 2');
+							exp3 = TestUtil.u8FromString('This is file 3');
+							exp4 = new Uint8Array([
+								7, 0x00, 1, 0x00,
+								...TestUtil.u8FromString('This is the info')
+							]);
 							break;
 						default:
-							exp4 = 'This is the fourth file';
+							exp4 = TestUtil.u8FromString('This is the fourth file');
 							break;
 					}
-					TestUtil.buffersEqual(TestUtil.u8FromString(exp4), archive.files[3].getContent());
+
+					TestUtil.buffersEqual(exp1, archive.files[0].getContent());
+					TestUtil.buffersEqual(exp2, archive.files[1].getContent());
+					TestUtil.buffersEqual(exp3, archive.files[2].getContent());
+					TestUtil.buffersEqual(exp4, archive.files[3].getContent());
 				});
 
 				it('should retrieve the correct filenames', function() {
@@ -251,17 +286,21 @@ for (const handler of gamearchiveFormats) {
 				});
 
 				it('should set the file size', function() {
-					assert.equal(archive.files[0].nativeSize, 22);
-					assert.equal(archive.files[1].nativeSize, 23);
-					assert.equal(archive.files[2].nativeSize, 22);
+					let exp = [22, 23, 22, 23];
+
 					switch (md.id) {
-						case 'arc-gamemaps-id':
-							// 'info' is fixed length.
-							assert.equal(archive.files[3].nativeSize, 20);
+						case 'arc-gamemaps-id': // fall through
+						case 'arc-gamemaps-id-carmack': // fall through
+						case 'arc-gamemaps-id-huffman':
+							// Fixed length files.
+							exp = [14, 14, 14, 20];
 							break;
 						default:
-							assert.equal(archive.files[3].nativeSize, 23);
 							break;
+					}
+
+					for (let i = 0; i < 4; i++) {
+						assert.equal(archive.files[i].nativeSize, exp[i], `"${archive.files[i].name}" is the wrong size`);
 					}
 				});
 
@@ -291,7 +330,21 @@ for (const handler of gamearchiveFormats) {
 				if (md.caps.file.attributes.compressed) {
 					it('compression optional; should set attributes accordingly', function() {
 						assert.equal(archive.files[1].attributes.compressed, true);
-						assert.equal(archive.files[2].attributes.compressed, false);
+
+						switch (md.id) {
+							// These formats force compression, you can't have uncompressed
+							// files.
+							case 'arc-gamemaps-id': // fall through
+							case 'arc-gamemaps-id-carmack': // fall through
+							case 'arc-gamemaps-id-huffman':
+								assert.equal(archive.files[2].attributes.compressed, true);
+								break;
+
+							// By default we expect file 2 to be uncompressed.
+							default:
+								assert.equal(archive.files[2].attributes.compressed, false);
+								break;
+						}
 					});
 				}
 
@@ -358,7 +411,12 @@ for (const handler of gamearchiveFormats) {
 					TestUtil.contentEqual(content.empty, contentGenerated);
 				});
 
-				if (md.caps.file.maxFilenameLen && (md.id !== 'arc-gamemaps-id')) {
+				if (
+					md.caps.file.maxFilenameLen
+					&& (md.id !== 'arc-gamemaps-id')
+					&& (md.id !== 'arc-gamemaps-id-carmack')
+					&& (md.id !== 'arc-gamemaps-id-huffman')
+				) {
 					it('maximum filename length is correct', function() {
 						let archive = new Archive();
 						let file = new File();
@@ -389,7 +447,11 @@ for (const handler of gamearchiveFormats) {
 					});
 				}
 
-				if (md.id !== 'arc-gamemaps-id') {
+				if (
+					(md.id !== 'arc-gamemaps-id')
+					&& (md.id !== 'arc-gamemaps-id-carmack')
+					&& (md.id !== 'arc-gamemaps-id-huffman')
+				) {
 					it('filenames without extensions work', function() {
 						let archive = new Archive();
 

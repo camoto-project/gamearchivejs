@@ -36,6 +36,7 @@ export { default as arc_exe_keen6 } from './arc-exe-keen6.js';
 // These files have supps so they'll be discounted quickly if the extra files
 // are unavailable.
 export { default as arc_gamemaps_id } from './arc-gamemaps-id.js';
+export { default as arc_gamemaps_id_carmack } from './arc-gamemaps-id-carmack.js';
 
 // These formats require enumeration, sometimes all the way to the end of the
 // file, so they are next.
