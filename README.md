@@ -65,10 +65,9 @@ For Arch Linux users the AUR package `gamearchive-cli` is also available.
 
 ### Command line interface
 
-The `gamearch` utility can be used to manipulate archive files.
-Commands are specified one after the other as parameters.  Use the
-`--help` option to get a list of all the available commands.  Some
-quick examples:
+The `gamearch` utility can be used to manipulate archive files.  Commands are
+specified one after the other as parameters.  Use the `--help` option to get a
+list of all the available commands.  Some quick examples:
 
     # Copy a file out of an existing archive
     gamearch open duke3d.grp extract stalker.mid
@@ -85,8 +84,8 @@ To get a list of supported file formats, run:
 
 ## Installation as a dependency
 
-If you wish to make use of the library in your own project, install it
-in the usual way:
+If you wish to make use of the library in your own project, install it in the
+usual way:
 
     npm install @camoto/gamearchive
 
@@ -127,8 +126,8 @@ See `cli/index.js` for example use.  The quick start is:
 
 ## Installation as a contributor
 
-If you would like to help add more file formats to the library, great!
-Clone the repo, and to get started:
+If you would like to help add more file formats to the library, great!  Clone
+the repo, and to get started:
 
     npm install
 
@@ -138,10 +137,10 @@ Run the tests to make sure everything worked:
 
 You're ready to go!  To add a new file format:
 
- 1. Create a new file in the `formats/` folder for your format.
-    Copying an existing file that covers a similar format will help
-    considerably.  If you're not sure, `arc-grp-build.js` is a good
-    starting point as it is fairly simple.
+ 1. Create a new file in the `formats/` folder for your format.  Copying an
+    existing file that covers a similar format will help considerably.  If
+    you're not sure, `arc-grp-build.js` is a good starting point as it is
+    fairly simple.
     
  2. Edit `formats/index.js` and add an `import` statement for your new file.
     
