@@ -150,7 +150,8 @@ describe(`Tests with real game files (if present)`, function() {
 							content[archiveFilename].main,
 							content[archiveFilename].main.filename
 						);
-						assert.equal(result.valid, true, `Handler did not recognise ${archiveFilename}: ${result.reason}`);
+						assert.ok(result, `Handler did not return a valid result object`);
+						assert.notEqual(result.valid, false, `Handler did not recognise ${archiveFilename}: ${result.reason}`);
 					});
 				}
 

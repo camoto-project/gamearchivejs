@@ -149,17 +149,22 @@ export default class TestUtil {
 	}
 
 	static buffersEqual(expected, actual, msg) {
-		const errorFilename = path.resolve(__dirname, expected.filename || 'error');
+		const errorFilename = expected.filename && path.resolve(__dirname, expected.filename);
 
 		if (expected instanceof ArrayBuffer) {
 			expected = new Uint8Array(expected);
 		}
 		if (!arrayEqual(expected, actual)) {
 			if (process.env.SAVE_FAILED_TEST == 1) {
-				let fn = errorFilename + '.failed_test_output';
-				// eslint-disable-next-line no-console
-				console.warn(`** Saving actual data to ${fn}`);
-				fs.writeFileSync(fn, actual);
+				if (errorFilename) {
+					let fn = errorFilename + '.failed_test_output';
+					// eslint-disable-next-line no-console
+					console.warn(`** Saving actual data to ${fn}`);
+					fs.writeFileSync(fn, actual);
+				} else {
+					// eslint-disable-next-line no-console
+					console.warn(`** Not saving failed test data as this data didn't come from a file`);
+				}
 			}
 
 			throw new assert.AssertionError({
@@ -171,9 +176,9 @@ export default class TestUtil {
 	}
 
 	static contentEqual(contentExpected, contentActual) {
-		Object.keys(contentExpected).forEach(id => {
+		for (const id of Object.keys(contentExpected)) {
 			this.buffersEqual(contentExpected[id], contentActual[id], `supp "${id}"`);
-		});
+		}
 	}
 
 	static u8FromString(s) {
