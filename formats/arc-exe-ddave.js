@@ -30,7 +30,7 @@ import { cmp_lzexe, cmp_rle_id, pad_chunked, pad_generic } from '@camoto/gamecom
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 
-const DDAVE_BLOCK_SIZE = 0xFF00;
+const DDAVE_BLOCK_SIZE = 0xFF01;
 
 function revealDDaveRLE(content) {
 	let buffer = new RecordBuffer(content);
@@ -55,7 +55,7 @@ function obscureDDaveRLE(content, file) {
 
 	// Need to ensure RLE codes don't run across 65281-byte boundaries.
 	const chunkedRLE = pad_chunked.obscure(bufPadded, {
-		length: 0xFF01,
+		length: DDAVE_BLOCK_SIZE,
 		callback: chunk => cmp_rle_id.obscure(chunk),
 	});
 
