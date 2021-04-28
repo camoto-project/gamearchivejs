@@ -32,6 +32,58 @@ import FixedArchive from '../util/fixedArchive.js';
 
 const DDAVE_BLOCK_SIZE = 0xFF00;
 
+function revealDDaveRLE(content) {
+	let buffer = new RecordBuffer(content);
+	const len = buffer.read(RecordType.int.u32le);
+
+	// Skip the length field we just read and RLE-decode the rest.
+	let unRLE = cmp_rle_id.reveal(buffer.getU8(4), { outputLength: len });
+
+	// Then remove the extra padding byte inserted every RLE block.
+	return pad_generic.reveal(unRLE, {
+		pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
+		pad: 1,                  // ...drop this many bytes.
+	});
+}
+
+function obscureDDaveRLE(content, file) {
+	// Add the extra padding byte inserted every RLE block.
+	let bufPadded = pad_generic.obscure(content, {
+		pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
+		pad: 1,                  // ...add this many bytes.
+	});
+
+	// Need to ensure RLE codes don't run across 65281-byte boundaries.
+	const chunkedRLE = pad_chunked.obscure(bufPadded, {
+		length: 0xFF01,
+		callback: chunk => cmp_rle_id.obscure(chunk),
+	});
+
+	let buffer = new RecordBuffer(chunkedRLE.length + 4);
+	buffer.write(RecordType.int.u32le, content.length);
+	buffer.put(chunkedRLE);
+	const padding = file.diskSize - buffer.length;
+	if (padding < 0) {
+		throw new Error(`File "${file.name}" is too big to fit back into the `
+			+ `game .exe file.  It is ${buffer.length} bytes long, but there are `
+			+ `only ${file.diskSize} bytes available.  Since the format is `
+			+ `compressed, you can increase the compression and thus reduce the `
+			+ `file size by having longer horizontal runs of the same colour `
+			+ `pixels within each tile.  Note that all graphics for the same device `
+			+ `(CGA, EGA or VGA) share the same space, so you can remove detail from `
+			+ `other less important or unused images to free up more space, it `
+			+ `doesn't have to be the image you just tried to import that needs `
+			+ `detail removed.`
+		);
+	}
+	if (padding > 0) {
+		// Pad the file up to the available space in the .exe, otherwise
+		// FixedArchive complains that the file size doesn't match.
+		buffer.write(RecordType.padding(padding));
+	}
+	return buffer.getU8();
+}
+
 export default class Archive_EXE_DDave extends ArchiveHandler
 {
 	static metadata() {
@@ -102,58 +154,27 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 		buffer.seekAbs(0x120f0);
 		const lenVGA = buffer.read(RecordType.int.u32le);
 
-		function revealDDaveRLE(content) {
-			let buffer = new RecordBuffer(content);
-			const len = buffer.read(RecordType.int.u32le);
+		const files = this.fileList({ lenCGA, lenVGA });
 
-			// Skip the length field we just read and RLE-decode the rest.
-			let unRLE = cmp_rle_id.reveal(buffer.getU8(4), { outputLength: len });
+		return FixedArchive.parse(decomp, files);
+	}
 
-			// Then remove the extra padding byte inserted every RLE block.
-			return pad_generic.reveal(unRLE, {
-				pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
-				pad: 1,                  // ...drop this many bytes.
-			});
-		}
+	static generate(archive)
+	{
+		const files = this.fileList();
 
-		function obscureDDaveRLE(content, file) {
-			// Add the extra padding byte inserted every RLE block.
-			let bufPadded = pad_generic.obscure(content, {
-				pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
-				pad: 1,                  // ...add this many bytes.
-			});
+		return {
+			main: FixedArchive.generate(archive, files),
+		};
+	}
 
-			// Need to ensure RLE codes don't run across 65281-byte boundaries.
-			const chunkedRLE = pad_chunked.obscure(bufPadded, {
-				length: 0xFF01,
-				callback: chunk => cmp_rle_id.obscure(chunk),
-			});
-
-			let buffer = new RecordBuffer(chunkedRLE.length + 4);
-			buffer.write(RecordType.int.u32le, content.length);
-			buffer.put(chunkedRLE);
-			const padding = file.diskSize - buffer.length;
-			if (padding < 0) {
-				throw new Error(`File "${file.name}" is too big to fit back into the `
-					+ `game .exe file.  It is ${buffer.length} bytes long, but there are `
-					+ `only ${file.diskSize} bytes available.  Since the format is `
-					+ `compressed, you can increase the compression and thus reduce the `
-					+ `file size by having longer horizontal runs of the same colour `
-					+ `pixels within each tile.`
-				);
-			}
-			if (padding > 0) {
-				buffer.write(RecordType.padding(padding));
-			}
-			return buffer.getU8();
-		}
-
+	static fileList(sizes = {}) {
 		let files = [
 			{
 				name: 'cgadave.dav',
 				offset: 0x0c620,
 				diskSize: 0x120f0 - 0x0c620,
-				nativeSize: lenCGA,
+				nativeSize: sizes.lenCGA || (0x120f0 - 0x0c620),
 				reveal: revealDDaveRLE,
 				obscure: obscureDDaveRLE,
 				compressed: true,
@@ -161,7 +182,7 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 				name: 'vgadave.dav',
 				offset: 0x120f0,
 				diskSize: 0x1c4e0 - 0x120f0,
-				nativeSize: lenVGA,
+				nativeSize: sizes.lenVGA || (0x1c4e0 - 0x120f0),
 				reveal: revealDDaveRLE,
 				obscure: obscureDDaveRLE,
 				compressed: true,
@@ -200,13 +221,6 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 			});
 		}
 
-		return FixedArchive.parse(decomp, files);
-	}
-
-	static generate(archive)
-	{
-		return {
-			main: FixedArchive.generate(archive),
-		};
+		return files;
 	}
 }

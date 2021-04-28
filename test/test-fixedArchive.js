@@ -19,6 +19,7 @@
 
 import assert from 'assert';
 import TestUtil from './util.js';
+import File from '../interface/file.js';
 import FixedArchive from '../util/fixedArchive.js';
 
 let testutil = new TestUtil('fixedArchive');
@@ -176,7 +177,7 @@ describe(`fixedArchive`, function() {
 				const archive = FixedArchive.parse(content['default'].main, files);
 
 				const contentGenerated = {
-					main: FixedArchive.generate(archive),
+					main: FixedArchive.generate(archive, files),
 				};
 				TestUtil.contentEqual(content['default'], contentGenerated);
 			});
@@ -198,9 +199,45 @@ describe(`fixedArchive`, function() {
 				const archive = FixedArchive.parse(content['default'].main, files);
 
 				const contentGenerated = {
-					main: FixedArchive.generate(archive),
+					main: FixedArchive.generate(archive, files),
 				};
 				TestUtil.contentEqual(content['default'], contentGenerated);
+			});
+
+			it('should fail with an extra file', function() {
+				const files = [
+					{
+						name: 'one.txt',
+						offset: 0,
+						diskSize: 22,
+						filter: null,
+					}, {
+						name: 'two.txt',
+						diskSize: 23,
+						filter: null,
+					}, {
+						name: 'three.txt',
+						diskSize: 22,
+						filter: null,
+					}, {
+						name: 'four.txt',
+						diskSize: 23,
+						filter: null,
+					},
+				];
+				let archive = FixedArchive.parse(content['default'].main, files);
+
+				archive.files.push(new File({
+					name: 'extra.txt',
+					diskSize: 10,
+					filter: null,
+					getContent: () => new Uint8Array('hello'),
+				}));
+
+				let contentGenerated = {};
+				assert.throws(() => {
+					contentGenerated.main = FixedArchive.generate(archive, files);
+				});
 			});
 
 		}); // generate()

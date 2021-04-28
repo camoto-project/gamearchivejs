@@ -87,46 +87,80 @@ export default class FixedArchive
 		return archive;
 	}
 
-	static generate(archive)
+	static generate(archive, expectedFiles)
 	{
-		// Make sure we are processing something previously produced by parse().
-		if (!archive.fixedArchive.originalFiles) {
-			throw new Error('Cannot build this archive format from scratch, sorry.');
+		if (!expectedFiles) {
+			throw new Error('Second parameter is mandatory for FixedArchive.generate()');
 		}
 
 		// Calculate the size up front so we don't have to keep reallocating the
 		// buffer, improving performance.
-		const finalSize = archive.files.reduce(
+		const finalSize = expectedFiles.reduce(
 			(a, b) => a + (b.nativeSize || 0),
 			0
 		);
 
 		let buffer = new RecordBuffer(finalSize);
 
-		for (const file of archive.files) {
+		let nextOffset = 0, extraFileCount = 1, expectedDiskSize;
+		let nextFilename = '';
+		let allowedFiles = [];
+		for (let i = 0; i < expectedFiles.length; i++) {
+			const file = expectedFiles[i];
+
+			if (
+				(file.offset !== undefined) // if we were given an offset
+				&& (nextOffset != file.offset) // and it's not where we're up to
+			) {
+				// There's unclaimed data before this file, so add a dummy file for it.
+				nextFilename = `data${extraFileCount}.bin`;
+				expectedDiskSize = file.offset - nextOffset;
+				extraFileCount++;
+				i--; // process this file again once we've added the 'dataX.bin' file
+			} else {
+				nextFilename = file.name.toLowerCase();
+				expectedDiskSize = file.diskSize;
+			}
+			allowedFiles.push(nextFilename);
+
+			const targetFile = archive.files.find(f => f.name.toLowerCase() === nextFilename);
+			if (!targetFile) {
+				throw new Error(`File ${nextFilename} must exist in this archive format.`);
+			}
 
 			let diskData;
-			if (file.getRaw.fixedArchive && file.getContent.fixedArchive) {
+			if (targetFile.getRaw.fixedArchive && targetFile.getContent.fixedArchive) {
 				// This file hasn't been modified so leave it as is.
-				diskData = file.getRaw();
+				diskData = targetFile.getRaw();
 			} else {
-				const orig = archive.fixedArchive.originalFiles.find(f => f.name === file.name);
-				if (!orig) {
-					throw new Error(`File ${file.name} does not exist inside the archive `
-						+ `already, only existing files can be overwritten.`);
-				}
-				diskData = file.getContent();
-				if (orig.obscure) {
+				diskData = targetFile.getContent();
+				if (file.obscure) {
 					// Have to compress/encrypt this first.
-					diskData = orig.obscure(diskData, orig);
+					diskData = file.obscure(diskData, file);
 				}
-				if (diskData.length !== orig.diskSize) {
-					throw new Error(`File "${file.name}" is ${diskData.length} bytes, but `
-						+ `it must be exactly ${orig.diskSize} bytes.`);
-				}
+			}
+			if (diskData.length !== expectedDiskSize) {
+				throw new Error(`File "${nextFilename}" is ${diskData.length} bytes, `
+					+ `but it must be exactly ${expectedDiskSize} bytes.`);
 			}
 
 			buffer.put(diskData);
+			nextOffset += diskData.length;
+		}
+
+		// Add a final file for any trailing data, although we don't know the full
+		// expected output file size.
+		nextFilename = `data${extraFileCount}.bin`;
+		extraFileCount++;
+		allowedFiles.push(nextFilename);
+
+		// Make sure there are no extra files.
+		for (const file of archive.files) {
+			const orig = allowedFiles.includes(file.name.toLowerCase());
+			if (!orig) {
+				throw new Error(`File ${file.name} does not exist inside the archive `
+					+ `already, only existing files can be overwritten.`);
+			}
 		}
 
 		return buffer.getU8();
