@@ -17,6 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import Debug from '../util/debug.js';
+const debug = Debug.extend('fixedArchive');
+
 import { RecordBuffer } from '@camoto/record-io-buffer';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
@@ -77,12 +80,6 @@ export default class FixedArchive
 			ef.getContent.fixedArchive = true;
 			archive.files.push(ef);
 		}
-
-		// Save the original file list for when we generate() later, so we can look
-		// up which files are supposed to be compressed/encrypted.
-		archive.fixedArchive = {
-			originalFiles: files,
-		};
 
 		return archive;
 	}
@@ -153,6 +150,18 @@ export default class FixedArchive
 		nextFilename = `data${extraFileCount}.bin`;
 		extraFileCount++;
 		allowedFiles.push(nextFilename);
+		const targetFile = archive.files.find(f => f.name.toLowerCase() === nextFilename);
+		if (targetFile) {
+			// This final file is present, so include it.
+			let diskData;
+			if (targetFile.getRaw.fixedArchive && targetFile.getContent.fixedArchive) {
+				// This file hasn't been modified so leave it as is.
+				diskData = targetFile.getRaw();
+			} else {
+				diskData = targetFile.getContent();
+			}
+			buffer.put(diskData);
+		}
 
 		// Make sure there are no extra files.
 		for (const file of archive.files) {

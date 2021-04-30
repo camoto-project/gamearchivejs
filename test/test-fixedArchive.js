@@ -204,6 +204,23 @@ describe(`fixedArchive`, function() {
 				TestUtil.contentEqual(content['default'], contentGenerated);
 			});
 
+			it('should handle final file as a gap', function() {
+				const files = [
+					{
+						name: 'three.txt',
+						offset: 45,
+						diskSize: 22,
+						filter: null,
+					},
+				];
+				const archive = FixedArchive.parse(content['default'].main, files);
+
+				const contentGenerated = {
+					main: FixedArchive.generate(archive, files),
+				};
+				TestUtil.contentEqual(content['default'], contentGenerated);
+			});
+
 			it('should fail with an extra file', function() {
 				const files = [
 					{
