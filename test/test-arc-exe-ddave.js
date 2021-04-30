@@ -33,6 +33,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			try {
 				content = testutil.loadDirect(handler, [
 					'dave.exe',
+					'dave.cmp-lzexe.revealed',
 				]);
 			} catch (e) {
 				console.log(e.message);
@@ -73,6 +74,17 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			});
 
 		}); // parse()
+
+		describe('generate()', function() {
+
+			it('file comes out the same as it went in', async function() {
+				const archive = handler.parse(content['dave.exe']);
+
+				const contentGenerated = handler.generate(archive);
+				TestUtil.contentEqual(content['dave.cmp-lzexe.revealed'], contentGenerated);
+			});
+
+		}); // generate()
 
 	}); // Real game files
 

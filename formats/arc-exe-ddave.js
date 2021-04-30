@@ -26,41 +26,28 @@ import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
 
 import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
-import { cmp_lzexe, cmp_rle_id, pad_chunked, pad_generic } from '@camoto/gamecomp';
+import { cmp_lzexe, cmp_rle_id } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 
-const DDAVE_BLOCK_SIZE = 0xFF01;
+const DDAVE_BLOCK_SIZE = 0xFF00;
 
 function revealDDaveRLE(content) {
 	let buffer = new RecordBuffer(content);
 	const len = buffer.read(RecordType.int.u32le);
 
 	// Skip the length field we just read and RLE-decode the rest.
-	let unRLE = cmp_rle_id.reveal(buffer.getU8(4), { outputLength: len });
-
-	// Then remove the extra padding byte inserted every RLE block.
-	return pad_generic.reveal(unRLE, {
-		pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
-		pad: 1,                  // ...drop this many bytes.
-	});
+	return cmp_rle_id.reveal(buffer.getU8(4), { outputLength: len });
 }
 
 function obscureDDaveRLE(content, file) {
-	// Add the extra padding byte inserted every RLE block.
-	let bufPadded = pad_generic.obscure(content, {
-		pass: DDAVE_BLOCK_SIZE,  // After this many bytes...
-		pad: 1,                  // ...add this many bytes.
-	});
-
-	// Need to ensure RLE codes don't run across 65281-byte boundaries.
-	const chunkedRLE = pad_chunked.obscure(bufPadded, {
-		length: DDAVE_BLOCK_SIZE,
-		callback: chunk => cmp_rle_id.obscure(chunk),
+	// Need to ensure RLE codes don't run across 65280-byte boundaries.
+	const chunkedRLE = cmp_rle_id.obscure(content, {
+		chunkLength: DDAVE_BLOCK_SIZE,
 	});
 
 	let buffer = new RecordBuffer(chunkedRLE.length + 4);
-	buffer.write(RecordType.int.u32le, content.length);
+	buffer.write(RecordType.int.u32le, content.length); // decompressed size
 	buffer.put(chunkedRLE);
 	const padding = file.diskSize - buffer.length;
 	if (padding < 0) {
@@ -77,6 +64,7 @@ function obscureDDaveRLE(content, file) {
 		);
 	}
 	if (padding > 0) {
+		debug(`Padding ${file.name} with ${padding} bytes`);
 		// Pad the file up to the available space in the .exe, otherwise
 		// FixedArchive complains that the file size doesn't match.
 		buffer.write(RecordType.padding(padding));
