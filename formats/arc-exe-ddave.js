@@ -151,6 +151,22 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 	{
 		const files = this.fileList();
 
+		const maxDecompressedSizes = {
+			'vgadave.dav': 0x16000,
+		};
+
+		for (const [ filename, maxSize ] of Object.entries(maxDecompressedSizes)) {
+			const file = files.find(f => f.name === filename);
+			if (!file) continue;
+			if (file.nativeSize > maxSize) {
+				throw new Error(`${file.name} is ${file.nativeSize} bytes in length `
+					+ `(before compression), however the maximum supported by the game `
+					+ `is ${maxSize} bytes.  You will need to reduce the uncompressed `
+					+ `size of your graphics by reducing the number of pixels, e.g. by `
+					+ `making some image dimensions smaller.`);
+			}
+		}
+
 		return {
 			main: FixedArchive.generate(archive, files),
 		};
