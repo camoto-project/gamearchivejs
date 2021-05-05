@@ -175,6 +175,10 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 	static fileList(sizes = {}) {
 		let files = [
 			{
+				name: 'unk.dav',
+				offset: 0x0b510,
+				diskSize: 0x0c620 - 0x0b510,
+			}, {
 				name: 'cgadave.dav',
 				offset: 0x0c620,
 				diskSize: 0x120f0 - 0x0c620,
@@ -206,6 +210,58 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 				name: 'menuvga.gfx',
 				offset: 0x20ec0,
 				diskSize: 0x256c0 - 0x20ec0,
+			}, {
+				name: 'enemy01.dav',
+				offset: 0x25b66 + 80 * 0,
+				diskSize: 80,
+			}, {
+				name: 'enemy02.dav',
+				offset: 0x25b66 + 80 * 1,
+				diskSize: 80,
+			}, {
+				name: 'enemy03.dav',
+				offset: 0x25b66 + 80 * 2,
+				diskSize: 80,
+			}, {
+				name: 'enemy04.dav',
+				offset: 0x25b66 + 80 * 3,
+				diskSize: 80,
+			}, {
+				name: 'enemy05.dav',
+				offset: 0x25b66 + 80 * 4,
+				diskSize: 80,
+			}, {
+				name: 'enemy06.dav',
+				offset: 0x25b66 + 80 * 5,
+				diskSize: 80,
+			}, {
+				name: 'enemy07.dav',
+				offset: 0x25b66 + 80 * 6,
+				diskSize: 80,
+			}, {
+				name: 'enemy08.dav',
+				offset: 0x25b66 + 80 * 7,
+				diskSize: 80,
+			}, {
+				name: 'enemy09.dav',
+				offset: 0x25b66 + 80 * 8,
+				diskSize: 80,
+			}, {
+				name: 'enemy10.dav',
+				offset: 0x25b66 + 80 * 9,
+				diskSize: 80,
+			}, {
+				name: 'levelt.dav',
+				offset: 0x25ea4,
+				diskSize: 10 * 7,
+			}, {
+				name: 'randbase.bin',
+				offset: 0x26a26,
+				diskSize: 17 * 2,
+			}, {
+				name: 'border.raw',
+				offset: 0x26ae9,
+				diskSize: 0x26b0a - 0x26ae9,
 			}, {
 				name: 'vga.pal',
 				offset: 0x26b0a,
