@@ -86,6 +86,13 @@ describe(`Extra tests for supplemental data functions`, function() {
 			);
 		});
 
+		it('ignores dots within the filename', function() {
+			assert.equal(
+				replaceExtension('test.ing.dat', 'abc'),
+				'test.ing.abc'
+			);
+		});
+
 	});
 
 	describe('replaceBasename()', function() {
@@ -116,6 +123,14 @@ describe(`Extra tests for supplemental data functions`, function() {
 				'/one/two/three/abc.dat'
 			);
 		});
+
+		it('handles dots in the filename', function() {
+			assert.equal(
+				replaceBasename('/one/two/three/test.ing.dat', 'abc'),
+				'/one/two/three/abc.dat'
+			);
+		});
+
 	});
 
 	describe('replaceFilename()', function() {
@@ -153,6 +168,7 @@ describe(`Extra tests for supplemental data functions`, function() {
 				'/one/two/three/abc.def'
 			);
 		});
+
 	});
 
 	describe('getFilename()', function() {
@@ -183,6 +199,7 @@ describe(`Extra tests for supplemental data functions`, function() {
 				'test'
 			);
 		});
+
 	});
 
 	describe('getBasename()', function() {
@@ -213,6 +230,7 @@ describe(`Extra tests for supplemental data functions`, function() {
 				'test'
 			);
 		});
+
 	});
 
 	describe('getExtension()', function() {
@@ -243,5 +261,20 @@ describe(`Extra tests for supplemental data functions`, function() {
 				''
 			);
 		});
+
+		it('extract from a filename with dots', function() {
+			assert.equal(
+				getExtension('test.ing.dat'),
+				'dat'
+			);
+		});
+
+		it('extract from a folder with dots', function() {
+			assert.equal(
+				getExtension('/one.two/test.dat'),
+				'dat'
+			);
+		});
+
 	});
 });
