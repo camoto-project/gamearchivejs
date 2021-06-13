@@ -134,6 +134,54 @@ const gameFiles = {
 			'maphead.ck5' : 'm0ju60yF2VCcSuX9IidShutuBYw=',
 		},
 	},
+	'arc-exe-keen6-cga_1v0': {
+		'keen6c-1.0.exe': {
+			'cgahead.ck6' : 'NDcf75V4FDRbWCyt6fZH+ttuMqU=',
+			'maphead.ck6' : 'pri/Ph4gyfZhTlcj9IXmP15vekQ=',
+		},
+	},
+	'arc-exe-keen6-cga_1v4': {
+		'keen6c-1.4.exe': {
+			'cgahead.ck6' : '/XlwKHMIEMuhYEIQ3Fm3uWqPa9U=',
+			'maphead.ck6' : 'pbfnXiAhK2FGEj0OAjVKM2Fq3jQ=',
+		},
+	},
+	'arc-exe-keen6-cga_1v5': {
+		'keen6c-1.5.exe': {
+			'cgahead.ck6' : '/XlwKHMIEMuhYEIQ3Fm3uWqPa9U=',
+			'maphead.ck6' : 'cBkF7O+egMM9N/2LesswACNP794=',
+		},
+	},
+	'arc-exe-keen6-ega_1v0': {
+		'keen6e-1.0.exe': {
+			'egahead.ck6' : 'yWEUPsW9qX48HMLdqtS8CzrYnBs=',
+			'maphead.ck6' : 'pri/Ph4gyfZhTlcj9IXmP15vekQ=',
+		},
+	},
+	'arc-exe-keen6-ega_1v0d': {
+		'keen6e-1.0-demo.exe': {
+			'egahead.ck6' : '6SZhurgtQWXAlIynxwa5rul5fEQ=',
+			'maphead.ck6' : 'Ov9CbLuG/Y0jyj3y7Zg4afZ9ieE=',
+		},
+	},
+	'arc-exe-keen6-ega_1v0p': {
+		'keen6e-1.0-promo.exe': {
+			'egahead.ck6' : 'oSsfZ8FGoF5e2dxIlwGyQiF3LXo=',
+			'maphead.ck6' : 'Ov9CbLuG/Y0jyj3y7Zg4afZ9ieE=',
+		},
+	},
+	'arc-exe-keen6-ega_1v4': {
+		'keen6e-1.4.exe': {
+			'egahead.ck6' : 'yFxuR8u62C7nPKBv4muEcDJtpNw=',
+			'maphead.ck6' : 'pbfnXiAhK2FGEj0OAjVKM2Fq3jQ=',
+		},
+	},
+	'arc-exe-keen6-ega_1v5': {
+		'keen6e-1.5.exe': {
+			'egahead.ck6' : 'j6uKuSo2uvrecIMzFwhMmRFJ220=',
+			'maphead.ck6' : 'cBkF7O+egMM9N/2LesswACNP794=',
+		},
+	},
 	'arc-gamemaps-id': {
 		'maptemp.bm1': {
 			'00/plane0': 'l5EuS0F4jMCeuagaCcEOI1s4hlg=',

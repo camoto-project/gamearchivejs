@@ -31,7 +31,7 @@ export { default as arc_wad_doom } from './arc-wad-doom.js';
 export { default as arc_exe_ddave } from './arc-exe-ddave.js';
 export * from './arc-exe-keen4.js';
 export * from './arc-exe-keen5.js';
-export { default as arc_exe_keen6 } from './arc-exe-keen6.js';
+export * from './arc-exe-keen6.js';
 
 // These files have supps so they'll be discounted quickly if the extra files
 // are unavailable.

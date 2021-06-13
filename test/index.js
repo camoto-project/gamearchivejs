@@ -42,7 +42,14 @@ const skipFormats = [
 	'arc-exe-keen5-ega_1v0',
 	'arc-exe-keen5-ega_1v4',
 	'arc-exe-keen5-ega_1v4g',
-	'arc-exe-keen6',
+	'arc-exe-keen6-cga_1v0',
+	'arc-exe-keen6-cga_1v4',
+	'arc-exe-keen6-cga_1v5',
+	'arc-exe-keen6-ega_1v0',
+	'arc-exe-keen6-ega_1v0d',
+	'arc-exe-keen6-ega_1v0p',
+	'arc-exe-keen6-ega_1v4',
+	'arc-exe-keen6-ega_1v5',
 ];
 
 // Override the default colours so we can actually see them
