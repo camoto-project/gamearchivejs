@@ -58,8 +58,8 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			it('should extract a file', function() {
 				const archive = handler.parse(content['dave.exe']);
 
-				assert.equal(archive.files[9].name, 'level01.dav');
-				const data = archive.files[9].getContent();
+				assert.equal(archive.files[26].name, 'level01.dav');
+				const data = archive.files[26].getContent();
 				assert.equal(data.length, 1280);
 				assert.equal(TestUtil.hash(data), 'p3lhBx/mYqB8UWbV7IgVyBRNMsA=');
 			});
@@ -67,8 +67,8 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			it('should decompress a file', function() {
 				const archive = handler.parse(content['dave.exe']);
 
-				assert.equal(archive.files[2].name, 'vgadave.dav');
-				const data = archive.files[2].getContent();
+				assert.equal(archive.files[3].name, 'vgadave.dav');
+				const data = archive.files[3].getContent();
 				assert.equal(data.length, 71238);
 				assert.equal(TestUtil.hash(data), 'tpHYAQ4TX4gx5SFZRS3Zp7kbiek=');
 			});
