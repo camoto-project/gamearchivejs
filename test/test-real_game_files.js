@@ -110,6 +110,30 @@ const gameFiles = {
 			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
 		},
 	},
+	'arc-exe-keen5-cga_1v4': {
+		'keen5c-1.4.exe': {
+			'cgahead.ck5' : '37qpTI7+o0+r74w8mO0VB/nqtcQ=',
+			'maphead.ck5' : 'uoQLuHJDxmTzHovz/801/UmpoDo=',
+		},
+	},
+	'arc-exe-keen5-ega_1v0': {
+		'keen5e-1.0.exe': {
+			'egahead.ck5' : '1jiic6vKHjJJb5NQwypIBcgLG40=',
+			'maphead.ck5' : '+llqFRS3FzE0idsN3QB1fK3haGw=',
+		},
+	},
+	'arc-exe-keen5-ega_1v4': {
+		'keen5e-1.4.exe': {
+			'egahead.ck5' : 'Xq+7nD8Z1RcavZaOKDKw2ID7YAc=',
+			'maphead.ck5' : 'uoQLuHJDxmTzHovz/801/UmpoDo=',
+		},
+	},
+	'arc-exe-keen5-ega_1v4g': {
+		'keen5e-1.4g.exe': {
+			'egahead.ck5' : 'uAJvgec8qDlGlsqyskyJ0SxD7L0=',
+			'maphead.ck5' : 'm0ju60yF2VCcSuX9IidShutuBYw=',
+		},
+	},
 	'arc-gamemaps-id': {
 		'maptemp.bm1': {
 			'00/plane0': 'l5EuS0F4jMCeuagaCcEOI1s4hlg=',

@@ -38,7 +38,10 @@ const skipFormats = [
 	'arc-exe-keen4-ega_1v2',
 	'arc-exe-keen4-ega_1v4',
 	'arc-exe-keen4-ega_1v4g',
-	'arc-exe-keen5',
+	'arc-exe-keen5-cga_1v4',
+	'arc-exe-keen5-ega_1v0',
+	'arc-exe-keen5-ega_1v4',
+	'arc-exe-keen5-ega_1v4g',
 	'arc-exe-keen6',
 ];
 

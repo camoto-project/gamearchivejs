@@ -31,13 +31,13 @@ import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 import { replaceExtension } from '../util/supp.js';
 
-export default class Archive_EXE_Keen5 extends ArchiveHandler
+class Archive_EXE_Keen5 extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
 			...super.metadata(),
-			id: FORMAT_ID,
-			title: 'Commander Keen 5 Executable',
+			id: FORMAT_ID + '-' + this.getVersion().code,
+			title: `Commander Keen 5 ${this.getVersion().name} executable`,
 			games: [
 				'Commander Keen 5',
 			],
@@ -75,20 +75,20 @@ export default class Archive_EXE_Keen5 extends ArchiveHandler
 		}
 
 		let buffer = new RecordBuffer(output);
-		const sig = (off, exp) => {
-			buffer.seekAbs(off);
-			const act = RecordType.string.fixed.noTerm(exp.length).read(buffer);
-			return act === exp;
-		};
 
-		if (sig(0x3063B, 'TED5.EXE')) return { reason: `Keen 5 CGA (v1.4)`, valid: true };
-		if (sig(0x321E6, 'TED5.EXE')) return { reason: `Keen 5 EGA (v1.0)`, valid: true };
-		if (sig(0x32FFB, 'TED5.EXE')) return { reason: `Keen 5 EGA (v1.4)`, valid: true };
-		if (sig(0x3355B, 'TED5.EXE')) return { reason: `Keen 5 EGA (v1.4g)`, valid: true };
+		const sig = this.getSignature();
+		buffer.seekAbs(sig.offset);
+		const act = RecordType.string.fixed.noTerm(sig.content.length).read(buffer);
+		if (act === sig.content) {
+			return {
+				valid: true,
+				reason: 'Signature matched',
+			};
+		}
 
 		return {
 			valid: false,
-			reason: `Not Keen 5 or unknown version.`,
+			reason: `Signature for Keen 5 ${this.getVersion().name} did not match.`,
 		};
 	}
 
@@ -99,65 +99,125 @@ export default class Archive_EXE_Keen5 extends ArchiveHandler
 			decomp = cmp_lzexe.reveal(content.main);
 		}
 
-		const version = this.identify(decomp);
-		if (!version.valid) {
-			throw new Error(version.reason);
-		}
-
-		let files;
-		switch (version.reason) {
-
-			case 'Keen 5 CGA (v1.4)':
-				files = [
-					{ name: 'audiohed.ck5', offset: 0x21EC0, diskSize: 0x33C  },
-					{ name: 'egahead.ck5',  offset: 0x22200, diskSize: 0x39C6 },
-					{ name: 'maphead.ck5',  offset: 0x25BD0, diskSize: 0x192 + 0x5C88 },
-					{ name: 'audiodct.ck5', offset: 0x36588, diskSize: 0x400  },
-					{ name: 'egadict.ck5',  offset: 0x36988, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 5 EGA (v1.0)':
-				files = [
-					{ name: 'audiohed.ck5', offset: 0x23A70, diskSize: 0x33C  },
-					{ name: 'egahead.ck5',  offset: 0x23DB0, diskSize: 0x39CC },
-					{ name: 'maphead.ck5',  offset: 0x27780, diskSize: 0x192 + 0x5C88 },
-					{ name: 'audiodct.ck5', offset: 0x37B8A, diskSize: 0x400  },
-					{ name: 'egadict.ck5',  offset: 0x37F8A, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 5 EGA (v1.4)':
-				files = [
-					{ name: 'audiohed.ck5', offset: 0x24880, diskSize: 0x33C  },
-					{ name: 'egahead.ck5',  offset: 0x24BC0, diskSize: 0x39CC },
-					{ name: 'maphead.ck5',  offset: 0x28590, diskSize: 0x192 + 0x5C88 },
-					{ name: 'audiodct.ck5', offset: 0x38AC4, diskSize: 0x400  },
-					{ name: 'egadict.ck5',  offset: 0x38EC4, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 5 EGA (v1.4g)':
-				files = [
-					{ name: 'audiohed.ck5', offset: 0x24DE0, diskSize: 0x33C  },
-					{ name: 'egahead.ck5',  offset: 0x25120, diskSize: 0x39CC },
-					{ name: 'maphead.ck5',  offset: 0x28AF0, diskSize: 0x192 + 0x5C88 },
-					{ name: 'audiodct.ck5', offset: 0x39024, diskSize: 0x400  },
-					{ name: 'egadict.ck5',  offset: 0x39424, diskSize: 0x400  },
-				];
-				break;
-
-			default:
-				throw new Error('Unimplemented version: ' + version.reason);
-		}
+		const files = this.fileList();
 
 		return FixedArchive.parse(decomp, files);
 	}
 
 	static generate(archive)
 	{
+		const files = this.fileList();
+
 		return {
-			main: FixedArchive.generate(archive),
+			main: FixedArchive.generate(archive, files),
 		};
+	}
+}
+
+export class Archive_EXE_Keen5_CGA_1v4 extends Archive_EXE_Keen5
+{
+	static getVersion() {
+		return {
+			code: 'cga_1v4',
+			name: 'CGA (v1.4)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x3063B,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck5', offset: 0x21EC0, diskSize: 0x33C  },
+			{ name: 'cgahead.ck5',  offset: 0x22200, diskSize: 0x39C6 },
+			{ name: 'maphead.ck5',  offset: 0x25BD0, diskSize: 0x192 + 0x5C88 },
+			{ name: 'audiodct.ck5', offset: 0x36588, diskSize: 0x400  },
+			{ name: 'cgadict.ck5',  offset: 0x36988, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen5_EGA_1v0 extends Archive_EXE_Keen5
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v0',
+			name: 'EGA (v1.0)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x321E6,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck5', offset: 0x23A70, diskSize: 0x33C  },
+			{ name: 'egahead.ck5',  offset: 0x23DB0, diskSize: 0x39CC },
+			{ name: 'maphead.ck5',  offset: 0x27780, diskSize: 0x192 + 0x5C88 },
+			{ name: 'audiodct.ck5', offset: 0x37B8A, diskSize: 0x400  },
+			{ name: 'egadict.ck5',  offset: 0x37F8A, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen5_EGA_1v4 extends Archive_EXE_Keen5
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v4',
+			name: 'EGA (v1.4)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x32FFB,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck5', offset: 0x24880, diskSize: 0x33C  },
+			{ name: 'egahead.ck5',  offset: 0x24BC0, diskSize: 0x39CC },
+			{ name: 'maphead.ck5',  offset: 0x28590, diskSize: 0x192 + 0x5C88 },
+			{ name: 'audiodct.ck5', offset: 0x38AC4, diskSize: 0x400  },
+			{ name: 'egadict.ck5',  offset: 0x38EC4, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen5_EGA_1v4g extends Archive_EXE_Keen5
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v4g',
+			name: 'EGA (v1.4g)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x3355B,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck5', offset: 0x24DE0, diskSize: 0x33C  },
+			{ name: 'egahead.ck5',  offset: 0x25120, diskSize: 0x39CC },
+			{ name: 'maphead.ck5',  offset: 0x28AF0, diskSize: 0x192 + 0x5C88 },
+			{ name: 'audiodct.ck5', offset: 0x39024, diskSize: 0x400  },
+			{ name: 'egadict.ck5',  offset: 0x39424, diskSize: 0x400  },
+		];
 	}
 }
