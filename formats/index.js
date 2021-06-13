@@ -29,7 +29,7 @@ export { default as arc_rff_blood_v300 } from './arc-rff-blood-v300.js';
 export { default as arc_rff_blood_v301 } from './arc-rff-blood-v301.js';
 export { default as arc_wad_doom } from './arc-wad-doom.js';
 export { default as arc_exe_ddave } from './arc-exe-ddave.js';
-export { default as arc_exe_keen4 } from './arc-exe-keen4.js';
+export * from './arc-exe-keen4.js';
 export { default as arc_exe_keen5 } from './arc-exe-keen5.js';
 export { default as arc_exe_keen6 } from './arc-exe-keen6.js';
 

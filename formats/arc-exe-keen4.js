@@ -31,13 +31,13 @@ import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 import { replaceExtension } from '../util/supp.js';
 
-export default class Archive_EXE_Keen4 extends ArchiveHandler
+class Archive_EXE_Keen4 extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
 			...super.metadata(),
-			id: FORMAT_ID,
-			title: 'Commander Keen 4 Executable',
+			id: FORMAT_ID + '-' + this.getVersion().code,
+			title: `Commander Keen 4 ${this.getVersion().name} executable`,
 			games: [
 				'Commander Keen 4',
 			],
@@ -82,25 +82,20 @@ export default class Archive_EXE_Keen4 extends ArchiveHandler
 		}
 
 		let buffer = new RecordBuffer(output);
-		const sig = (off, exp) => {
-			buffer.seekAbs(off);
-			const act = RecordType.string.fixed.noTerm(exp.length).read(buffer);
-			return act === exp;
-		};
 
-		if (sig(0x2E4B6, 'TED5.EXE')) return { reason: `Keen 4 CGA (v1.0)`, valid: true };
-		if (sig(0x2E4C6, 'TED5.EXE')) return { reason: `Keen 4 CGA (v1.1)`, valid: true };
-		if (sig(0x2F4DC, 'TED5.EXE')) return { reason: `Keen 4 CGA (v1.4f)`, valid: true };
-		if (sig(0x31C22, 'TED5.EXE')) return { reason: `Keen 4 EGA (v1.0, demo)`, valid: true };
-		if (sig(0x30AA6, 'TED5.EXE')) return { reason: `Keen 4 EGA (v1.0)`, valid: true };
-		if (sig(0x30E76, 'TED5.EXE')) return { reason: `Keen 4 EGA (v1.1)`, valid: true };
-		if (sig(0x310D6, 'TED5.EXE')) return { reason: `Keen 4 EGA (v1.2)`, valid: true };
-		if (sig(0x31D2C, 'TED5.EXE')) return { reason: `Keen 4 EGA (v1.4/v1.4f)`, valid: true };
-		if (sig(0x3220C, 'TED5.EXE')) return { reason: `Keen 4 EGA (v1.4g)`, valid: true };
+		const sig = this.getSignature();
+		buffer.seekAbs(sig.offset);
+		const act = RecordType.string.fixed.noTerm(sig.content.length).read(buffer);
+		if (act === sig.content) {
+			return {
+				valid: true,
+				reason: 'Signature matched',
+			};
+		}
 
 		return {
 			valid: false,
-			reason: `Not Keen 4 or unknown version.`,
+			reason: `Signature for Keen 4 ${this.getVersion().name} did not match.`,
 		};
 	}
 
@@ -111,114 +106,259 @@ export default class Archive_EXE_Keen4 extends ArchiveHandler
 			decomp = cmp_lzexe.reveal(content.main);
 		}
 
-		const version = this.identify(decomp);
-		if (!version.valid) {
-			throw new Error(version.reason);
-		}
-
-		let files;
-		switch (version.reason) {
-
-			case 'Keen 4 CGA (v1.0)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x20390, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x20620, diskSize: 0x3798 },
-					{ name: 'maphead.ck4',  offset: 0x23DC0, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x34DA6, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x351A6, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 CGA (v1.1)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x203A0, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x20630, diskSize: 0x3798 },
-					{ name: 'maphead.ck4',  offset: 0x23DD0, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x34DB6, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x351B6, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 CGA (v1.4f)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x213A0, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x21630, diskSize: 0x37B0 },
-					{ name: 'maphead.ck4',  offset: 0x24DE0, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x35F5C, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x3635C, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 EGA (v1.0, demo)':
-				files = [
-					// audiohed.ck4 not embedded
-					{ name: 'egahead.ck4',  offset: 0x27000, diskSize: 0x495C },
-					{ name: 'maphead.ck4',  offset: 0x21490, diskSize: 0x192 + 0x59DC },
-					{ name: 'egadict.ck4',  offset: 0x38006, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 EGA (v1.0)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x22980, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x22C10, diskSize: 0x3798 },
-					{ name: 'maphead.ck4',  offset: 0x263B0, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x36DF6, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x371F6, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 EGA (v1.1)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x22D50, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x22FE0, diskSize: 0x3798 },
-					{ name: 'maphead.ck4',  offset: 0x26780, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x37282, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x37682, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 EGA (v1.2)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x22FA0, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x23230, diskSize: 0x37B0 },
-					{ name: 'maphead.ck4',  offset: 0x269E0, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x37534, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x37934, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 EGA (v1.4/v1.4f)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x23BF0, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x23E80, diskSize: 0x37B0 },
-					{ name: 'maphead.ck4',  offset: 0x27630, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x382F6, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x386F6, diskSize: 0x400  },
-				];
-				break;
-
-			case 'Keen 4 EGA (v1.4g)':
-				files = [
-					{ name: 'audiohed.ck4', offset: 0x240D0, diskSize: 0x28C  },
-					{ name: 'egahead.ck4',  offset: 0x24360, diskSize: 0x37B0 },
-					{ name: 'maphead.ck4',  offset: 0x27B10, diskSize: 0x192 + 0x59DC },
-					{ name: 'audiodct.ck4', offset: 0x387D6, diskSize: 0x400  },
-					{ name: 'egadict.ck4',  offset: 0x38BD6, diskSize: 0x400  },
-				];
-				break;
-
-			default:
-				throw new Error('Unimplemented version: ' + version.reason);
-		}
+		const files = this.fileList();
 
 		return FixedArchive.parse(decomp, files);
 	}
 
 	static generate(archive)
 	{
+		const files = this.fileList();
+
 		return {
-			main: FixedArchive.generate(archive),
+			main: FixedArchive.generate(archive, files),
 		};
+	}
+}
+
+export class Archive_EXE_Keen4_CGA_1v0 extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'cga_1v0',
+			name: 'CGA (v1.0)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x2E4B6,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x20390, diskSize: 0x28C  },
+			{ name: 'cgahead.ck4',  offset: 0x20620, diskSize: 0x3798 },
+			{ name: 'maphead.ck4',  offset: 0x23DC0, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x34DA6, diskSize: 0x400  },
+			{ name: 'cgadict.ck4',  offset: 0x351A6, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_CGA_1v1 extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'cga_1v1',
+			name: 'CGA (v1.1)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x2E4C6,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x203A0, diskSize: 0x28C  },
+			{ name: 'cgahead.ck4',  offset: 0x20630, diskSize: 0x3798 },
+			{ name: 'maphead.ck4',  offset: 0x23DD0, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x34DB6, diskSize: 0x400  },
+			{ name: 'cgadict.ck4',  offset: 0x351B6, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_CGA_1v4f extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'cga_1v4f',
+			name: 'CGA (v1.4f)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x2F4DC,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x213A0, diskSize: 0x28C  },
+			{ name: 'cgahead.ck4',  offset: 0x21630, diskSize: 0x37B0 },
+			{ name: 'maphead.ck4',  offset: 0x24DE0, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x35F5C, diskSize: 0x400  },
+			{ name: 'cgadict.ck4',  offset: 0x3635C, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_EGA_1v0d extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v0d',
+			name: 'EGA (v1.0, demo)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x31C22,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			// audiohed.ck4 not embedded
+			{ name: 'egahead.ck4',  offset: 0x27000, diskSize: 0x495C },
+			{ name: 'maphead.ck4',  offset: 0x21490, diskSize: 0x192 + 0x59DC },
+			{ name: 'egadict.ck4',  offset: 0x38006, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_EGA_1v0 extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v0',
+			name: 'EGA (v1.0)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x30AA6,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x22980, diskSize: 0x28C  },
+			{ name: 'egahead.ck4',  offset: 0x22C10, diskSize: 0x3798 },
+			{ name: 'maphead.ck4',  offset: 0x263B0, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x36DF6, diskSize: 0x400  },
+			{ name: 'egadict.ck4',  offset: 0x371F6, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_EGA_1v1 extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v1',
+			name: 'EGA (v1.1)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x30E76,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x22D50, diskSize: 0x28C  },
+			{ name: 'egahead.ck4',  offset: 0x22FE0, diskSize: 0x3798 },
+			{ name: 'maphead.ck4',  offset: 0x26780, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x37282, diskSize: 0x400  },
+			{ name: 'egadict.ck4',  offset: 0x37682, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_EGA_1v2 extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v2',
+			name: 'EGA (v1.2)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x310D6,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x22FA0, diskSize: 0x28C  },
+			{ name: 'egahead.ck4',  offset: 0x23230, diskSize: 0x37B0 },
+			{ name: 'maphead.ck4',  offset: 0x269E0, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x37534, diskSize: 0x400  },
+			{ name: 'egadict.ck4',  offset: 0x37934, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_EGA_1v4 extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v4',
+			name: 'EGA (v1.4/v1.4f)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x31D2C,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x23BF0, diskSize: 0x28C  },
+			{ name: 'egahead.ck4',  offset: 0x23E80, diskSize: 0x37B0 },
+			{ name: 'maphead.ck4',  offset: 0x27630, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x382F6, diskSize: 0x400  },
+			{ name: 'egadict.ck4',  offset: 0x386F6, diskSize: 0x400  },
+		];
+	}
+}
+
+export class Archive_EXE_Keen4_EGA_1v4g extends Archive_EXE_Keen4
+{
+	static getVersion() {
+		return {
+			code: 'ega_1v4g',
+			name: 'EGA (v1.4g)',
+		};
+	}
+
+	static getSignature() {
+		return {
+			offset: 0x3220C,
+			content: 'TED5.EXE',
+		};
+	}
+
+	static fileList() {
+		return [
+			{ name: 'audiohed.ck4', offset: 0x240D0, diskSize: 0x28C  },
+			{ name: 'egahead.ck4',  offset: 0x24360, diskSize: 0x37B0 },
+			{ name: 'maphead.ck4',  offset: 0x27B10, diskSize: 0x192 + 0x59DC },
+			{ name: 'audiodct.ck4', offset: 0x387D6, diskSize: 0x400  },
+			{ name: 'egadict.ck4',  offset: 0x38BD6, diskSize: 0x400  },
+		];
 	}
 }

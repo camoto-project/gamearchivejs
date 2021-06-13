@@ -29,7 +29,15 @@ import {
 // The standard tests for these formats are skipped entirely.
 const skipFormats = [
 	'arc-exe-ddave',
-	'arc-exe-keen4',
+	'arc-exe-keen4-cga_1v0',
+	'arc-exe-keen4-cga_1v1',
+	'arc-exe-keen4-cga_1v4f',
+	'arc-exe-keen4-ega_1v0',
+	'arc-exe-keen4-ega_1v0d',
+	'arc-exe-keen4-ega_1v1',
+	'arc-exe-keen4-ega_1v2',
+	'arc-exe-keen4-ega_1v4',
+	'arc-exe-keen4-ega_1v4g',
 	'arc-exe-keen5',
 	'arc-exe-keen6',
 ];

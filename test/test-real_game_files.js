@@ -52,6 +52,64 @@ const gameFiles = {
 			'level1.map': '86gn5r9wamypIqu8QVOfRpl4KB8=',
 		},
 	},
+	'arc-exe-keen4-cga_1v0': {
+		'keen4c-1.0.exe': {
+			'cgahead.ck4' : 'V5GVAmzN4NM6tXefBbXo6qKBnrE=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-cga_1v1': {
+		'keen4c-1.1.exe': {
+			'cgahead.ck4' : 'V5GVAmzN4NM6tXefBbXo6qKBnrE=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-cga_1v4f': {
+		'keen4c-1.4f.exe': {
+			'cgahead.ck4' : 'S6nqMmTgVO+zrI0e+GyvaGzqxl0=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-ega_1v0': {
+		'keen4e-1.0.exe': {
+			'egahead.ck4' : 'kyM1evrLR023M/yNoIuvSjkllHo=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-ega_1v0d': {
+		'keen4e-1.0-demo.exe': {
+			'egahead.ck4' : 'onXd8Dz98uuldUySPvt8jsKvXU0=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-ega_1v1': {
+		'keen4e-1.1.exe': {
+			'egahead.ck4' : 'kyM1evrLR023M/yNoIuvSjkllHo=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-ega_1v2': {
+		'keen4e-1.2.exe': {
+			'egahead.ck4' : 'VQ/eKJYtM902Ufqai47T2+z9wCM=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-ega_1v4': {
+		'keen4e-1.4.exe': {
+			'egahead.ck4' : 'v1UtDXl78HeL6mRyBXpKSAgrTpw=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+		'keen4e-1.4f.exe': {
+			'egahead.ck4' : 'rNrb9QWkHcdOIisrjLRJNM+yMeQ=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
+	'arc-exe-keen4-ega_1v4g': {
+		'keen4e-1.4g.exe': {
+			'egahead.ck4' : 'CMXqYW1lsLUmaBbnLPwt49YW3S0=',
+			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+		},
+	},
 	'arc-gamemaps-id': {
 		'maptemp.bm1': {
 			'00/plane0': 'l5EuS0F4jMCeuagaCcEOI1s4hlg=',
