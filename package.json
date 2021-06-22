@@ -8,7 +8,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "TZ=UTC ./node_modules/mocha/bin/mocha"
   },
   "repository": {
     "type": "git",
