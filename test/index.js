@@ -354,7 +354,8 @@ for (const handler of gamearchiveFormats) {
 							// files.
 							case 'arc-gamemaps-id': // fall through
 							case 'arc-gamemaps-id-carmack': // fall through
-							case 'arc-gamemaps-id-huffman':
+							case 'arc-gamemaps-id-huffman': // fall through
+							case 'arc-dat-indy500':
 								assert.equal(archive.files[2].attributes.compressed, true);
 								break;
 

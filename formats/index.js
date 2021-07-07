@@ -43,6 +43,7 @@ export { default as arc_gamemaps_id_carmack } from './arc-gamemaps-id-carmack.js
 export { default as arc_dat_fast } from './arc-dat-fast.js';
 export { default as arc_dat_wacky } from './arc-dat-wacky.js';
 export { default as arc_pod_tv } from './arc-pod-tv.js';
+export { default as arc_dat_indy500 } from './arc-dat-indy500.js';
 export { default as arc_dat_papyrus_v1 } from './arc-dat-papyrus-v1.js';
 export { default as arc_dat_papyrus_v2 } from './arc-dat-papyrus-v2.js';
 export { default as arc_bpa_drally } from './arc-bpa-drally.js';
