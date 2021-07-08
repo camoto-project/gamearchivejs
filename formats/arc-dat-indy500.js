@@ -52,13 +52,13 @@ const cmpParams = {
 
 // Base64 encodings of SHA1 hashes for test file content
 const knownFileContentHash = {
-	"5xgdHWjKWMabOXYzg6EjHKYFRrw=" : "ONE.TXT",
-	"bD+HEO4sgR1G1ggieyL1oSzV0w4=" : "TWO.TXT",
-	"QYf7IX4hUSB0CfwEE/doexTiJ+k=" : "THREE.TXT",
-	"00jGfUp/3vbQTXP+daAJOGSNUM0=" : "FOUR.TXT",
+	'5xgdHWjKWMabOXYzg6EjHKYFRrw=' : 'ONE.TXT',
+	'bD+HEO4sgR1G1ggieyL1oSzV0w4=' : 'TWO.TXT',
+	'QYf7IX4hUSB0CfwEE/doexTiJ+k=' : 'THREE.TXT',
+	'00jGfUp/3vbQTXP+daAJOGSNUM0=' : 'FOUR.TXT',
 	
-	"+xHXMMH0UDoiwmLqF2x5IlpSPEg=" : "TEST1",
-	"lmA/BcBMzx5uWuhW+CW+VoLsHS4=" : "TEST2",
+	'+xHXMMH0UDoiwmLqF2x5IlpSPEg=' : 'TEST1',
+	'lmA/BcBMzx5uWuhW+CW+VoLsHS4=' : 'TEST2',
 };
 
 export default class Archive_Indy500 extends ArchiveHandler
@@ -240,7 +240,7 @@ export default class Archive_Indy500 extends ArchiveHandler
 
 			// each file's data is prefixed with a 32-bit word containing its native size
 			//buffer.writeRecord(RecordType.int.u32le, file.nativeSize);
-			buffer.writeRecord(recordTypes.sizePrefix, { size: file.nativeSize })
+			buffer.writeRecord(recordTypes.sizePrefix, { size: file.nativeSize });
 			buffer.put(content);
 		}
 
