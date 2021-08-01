@@ -231,13 +231,3 @@ the format handlers:
 * `wad-doom` has empty files used for starting and ending a group of files,
   so to ensure these files are kept together they are converted into a virtual
   folder.  So files `P_STRT`, `EXAMPLE`, and `P_END` come out as `P/EXAMPLE`.
-
-## Known limitations
-
-* arc-fixed-ddave_exe: The location storing the compressed size of the CGA and
-  VGA graphics data is unknown.  This means when modifying these files, the
-  resulting compressed data will rarely be the right size to fit back inside
-  the .exe (and indeed recompressing the original data without modifying it
-  shrinks it by an additional 30 bytes over the original).  Because of this,
-  the RLE algorithm in the game keeps reading past the end of the data
-  resulting in a buffer overflow and a crash.
