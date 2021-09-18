@@ -115,11 +115,28 @@ class Operations
 			throw new OperationsError('extract: missing filename');
 		}
 
-		const targetFiles = this.archive.files.filter(
-			file => minimatch(file.name, params.target, { matchBase: true, nocase: true })
-		);
+		let targetFiles = [];
+		for (let i = 0; i < this.archive.files.length; i++) {
+			const file = this.archive.files[i];
+			if (
+				(
+					(params.target[0] === '@')
+					&& (minimatch(`@${i}`, params.target))
+				) || (
+					file.name
+					&& minimatch(file.name, params.target, { matchBase: true, nocase: true })
+				)
+			) {
+				targetFiles.push({
+					index: i,
+					targetFile: file,
+				});
+			}
+		}
+
 		if (targetFiles.length === 0) {
-			throw new OperationsError(`extract: archive does not contain "${params.target}"`);
+			throw new OperationsError(`extract: archive does not contain any files `
+				+ `that match "${params.target}"`);
 		}
 		if ((targetFiles.length > 1) && (params.name)) {
 			throw new OperationsError(`extract: can't use -n with multiple files `
@@ -127,10 +144,10 @@ class Operations
 		}
 
 		// True if every filename is in all-caps, false if any files have lowercase letters.
-		const allFilesCaps = targetFiles.every(f => f.name === f.name.toUpperCase());
+		const allFilesCaps = targetFiles.every(f => f.name && (f.name === f.name.toUpperCase()));
 
 		let pExtractedFiles = [];
-		for (const targetFile of targetFiles) {
+		for (const { index, targetFile } of targetFiles) {
 			let data;
 			if (params.raw) {
 				data = targetFile.getRaw();
@@ -143,13 +160,13 @@ class Operations
 			if (params.name) {
 				outName = params.name;
 			} else {
-				outName = targetFile.name;
+				outName = targetFile.name || `@${index}`;
 				if (allFilesCaps) {
 					outName = outName.toLowerCase();
 				}
 			}
 
-			this.log('extracting', targetFile.name, (outName != targetFile.name) ? '-> ' + outName : '');
+			this.log('extracting', targetFile.name || `file ${index}`, (outName != targetFile.name) ? '-> ' + outName : '');
 			pExtractedFiles.push(
 				fs.promises.writeFile(outName, data)
 			);
@@ -210,7 +227,9 @@ class Operations
 	list() {
 		let totalDiskSize = 0, totalNativeSize = 0;
 
-		this.archive.files.forEach(file => {
+		for (let i = 0; i < this.archive.files.length; i++) {
+			const file = this.archive.files[i];
+
 			const txt = (v, y, n) => (v === true) ? y : ((v === false) ? n : '-');
 			let attr = txt(file.attributes.encrypted, 'e', 'E')
 				+ txt(file.attributes.compressed, 'c', 'C');
@@ -223,16 +242,16 @@ class Operations
 			}
 			size += humanFileSize(file.diskSize);//.padStart(6);
 			const str = attr + ' '
-						+ size.padStart(16)
-						+ ' ' + (file.name || '-').padEnd(32)
-						+ (file.type || '-').padEnd(16)
-						+ (file.lastModified ? file.lastModified.toISOString().split('.')[0] : '')
+				+ size.padStart(16)
+				+ ' ' + (file.name || `@${i}`).padEnd(32)
+				+ (file.type || '-').padEnd(16)
+				+ (file.lastModified ? file.lastModified.toISOString().split('.')[0] : '')
 			;
 			console.log(str);
 
 			totalDiskSize += file.diskSize;
 			totalNativeSize += file.nativeSize;
-		});
+		}
 
 		let size = '', ratio = '';
 		if (totalNativeSize > 0) {
@@ -483,7 +502,10 @@ Commands:
   extract [-n name] [-r] <file>
     Extract <file> from archive and save into current directory as <name>.  File
     is decompressed and decrypted as needed, unless -r is given.  <file> can be
-    a glob, e.g. '*' to extract all files.
+    a glob, e.g. '*' to extract all files.  Files can be extracted by index by
+    putting an at-sign as the first character in the filename, e.g. '@0' will
+    extract the first file.  Since '*' will not match any files in an archive
+    with no filenames, use '@*' to extract every file by index.
 
   identify <file>
     Read local <file> and try to work out what archive format it is in.

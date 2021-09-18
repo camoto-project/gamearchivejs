@@ -77,6 +77,15 @@ list of all the available commands.  Some quick examples:
     
     # Convert an archive into another format
     gamearch open duke3d.grp save -t arc-rff-blood-v301 duke3d.rff
+    
+    # Extract a file by offset from an archive that has no filenames
+    gamearch open data.dat extract -n output.filename @100
+    
+    # Extract all files from an archive
+    gamearch open duke3d.grp extract '*'
+    
+    # Extract all files from an archive that has no filenames
+    gamearch open data.dat extract '@*'
 
 To get a list of supported file formats, run:
 

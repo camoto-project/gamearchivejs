@@ -9,6 +9,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "@camoto/gamearchive": "*",
-    "command-line-args": "^5.1.1"
+    "command-line-args": "^5.1.1",
+    "minimatch": "^3.0.4"
   }
 }
