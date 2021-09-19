@@ -83,6 +83,11 @@ for (const handler of gamearchiveFormats) {
 		let content = {};
 		let defaultArchive = new Archive();
 
+		const capsHasFilenames = (
+			(md.caps.file.maxFilenameLen === undefined) // no length limit
+			|| (md.caps.file.maxFilenameLen > 0) // non-zero length limit
+		);
+
 		describe('metadata()', function() {
 
 			it('should provide a filename glob, even if empty', function() {
@@ -122,7 +127,9 @@ for (const handler of gamearchiveFormats) {
 				// look like.
 
 				let file = new File();
-				file.name = 'ONE.TXT';
+				if (capsHasFilenames) {
+					file.name = 'ONE.TXT';
+				}
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.nativeSize = 22;
 				file.getRaw = () => TestUtil.u8FromString('This is the first file');
@@ -145,7 +152,9 @@ for (const handler of gamearchiveFormats) {
 				defaultArchive.files.push(file);
 
 				file = new File();
-				file.name = 'TWO.TXT';
+				if (capsHasFilenames) {
+					file.name = 'TWO.TXT';
+				}
 				file.lastModified = new Date(2000, 11, 31, 12, 34, 56);
 				file.nativeSize = 23;
 				file.getRaw = () => TestUtil.u8FromString('This is the second file');
@@ -174,7 +183,9 @@ for (const handler of gamearchiveFormats) {
 				defaultArchive.files.push(file);
 
 				file = new File();
-				file.name = 'THREE.TXT';
+				if (capsHasFilenames) {
+					file.name = 'THREE.TXT';
+				}
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.diskSize = 64; // intentionally wrong size
 				file.nativeSize = 22;
@@ -208,7 +219,9 @@ for (const handler of gamearchiveFormats) {
 				defaultArchive.files.push(file);
 
 				file = new File();
-				file.name = 'FOUR.TXT';
+				if (capsHasFilenames) {
+					file.name = 'FOUR.TXT';
+				}
 				file.lastModified = new Date(1994, 11, 31, 12, 34, 56);
 				file.diskSize = 64; // intentionally wrong size
 				file.nativeSize = 23;
@@ -302,10 +315,15 @@ for (const handler of gamearchiveFormats) {
 				});
 
 				it('should retrieve the correct filenames', function() {
-					assert.equal(archive.files[0].name, defaultArchive.files[0].name);
-					assert.equal(archive.files[1].name, defaultArchive.files[1].name);
-					assert.equal(archive.files[2].name, defaultArchive.files[2].name);
-					assert.equal(archive.files[3].name, defaultArchive.files[3].name);
+					for (let i = 0; i < 4; i++) {
+						let expectedName;
+						if (capsHasFilenames) {
+							expectedName = defaultArchive.files[i].name;
+						} else {
+							expectedName = null;
+						}
+						assert.equal(archive.files[i].name, expectedName);
+					}
 				});
 
 				it('should set the file size', function() {
@@ -323,7 +341,13 @@ for (const handler of gamearchiveFormats) {
 					}
 
 					for (let i = 0; i < 4; i++) {
-						assert.equal(archive.files[i].nativeSize, exp[i], `"${archive.files[i].name}" is the wrong size`);
+						const name = archive.files[i].name ? `"${archive.files[i].name}"`
+							: `File @${i}`;
+
+						assert.notEqual(archive.files[i].nativeSize, null,
+							`${name} has a null nativeSize`);
+						assert.equal(archive.files[i].nativeSize, exp[i],
+							`${name} is the wrong size`);
 					}
 				});
 
@@ -436,7 +460,9 @@ for (const handler of gamearchiveFormats) {
 				});
 
 				if (
-					md.caps.file.maxFilenameLen
+					capsHasFilenames
+					&& (md.caps.file.maxFilenameLen !== undefined) // must have filename length limit
+					// These formats don't support filenames without extensions
 					&& (md.id !== 'arc-gamemaps-id')
 					&& (md.id !== 'arc-gamemaps-id-carmack')
 					&& (md.id !== 'arc-gamemaps-id-huffman')
@@ -472,7 +498,9 @@ for (const handler of gamearchiveFormats) {
 				}
 
 				if (
-					(md.id !== 'arc-gamemaps-id')
+					capsHasFilenames
+					// These formats don't support filenames without extensions
+					&& (md.id !== 'arc-gamemaps-id')
 					&& (md.id !== 'arc-gamemaps-id-carmack')
 					&& (md.id !== 'arc-gamemaps-id-huffman')
 				) {
