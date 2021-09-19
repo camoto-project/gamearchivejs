@@ -32,33 +32,12 @@ import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
 import { replaceExtension } from '../util/supp.js';
-import TestUtil from '../test/util.js';
-
-const recordTypes = {
-	fatEntry: {
-		offset: RecordType.int.u32le,
-	},
-	sizePrefix: {
-		size: RecordType.int.u32le,
-	},
-};
 
 const cmpParams = {
 	sizeLength: 4,
 	minLen: 3,
 	prefillByte: 0x20,
 	lengthFieldInHighBits: false,
-};
-
-// Base64 encodings of SHA1 hashes for test file content
-const knownFileContentHash = {
-	'5xgdHWjKWMabOXYzg6EjHKYFRrw=' : 'ONE.TXT',
-	'bD+HEO4sgR1G1ggieyL1oSzV0w4=' : 'TWO.TXT',
-	'QYf7IX4hUSB0CfwEE/doexTiJ+k=' : 'THREE.TXT',
-	'00jGfUp/3vbQTXP+daAJOGSNUM0=' : 'FOUR.TXT',
-	
-	'+xHXMMH0UDoiwmLqF2x5IlpSPEg=' : 'TEST1',
-	'lmA/BcBMzx5uWuhW+CW+VoLsHS4=' : 'TEST2',
 };
 
 export default class Archive_Indy500 extends ArchiveHandler
@@ -77,8 +56,12 @@ export default class Archive_Indy500 extends ArchiveHandler
 			],
 		};
 
-		md.caps.file.attributes.compressed = true;
-		
+		// Although the files are compressed, individual files can't be stored
+		// uncompressed, so the 'compression' attribute is unavailable.
+		md.caps.file.attributes.compressed = undefined;
+
+		md.caps.file.maxFilenameLen = 0;
+
 		return md;
 	}
 
@@ -103,13 +86,20 @@ export default class Archive_Indy500 extends ArchiveHandler
 		let buffer = new RecordBuffer(content);
 		const fatSize = buffer.read(RecordType.int.u32le);
 
+		if (fatSize % 4 !== 0) {
+			return {
+				valid: false,
+				reason: `Header size not on 4-byte boundary.`,
+			};
+		}
+
 		// The last FAT entry actually points to EOF, so subtract one for the count.
-		const fileCount = Math.floor(fatSize / 4) - 1;
-		
+		const fileCount = (fatSize >> 2) - 1;
+
 		// If the first FAT entry indicates that its data starts at offset 4,
 		// this implies a file count of 0, which means that the total length
 		// of the archive must be exactly 4 (comprising a single FAT entry.)
-		if ((fileCount == 0) && (content.length != 4)) {
+		if ((fileCount === 0) && (content.length !== 4)) {
 			return {
 				valid: false,
 				reason: `Archive too long for file count of 0.`,
@@ -123,28 +113,37 @@ export default class Archive_Indy500 extends ArchiveHandler
 			};
 		}
 
-		if (fatSize % 4 != 0) {
-			return {
-				valid: false,
-				reason: `Header size not on 4-byte boundary.`,
-			};
-		}
-
 		// The size of the header is also the file offset at which the
 		// first contained file is stored.
 		let startOffsets = [fatSize];
 
 		// Read each offset and length and ensure it is valid.
 		for (let i = 1; i < fileCount; i++) {
-			
+
 			startOffsets[i] = buffer.read(RecordType.int.u32le);
 
 			if ((startOffsets[i] + 4) >= content.length) {
 				return {
 					valid: false,
-					reason: `File ${i} @ offset ${startOffsets[i]} starts beyond the end of the archive.`,
+					reason: `File ${i} @ offset ${startOffsets[i]} starts at or beyond `
+						+ `the end of the archive.`,
 				};
 			}
+		}
+
+		let finalOffset;
+		if (fileCount === 0) {
+			finalOffset = fatSize;
+		} else {
+			finalOffset = buffer.read(RecordType.int.u32le);
+		}
+
+		if (finalOffset !== content.length) {
+			return {
+				valid: false,
+				reason: `Final file offset ${finalOffset} does not match archive file `
+					+ `size ${content.length}.`,
+			};
 		}
 
 		return {
@@ -157,7 +156,7 @@ export default class Archive_Indy500 extends ArchiveHandler
 		let archive = new Archive();
 		let buffer = new RecordBuffer(content);
 		const fatSize = buffer.read(RecordType.int.u32le);
-		const fileCount = Math.floor(fatSize / 4) - 1;
+		const fileCount = (fatSize >> 2) - 1;
 
 		// The first file's data starts immediately after the FAT
 		let startOffsets = [fatSize];
@@ -170,12 +169,12 @@ export default class Archive_Indy500 extends ArchiveHandler
 
 		for (let i = 0; i < fileCount; i++) {
 			buffer.seekAbs(startOffsets[i]);
-			
+
 			let file = new File();
 			file.nativeSize = buffer.read(RecordType.int.u32le);
 			file.offset = startOffsets[i] + 4;
 			file.attributes.compressed = true;
-			
+
 			// if we're at the last file entry, the calculation for the disk size is slightly different
 			if (i < (fileCount - 1)) {
 				file.diskSize = startOffsets[i + 1] - file.offset;
@@ -183,14 +182,8 @@ export default class Archive_Indy500 extends ArchiveHandler
 				file.diskSize = content.length - file.offset;
 			}
 
-			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);			
+			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 			file.getContent = () => cmp_lzss.reveal(file.getRaw(), cmpParams);
-
-			const hash = TestUtil.hash(file.getRaw());
-			file.name = knownFileContentHash[hash];
-			if (file.name == undefined) {
-				file.name = `indy500-${i}.bin`;
-			}
 
 			archive.files.push(file);
 		}
@@ -219,41 +212,43 @@ export default class Archive_Indy500 extends ArchiveHandler
 		// as they are compressed.
 		buffer.seekAbs(offEndFAT);
 
-		let fileOffsets = [];
-		let fileIndex = 0;
+		let nextOffset = offEndFAT;
 
-		for (const file of archive.files) {
+		let fileOffsets = [];
+
+		for (let i = 0; i < archive.files.length; i++) {
+			const file = archive.files[i];
+
+			// Write the next offset in the FAT.
+			buffer.seekAbs(i * 4);
+			buffer.write(RecordType.int.u32le, nextOffset);
+			buffer.seekAbs(nextOffset);
 
 			// Save the offset of this file so that the FAT can be written later
-			fileOffsets[fileIndex++] = buffer.pos;
+			fileOffsets[i] = buffer.pos;
 
 			let content = file.getContent();
 
 			// Safety check.
-			if (content.length != file.nativeSize) {
+			if (content.length !== file.nativeSize) {
 				throw new Error(`Length of data (${content.length}) and nativeSize `
-					+ `(${file.nativeSize}) field do not match for ${file.name}!`);
+					+ `(${file.nativeSize}) field do not match for file @${i}!`);
 			}
 
 			content = cmp_lzss.obscure(content, cmpParams);
 			file.diskSize = content.length;
 
 			// each file's data is prefixed with a 32-bit word containing its native size
-			//buffer.writeRecord(RecordType.int.u32le, file.nativeSize);
-			buffer.writeRecord(recordTypes.sizePrefix, { size: file.nativeSize });
+			buffer.write(RecordType.int.u32le, file.nativeSize);
 			buffer.put(content);
-		}
 
-		// Now, go back and write the FAT.
-		buffer.seekAbs(0);
-
-		for (fileIndex = 0; fileIndex < fileCount; fileIndex++) {
-			buffer.writeRecord(recordTypes.fatEntry, { offset: fileOffsets[fileIndex] });
+			nextOffset += content.length + 4;
 		}
 
 		// The original game archives have one final FAT entry that points to EOF.
-		const eofOffset = (fileCount == 0) ? 4 : buffer.length;
-		buffer.writeRecord(recordTypes.fatEntry, { offset: eofOffset });
+		const eofOffset = (fileCount === 0) ? 4 : buffer.length;
+		buffer.seekAbs(fileCount * 4);
+		buffer.write(RecordType.int.u32le, eofOffset);
 
 		return {
 			main: buffer.getU8(),
