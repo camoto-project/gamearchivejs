@@ -100,9 +100,12 @@ export default class File
 		 *
 		 * @type {FileAttributes}
 		 *
-		 * Default attributes for this file are undefined, which means "don't care"
-		 * when writing the archive, and "unsupported attribute" when reading an
-		 * archive.
+		 * Default attributes for this file are `undefined`, which means "don't
+		 * care" when writing the archive, and "unsupported attribute" when reading
+		 * an archive.
+		 *
+		 * These attributes can only be set if the format handler has said the
+		 * specific attribute is available for use in its `caps` structure.
 		 */
 		this.attributes = {
 			compressed: clone.attributes && clone.attributes.compressed,

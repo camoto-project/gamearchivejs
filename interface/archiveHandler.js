@@ -52,45 +52,48 @@ export default class ArchiveHandler
 			 *
 			 * @property {Array} glob
 			 *   A list of strings with filename expressions matching files that are
-			 *   often in this format.  An examples is ['*.txt', '*.doc', 'file*.bin'].
+			 *   often in this format.  An example is
+			 *   `['*.txt', '*.doc', 'file*.bin']`.
 			 *
 			 * @property {Object} caps
 			 *   Capability flags indicating what the format can or cannot support.
 			 *
 			 * @property {Number} caps.maxFileCount
 			 *   Maximum number of files that can be stored in the archive file, or
-			 *   undefined if there is no maximum limit.
+			 *   `undefined` if there is no maximum limit.
 			 *
 			 * @property {Object} caps.file
 			 *   Capabilities relating to files inside the archive.
 			 *
 			 * @property {Boolean} caps.file.lastModified
-			 *   True if files can have their last-modified date stored.  Default
-			 *   is false.
+			 *   `true` if files can have their last-modified date stored.  Default
+			 *   is `false`.
 			 *
 			 * @property {Object} caps.file.attributes
 			 *   Capabilities relating to attributes that can be set on files. If
-			 *   the values here are set to true then that attribute is allowed to
-			 *   be set on a per-file basis for files in this archive.  If the value
-			 *   here is false, then that attribute is fixed by the archive format
-			 *   (either forced on or off) and cannot be set on individual files.
+			 *   the values here are set to `true` or `false` then that attribute is
+			 *   allowed to be set on a per-file basis for files in this archive.
+			 *   If the value here is `undefined`, then that attribute is fixed by
+			 *   the archive format (either forced on or off) and any value set on
+			 *   individual files will be ignored.
 			 *
 			 * @property {Boolean} caps.file.attributes.compressed
-			 *   True if the file is compressed when stored in the archive, false
-			 *   if not.  Will be undefined when reading an archive if the
-			 *   attribute is unsupported, and it can be set to undefined when
+			 *   `true` if the file is compressed when stored in the archive, `false`
+			 *   if not.  Will be `undefined` when reading an archive if the
+			 *   attribute is unsupported, and it can be set to `undefined` when
 			 *   writing an archive to use the default value for the format.
 			 *
 			 * @property {Boolean} caps.file.attributes.encrypted
-			 *   True if the file is encrypted when stored in the archive, false
-			 *   if not.  Will be undefined when reading an archive if the
-			 *   attribute is unsupported, and it can be set to undefined when
+			 *   `true` if the file is encrypted when stored in the archive, `false`
+			 *   if not.  Will be `undefined` when reading an archive if the
+			 *   attribute is unsupported, and it can be set to `undefined` when
 			 *   writing an archive to use the default value for the format.
 			 *
 			 * @property {Number} caps.file.maxFilenameLen
 			 *   Number of characters in the filename, including dots.  If the
 			 *   archive can only store normal DOS 8.3 filenames, then this would
-			 *   be 12.  If omitted there is no restriction on filename length.
+			 *   be `12`.  If the format does not contain filenames, set this to `0`.
+			 *   If set to `undefined` there is no restriction on filename length.
 			 *
 			 * @property {Object} caps.tags
 			 *   Key=Value list of tags this format supports, e.g.
@@ -105,8 +108,8 @@ export default class ArchiveHandler
 				file: {
 					lastModified: false,
 					attributes: {
-						compressed: false,
-						encrypted: false,
+						compressed: undefined,
+						encrypted: undefined,
 					},
 					maxFilenameLen: undefined,
 				},
