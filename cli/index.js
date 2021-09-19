@@ -349,12 +349,14 @@ class Operations
 
 		const problems = handler.checkLimits(this.archive);
 		if (problems.length) {
-			console.log('There are problems preventing the requested changes from taking place:\n');
+			console.log('There are problems with the files to save:\n');
 			for (let i = 0; i < problems.length; i++) {
 				console.log((i + 1).toString().padStart(2) + ': ' + problems[i]);
 			}
-			console.log('\nPlease correct these issues and try again.\n');
-			throw new OperationsError('save: cannot save due to file format limitations.');
+			if (!params.force) {
+				console.log('\nPlease correct these issues and try again.\n');
+				throw new OperationsError('save: cannot save due to file format limitations.');
+			}
 		}
 
 		console.warn('Saving to', params.target, 'as', params.format);
@@ -430,6 +432,7 @@ Operations.names = {
 		{ name: 'target', defaultOption: true },
 	],
 	save: [
+		{ name: 'force', alias: 'f', type: Boolean },
 		{ name: 'format', alias: 't' },
 		{ name: 'target', defaultOption: true },
 	],
