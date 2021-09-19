@@ -51,7 +51,7 @@ const FATENTRY_LEN = 28; // sizeof(fatEntry)
 // File flags.
 const GLBF_ENCRYPTED = 0x00000001;
 
-export default class Archive_GRP_Build extends ArchiveHandler
+export default class Archive_GLB_Raptor extends ArchiveHandler
 {
 	static metadata() {
 		let md = {

@@ -44,7 +44,7 @@ const recordTypes = {
 const HEADER_LEN = 3; // sizeof(header)
 const FATENTRY_LEN = 17; // sizeof(fatEntry)
 
-export default class Archive_GRP_Build extends ArchiveHandler
+export default class Archive_HOG_Descent extends ArchiveHandler
 {
 	static metadata() {
 		let md = {
