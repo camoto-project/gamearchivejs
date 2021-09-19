@@ -34,6 +34,7 @@ formats.
 | IndyCar Racing II         | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
 | J.R.R. Tolkien's Riders of Rohan | *.dat | Papyrus Data File (V1)  | arc-dat-papyrus-v1  |
 | Lion King, The            | *.dat      | East Point File Storage   | arc-epf-eastpoint   |
+| Lost Vikings, The         | *.dat      | Lost Vikings Data File    | arc-dat-lostvikings |
 | Major Stryker             | *.ms[123]  | Cosmo Data Volume         | arc-vol-cosmo       |
 | Monster Bash              | *.dat      | F.A.S.T. Data File        | arc-dat-fast        |
 | NASCAR Racing             | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |

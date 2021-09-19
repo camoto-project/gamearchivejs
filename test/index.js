@@ -55,6 +55,11 @@ const skipFormats = [
 // These formats identify each other and there's nothing we can do about it
 // because it's not actually wrong.
 const identifyConflicts = {
+	// This format...
+	'arc-dat-lostvikings': [
+		// ...picks up these ones too.
+		'arc-bpa-drally',
+	],
 };
 
 // Override the default colours so we can actually see them

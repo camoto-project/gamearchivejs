@@ -49,3 +49,4 @@ export { default as arc_dat_papyrus_v2 } from './arc-dat-papyrus-v2.js';
 export { default as arc_bpa_drally } from './arc-bpa-drally.js';
 export { default as arc_vol_cosmo } from './arc-vol-cosmo.js';
 export { default as arc_lbr_vinyl } from './arc-lbr-vinyl.js';
+export { default as arc_dat_lostvikings } from './arc-dat-lostvikings.js';
