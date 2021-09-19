@@ -52,6 +52,11 @@ const skipFormats = [
 	'arc-exe-keen6-ega_1v5',
 ];
 
+// These formats identify each other and there's nothing we can do about it
+// because it's not actually wrong.
+const identifyConflicts = {
+};
+
 // Override the default colours so we can actually see them
 import { colors } from 'mocha/lib/reporters/base.js';
 colors['diff added'] = '1;33';
@@ -552,13 +557,16 @@ for (const handler of gamearchiveFormats) {
 					// Skip ourselves
 					if (submd.id === md.id) continue;
 
-					// NOTE: If we ever get formats that identify each other and we can't
-					// work around it, copy the identifyConflicts code from this matching
-					// section in gamemusic.js.
-					it(`should not be positively identified by ${submd.id} handler`, function() {
-						const result = subhandler.identify(content.default.main, content.default.main.filename);
-						assert.notEqual(result.valid, true, `${submd.id} thinks it can handle ${md.id} files`);
-					});
+					if (identifyConflicts[submd.id] && identifyConflicts[submd.id].includes(md.id)) {
+						it(`will be positively identified by ${submd.id} handler, so unable to test`, function() {
+							assert.ok(true);
+						});
+					} else {
+						it(`should not be positively identified by ${submd.id} handler`, function() {
+							const result = subhandler.identify(content.default.main, content.default.main.filename);
+							assert.notEqual(result.valid, true, `${submd.id} thinks it can handle ${md.id} files`);
+						});
+					}
 				}
 
 			}); // identify()
