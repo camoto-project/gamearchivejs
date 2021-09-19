@@ -418,7 +418,7 @@ for (const handler of gamearchiveFormats) {
 
 				it('should generate correctly', function() {
 					const issues = handler.checkLimits(defaultArchive);
-					assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0`);
+					assert.equal(issues.length, 0, `${issues.length} issues with archive, expected 0:\n${issues.join('\n')}`);
 
 					const contentGenerated = handler.generate(defaultArchive);
 
