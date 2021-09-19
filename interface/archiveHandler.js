@@ -138,16 +138,22 @@ export default class ArchiveHandler
 				+ `archive format can only store up to ${caps.maxFileCount} files.`);
 		}
 
-		if (caps.file.maxFilenameLen !== undefined) {
-			archive.files.forEach(file => {
+		for (let i = 0; i < archive.files.length; i++) {
+			const file = archive.files[i];
+
+			if (caps.file.maxFilenameLen === 0) {
+				if (file.name) {
+					issues.push(`File @${i} has filename "${file.name}" but this format does not support filenames.`);
+				}
+			} else if (caps.file.maxFilenameLen !== undefined) { // no limit
 				if (file.name.length > caps.file.maxFilenameLen) {
 					issues.push(`Filename length is ${file.name.length}, max is `
 						+ `${caps.file.maxFilenameLen}: ${file.name}`);
 				}
-			});
-		}
+			}
 
-		archive.files.forEach(file => {
+			/* Disable this check as it will cause the data to be decompressed and
+				 then discarded, making saving slow.
 			if (file.nativeSize === 0) {
 				const content = file.getContent();
 				if (content.length !== 0) {
@@ -158,7 +164,8 @@ export default class ArchiveHandler
 					);
 				}
 			}
-		});
+			*/
+		}
 
 		return issues;
 	}
