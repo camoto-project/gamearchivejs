@@ -58,7 +58,8 @@ const identifyConflicts = {
 	// This format...
 	'arc-dat-lostvikings': [
 		// ...picks up these ones too.
-		'arc-bpa-drally',
+		'arc-bpa-drally', // Initial 0x00000004 matches .dat with one file
+		'arc-pod-tv', // Initial 0x00000004 matches .dat with one file
 	],
 };
 
