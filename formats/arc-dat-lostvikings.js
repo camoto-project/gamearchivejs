@@ -48,9 +48,10 @@ const cmpParams = {
 	sizeLength: 4,
 	minLen: 3,
 	prefillByte: 0,
-	lengthFieldInHighBits: true,
 	windowStartAt0: true,
-	splitMethod: 1,
+	littleEndian: true,
+	lengthHigh: true,
+	offsetRotate: 0,
 };
 
 export default class Archive_DAT_LostVikings extends ArchiveHandler

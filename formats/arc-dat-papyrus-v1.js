@@ -5,6 +5,7 @@
  *   http://www.shikadi.net/moddingwiki/DAT_Format_(Papyrus)
  *
  * Copyright (C) 2018-2021 Adam Nielsen <malvineous@shikadi.net>
+ * Copyright (C) 2021 Colin Bourassa
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +60,9 @@ const cmpParams = {
 	sizeLength: 4,
 	minLen: 3,
 	prefillByte: 0x20,
-	lengthFieldInHighBits: true,
+	littleEndian: true,
+	lengthHigh: true,
+	offsetRotate: 0,
 };
 
 export default class Archive_DAT_PapyrusV1 extends ArchiveHandler

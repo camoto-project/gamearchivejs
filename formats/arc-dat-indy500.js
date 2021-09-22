@@ -37,7 +37,9 @@ const cmpParams = {
 	sizeLength: 4,
 	minLen: 3,
 	prefillByte: 0x20,
-	lengthFieldInHighBits: false,
+	littleEndian: false,
+	lengthHigh: false,
+	offsetRotate: 8,
 };
 
 export default class Archive_Indy500 extends ArchiveHandler
