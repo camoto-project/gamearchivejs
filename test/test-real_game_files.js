@@ -47,6 +47,11 @@ const gameFiles = {
 			'main.imf': 'vrkhbVklGu+zXJ50yx8kFbERCQM=',
 		},
 	},
+	'arc-dat-got': {
+		'gotres.dat': {
+			'SONG21': 'aivh3Fp9wgYM9KPUaMsnOx7EjTg=',
+		},
+	},
 	'arc-dat-indy500': {
 		'indy.1': {
 			'@10': '2ii+WWzfLKNtd4P0y4xknGBcRQA=',

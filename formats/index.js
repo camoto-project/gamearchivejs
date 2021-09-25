@@ -41,6 +41,7 @@ export { default as arc_gamemaps_id_carmack } from './arc-gamemaps-id-carmack.js
 // These formats require enumeration, sometimes all the way to the end of the
 // file, so they are last.
 export { default as arc_dat_fast } from './arc-dat-fast.js';
+export { default as arc_dat_got } from './arc-dat-got.js';
 export { default as arc_dat_wacky } from './arc-dat-wacky.js';
 export { default as arc_pod_tv } from './arc-pod-tv.js';
 export { default as arc_dat_indy500 } from './arc-dat-indy500.js';

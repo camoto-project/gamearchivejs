@@ -206,6 +206,7 @@ for (const handler of gamearchiveFormats) {
 				}
 
 				switch (md.id) {
+					case 'arc-dat-got': // fall through
 					case 'arc-wad-doom':
 						// Default name is too long
 						file.name = 'THREE';
