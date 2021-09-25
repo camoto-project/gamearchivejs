@@ -33,9 +33,11 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 			content = testutil.loadContent(handler, [
 				'short',
 				'fat_past_eof',
+				'fat_too_small',
 				'fat_trunc',
 				'fat_extra',
 				'file_past_eof',
+				'fat_final_nonzero',
 				'compressed_file',
 			]);
 		});
@@ -47,7 +49,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['short'].main,
 					content['short'].main.filename
 				);
-				assert.equal(result.reason, 'Content too short (< 2 b).');
+				assert.equal(result.reason, 'Content too short (< 6 b).');
 				assert.equal(result.valid, false);
 			});
 
@@ -57,6 +59,15 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['fat_past_eof'].main.filename
 				);
 				assert.equal(result.reason, `FAT truncated (file length 147 < FAT length 313).`);
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject on FAT length too small', function() {
+				const result = handler.identify(
+					content['fat_too_small'].main,
+					content['fat_too_small'].main.filename
+				);
+				assert.equal(result.reason, `FAT length too small (5 < 6).`);
 				assert.equal(result.valid, false);
 			});
 
@@ -84,6 +95,15 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['file_past_eof'].main.filename
 				);
 				assert.equal(result.reason, 'File 3 ends beyond the end of the archive.');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject if final FAT entry size is not 0', function() {
+				const result = handler.identify(
+					content['fat_final_nonzero'].main,
+					content['fat_final_nonzero'].main.filename
+				);
+				assert.equal(result.reason, 'Final FAT entry did not have a size of 0.');
 				assert.equal(result.valid, false);
 			});
 

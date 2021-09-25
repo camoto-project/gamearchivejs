@@ -47,7 +47,7 @@ const recordTypes = {
 	},
 };
 
-const HEADER_LEN = 2; // sizeof(header)
+const HEADER_LEN = 6; // sizeof(header) + final u32le zero-size FAT entry
 
 // cmp_lzss parameters to compress/decompress files.
 const cmpParams = {
@@ -105,17 +105,24 @@ export default class Archive_CUR_Prehistorik extends ArchiveHandler
 		let buffer = new RecordBuffer(content);
 		const header = buffer.readRecord(recordTypes.header);
 
-		const lenFAT = header.offData;
-
 		if (header.offData > lenArchive) {
 			return {
 				valid: false,
-				reason: `FAT truncated (file length ${content.length} < FAT length ${lenFAT}).`,
+				reason: `FAT truncated (file length ${content.length} < FAT length `
+					+ `${header.offData}).`,
+			};
+		}
+
+		if (header.offData < 6) {
+			return {
+				valid: false,
+				reason: `FAT length too small (${header.offData} < 6).`,
 			};
 		}
 
 		let nextOffset = header.offData;
 
+		let finalEntryZero = false;
 		for (let i = 0, pos = 2; pos < header.offData; i++) {
 			if (pos + 4 > header.offData) {
 				return {
@@ -137,6 +144,7 @@ export default class Archive_CUR_Prehistorik extends ArchiveHandler
 					};
 				}
 				// Otherwise the FAT ended with a zero-length size as expected.
+				finalEntryZero = true;
 				break;
 			}
 			try {
@@ -157,6 +165,13 @@ export default class Archive_CUR_Prehistorik extends ArchiveHandler
 					reason: `File ${i} ends beyond the end of the archive.`,
 				};
 			}
+		}
+
+		if (!finalEntryZero) {
+			return {
+				valid: false,
+				reason: `Final FAT entry did not have a size of 0.`,
+			};
 		}
 
 		return {
