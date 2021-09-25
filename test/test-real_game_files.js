@@ -52,6 +52,11 @@ const gameFiles = {
 			'@10': '2ii+WWzfLKNtd4P0y4xknGBcRQA=',
 		},
 	},
+	'arc-dat-lostvikings': {
+		'data.dat': {
+			'@10': '2XduhcLb7ozU5wi46leN3ZHhjS0=',
+		},
+	},
 	'arc-dat-wacky': {
 		'wacky.dat': {
 			'giggles.sp': 'K8LYN1pXWnP/xiM4S7YM5l4nKQM=',

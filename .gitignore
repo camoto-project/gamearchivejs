@@ -7,6 +7,7 @@ test/arc-bpa-drally/ibfiles.bpa
 test/arc-cur-prehistorik/filesa.cur
 test/arc-dat-fast/bash1.dat
 test/arc-dat-indy500/indy.1
+test/arc-dat-lostvikings/data.dat
 test/arc-dat-wacky/wacky.dat
 test/arc-epf-eastpoint/lionking.epf
 test/arc-exe-*/*.exe
