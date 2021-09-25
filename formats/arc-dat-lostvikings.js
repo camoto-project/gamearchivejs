@@ -76,9 +76,10 @@ export default class Archive_DAT_LostVikings extends ArchiveHandler
 			],
 		};
 
-		// Although the files are compressed, individual files can't be stored
-		// uncompressed, so the 'compression' attribute is unavailable.
-		md.caps.file.attributes.compressed = undefined;
+		// Although some files are compressed, the user cannot control which ones
+		// so the attribute is unavailable.  Individual files still report whether
+		// they are compressed or not in their attribute, it just cannot be changed.
+		md.caps.file.attributes.compressed = false;
 
 		md.caps.file.maxFilenameLen = 0;
 
@@ -188,6 +189,7 @@ export default class Archive_DAT_LostVikings extends ArchiveHandler
 			file.offset = lastOffset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 			file.attributes.compressed = !uncompressedFiles.includes(i);
+			file.attributes.encrypted = false;
 
 			archive.setOriginalFile(file);
 			archive.files.push(file);

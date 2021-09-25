@@ -80,6 +80,9 @@ export default class Archive_CUR_Prehistorik extends ArchiveHandler
 			],
 		};
 
+		// The user cannot control which files are and aren't compressed.
+		md.caps.file.attributes.compressed = false;
+
 		// Technically no limit but none are longer than 8.3.
 		md.caps.file.maxFilenameLen = 12;
 
@@ -201,6 +204,7 @@ export default class Archive_CUR_Prehistorik extends ArchiveHandler
 			file.offset = nextOffset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 			file.attributes.compressed = this.isCompressed(file.name);
+			file.attributes.encrypted = false;
 
 			archive.files.push(file);
 

@@ -444,6 +444,8 @@ export default class Archive_LBR_Vinyl extends ArchiveHandler
 			file.name = hashes[fatEntry.hash];
 			file.offset = fatEntry.offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 
 			if (!file.name) {
 				file.name = 'unknown-' + fatEntry.hash;

@@ -47,9 +47,6 @@ export default class Archive_EXE_Keen6 extends ArchiveHandler
 			],
 		};
 
-		// Files can optionally be compressed.
-		md.caps.file.attributes.compressed = false;
-
 		return md;
 	}
 

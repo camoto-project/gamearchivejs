@@ -48,9 +48,6 @@ class Archive_EXE_Keen5 extends ArchiveHandler
 			],
 		};
 
-		// Files can optionally be compressed.
-		md.caps.file.attributes.compressed = false;
-
 		return md;
 	}
 

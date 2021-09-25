@@ -131,6 +131,7 @@ export default class Archive_GLB_Raptor extends ArchiveHandler
 			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = fatEntry.offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
 
 			if (fatEntry.flags & GLBF_ENCRYPTED) {
 				file.attributes.encrypted = true;

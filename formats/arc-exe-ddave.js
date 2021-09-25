@@ -87,9 +87,6 @@ export default class Archive_EXE_DDave extends ArchiveHandler
 			],
 		};
 
-		// Files can optionally be compressed.
-		md.caps.file.attributes.compressed = true;
-
 		return md;
 	}
 

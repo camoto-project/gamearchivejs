@@ -370,15 +370,20 @@ for (const handler of gamearchiveFormats) {
 				}
 
 				describe('should not set any attributes unsupported by the format', function() {
-					Object.keys(md.caps.file.attributes).forEach(attr => {
-						if (md.caps.file.attributes[attr] === false) {
-							it(`should not set the '${attr}' attribute`, function() {
-								archive.files.forEach(file => {
-									assert.equal(file.attributes[attr], undefined);
-								});
-							});
-						}
-					});
+					for (const [attr, value] of Object.entries(md.caps.file.attributes)) {
+						it(`should set the '${attr}' attribute`, function() {
+							assert.notEqual(value, undefined,
+								`Archive handler did not indicate whether it supported the `
+								+ `"${attr}" attribute or not.`
+							);
+							for (const file of archive.files) {
+								assert.notEqual(file.attributes[attr], undefined,
+									`Archive handler did not set "${attr}" attribute on file `
+									+ `${file.name || '<no name>'}`
+								);
+							}
+						});
+					}
 				});
 
 				if (md.caps.file.attributes.compressed) {

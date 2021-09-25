@@ -142,6 +142,8 @@ export default class Archive_DAT_Wacky extends ArchiveHandler
 			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = fatEntry.offset + HEADER_LEN;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 
 			archive.files.push(file);
 		}

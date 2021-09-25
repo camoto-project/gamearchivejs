@@ -166,6 +166,7 @@ export default class Archive_DAT_FAST extends ArchiveHandler
 			let file = new File();
 			file.diskSize = fatEntry.compressedSize;
 			file.offset = offset;
+			file.attributes.encrypted = false;
 
 			// Convert the file type code into a filename extension if needed.
 			const tc = FASTTypes[fatEntry.typeCode];

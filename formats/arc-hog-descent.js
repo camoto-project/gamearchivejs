@@ -110,6 +110,8 @@ export default class Archive_HOG_Descent extends ArchiveHandler
 			file.diskSize = file.nativeSize = fatEntry.size;
 			file.offset = offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 
 			archive.files.push(file);
 

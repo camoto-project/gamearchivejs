@@ -88,6 +88,7 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 		};
 
 		md.caps.file.maxFilenameLen = 14;
+		// The user can control which files are and aren't compressed.
 		md.caps.file.attributes.compressed = true;
 		md.caps.file.attributes.hasPrefixWords = false;
 		md.caps.file.attributes.uncompressedPrefixWords = {
@@ -164,13 +165,15 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 			file.nativeSize = fatEntry.nativeSize;
 			file.offset = fatEntry.offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.encrypted = false;
 
 			// If the "no prefix" bit is clear, we need to skip ahead by four bytes
 			// because the contained file is a raw image (headerless) image that is
 			// prefixed by two 16-bit words that describe width and height. These
 			// two words are not included in the LZ compressed data, nor are they
 			// included in the file size.
-			if ((fatEntry.flags & PDAT_NOPREFIXWORDS) === 0) {
+			file.attributes.hasPrefixWords = (fatEntry.flags & PDAT_NOPREFIXWORDS) === 0;
+			if (file.attributes.hasPrefixWords) {
 
 				// save the current offset we're parsing in the FAT so that we can
 				// return to it after reading the uncompressed prefix words
@@ -178,11 +181,12 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 
 				buffer.seekAbs(fatEntry.offset);
 
-				file.attributes.hasPrefixWords = true;
 				file.attributes.uncompressedPrefixWords = buffer.readRecord(recordTypes.prefixWords);
 				file.offset += 4;
 
 				buffer.seekAbs(offsetInFAT);
+			} else {
+				file.attributes.uncompressedPrefixWords = null;
 			}
 
 			// use LZSS decompression only if the 'compressed' flag is set

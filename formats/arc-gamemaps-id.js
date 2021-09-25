@@ -81,8 +81,8 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 			],
 		};
 
-		// Files can be compressed.
-		md.caps.file.attributes.compressed = true;
+		// The user cannot control which files are and aren't compressed.
+		md.caps.file.attributes.compressed = false;
 
 		md.caps.file.maxFilenameLen = 15;
 
@@ -193,6 +193,8 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 				file.getRaw = () => {
 					throw new Error('This is a folder, not a file');
 				};
+				file.attributes.compressed = false;
+				file.attributes.encrypted = false;
 				archive.files.push(file);
 
 				continue;
@@ -208,11 +210,12 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 
 				let file = new File();
 				file.name = `${levelCode}/plane${p}`;
-				file.attributes.compressed = true;
 				file.diskSize = levelHeader[`lenPlane${p}`];
 				file.nativeSize = levelHeaderPart2.width * levelHeaderPart2.height * 2;
 				file.offset = offset;
 				file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+				file.attributes.compressed = true;
+				file.attributes.encrypted = false;
 
 				// Override getContent() to decompress the file first.
 				file.getContent = () => {
@@ -228,6 +231,8 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 			file.diskSize = file.nativeSize = 20;
 			file.offset = offLevelHeader + (4 + 2) * 3;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 			// This data is never compressed so no need to override getContent().
 			archive.files.push(file);
 		}
@@ -240,6 +245,8 @@ export default class Archive_Gamemaps_id extends ArchiveHandler
 			file.diskSize = file.nativeSize = fatBuffer.length - lenOffsets;
 			file.offset = lenOffsets;
 			file.getRaw = () => fatBuffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 			// This data is never compressed so no need to override getContent().
 			archive.files.push(file);
 		}

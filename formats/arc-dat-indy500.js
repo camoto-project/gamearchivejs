@@ -64,9 +64,10 @@ export default class Archive_Indy500 extends ArchiveHandler
 			],
 		};
 
-		// Although the files are compressed, individual files can't be stored
-		// uncompressed, so the 'compression' attribute is unavailable.
-		md.caps.file.attributes.compressed = undefined;
+		// Although some files are compressed, the user cannot control which ones
+		// so the attribute is unavailable.  Individual files still report whether
+		// they are compressed or not in their attribute, it just cannot be changed.
+		md.caps.file.attributes.compressed = false;
 
 		md.caps.file.maxFilenameLen = 0;
 
@@ -182,6 +183,7 @@ export default class Archive_Indy500 extends ArchiveHandler
 			file.nativeSize = buffer.read(RecordType.int.u32le);
 			file.offset = startOffsets[i] + 4;
 			file.attributes.compressed = true;
+			file.attributes.encrypted = false;
 
 			// if we're at the last file entry, the calculation for the disk size is slightly different
 			if (i < (fileCount - 1)) {

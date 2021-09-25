@@ -178,6 +178,8 @@ export default class Archive_RFF_Blood extends ArchiveHandler
 			file.lastModified = new Date(unixTimeUTC * 1000);
 
 			file.getRaw = () => buffer.getU8(fatEntry.offset, fatEntry.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 
 			if (crypto) {
 				if (fatEntry.flags & RFFFlags.FILE_ENCRYPTED) {

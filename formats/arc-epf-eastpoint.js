@@ -148,6 +148,7 @@ export default class Archive_EPF_EastPoint extends ArchiveHandler
 			file.nativeSize = fatEntry.nativeSize;
 			file.offset = offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.encrypted = false;
 
 			if (fatEntry.flags & EPFF_COMPRESSED) {
 				file.attributes.compressed = true;

@@ -200,6 +200,7 @@ export default class Archive_DAT_GoT extends ArchiveHandler
 			file.offset = fatEntry.offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 			file.attributes.compressed = !!(fatEntry.flags & 0x0001);
+			file.attributes.encrypted = false;
 
 			if (file.attributes.compressed) {
 				file.offset += 4; // skip 2*uint16le header

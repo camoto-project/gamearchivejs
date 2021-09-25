@@ -127,6 +127,8 @@ export default class Archive_BPA_DeathRally extends ArchiveHandler
 			file.diskSize = file.nativeSize = size;
 			file.offset = lastOffset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 
 			archive.files.push(file);
 

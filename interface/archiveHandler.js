@@ -78,16 +78,20 @@ export default class ArchiveHandler
 			 *   individual files will be ignored.
 			 *
 			 * @property {Boolean} caps.file.attributes.compressed
-			 *   `true` if the file is compressed when stored in the archive, `false`
-			 *   if not.  Will be `undefined` when reading an archive if the
-			 *   attribute is unsupported, and it can be set to `undefined` when
-			 *   writing an archive to use the default value for the format.
+			 *   `true` if the compression attribute is available, i.e. the archive
+			 *   format allows each file to be compressed or not at the user's
+			 *   discretion.  If the choice to compress a file or not is fixed (i.e.
+			 *   all files are compressed, or none are compressed, or some are but
+			 *   there is no control over which ones) then this value will be `false`.
+			 *
+			 *   Note that it is possible for this value to be `false` (indicating
+			 *   compression is not user controllable) yet still have some files
+			 *   with their compression attribute set to `true`.  This simply means
+			 *   the file is compressed but you cannot opt to store it in the archive
+			 *   file without compression.
 			 *
 			 * @property {Boolean} caps.file.attributes.encrypted
-			 *   `true` if the file is encrypted when stored in the archive, `false`
-			 *   if not.  Will be `undefined` when reading an archive if the
-			 *   attribute is unsupported, and it can be set to `undefined` when
-			 *   writing an archive to use the default value for the format.
+			 *   As for the `compressed` attribute but for encryption instead.
 			 *
 			 * @property {Number} caps.file.maxFilenameLen
 			 *   Number of characters in the filename, including dots.  If the
@@ -108,8 +112,8 @@ export default class ArchiveHandler
 				file: {
 					lastModified: false,
 					attributes: {
-						compressed: undefined,
-						encrypted: undefined,
+						compressed: false,
+						encrypted: false,
 					},
 					maxFilenameLen: undefined,
 				},

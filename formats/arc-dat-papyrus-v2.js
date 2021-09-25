@@ -157,6 +157,8 @@ export default class Archive_DAT_PapyrusV2 extends ArchiveHandler {
 			file.nativeSize = fatEntry.nativeSize;
 			file.offset = fatEntry.offset;
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
+			file.attributes.compressed = false;
+			file.attributes.encrypted = false;
 
 			archive.files.push(file);
 		}
