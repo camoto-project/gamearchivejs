@@ -317,6 +317,10 @@ describe(`Tests with real game files (if present)`, function() {
 
 				for (const [ archiveFilename, targetFiles ] of Object.entries(files)) {
 					it(`should read and rewrite ${archiveFilename}`, function() {
+						// The native JS compression is a bit slow so we need to allow a
+						// bit more time to process the whole archive file.
+						this.timeout(10 * 1000);
+
 						const { handler, content } = format[idFormat];
 						if (!content) this.skip();
 						const archive = handler.parse(content[archiveFilename]);
@@ -324,19 +328,27 @@ describe(`Tests with real game files (if present)`, function() {
 						let origContent = {};
 
 						// Check the original archive.
-						for (const [ targetFile, targetHash ] of Object.entries(targetFiles)) {
-							const file = archive.files.find(f => f.name.toLowerCase() === targetFile.toLowerCase());
-							assert.ok(file, `Unable to find "${targetFile}" inside "${archiveFilename}"`);
+						for (const [ targetFilename, targetHash ] of Object.entries(targetFiles)) {
+							let file;
+							if (targetFilename[0] === '@') {
+								// Test filename is of style "@123", so look by index.
+								const index = parseInt(targetFilename.substr(1), 10);
+								file = archive.files[index];
+							} else {
+								// Look by filename.
+								file = archive.files.find(f => f.name.toLowerCase() === targetFilename.toLowerCase());
+							}
+							assert.ok(file, `Unable to find "${targetFilename}" inside "${archiveFilename}"`);
 
 							// Use decompressed/decrypted content so that differences in
 							// compression algorithms don't affect the result.
 							const content = file.getContent();
 
 							assert.equal(TestUtil.hash(content), targetHash,
-								`Content for "${targetFile}" extracted from "${archiveFilename}" `
+								`Content for "${targetFilename}" extracted from "${archiveFilename}" `
 								+ `differs to what was expected.`);
 
-							origContent[targetFile] = content;
+							origContent[targetFilename] = content;
 						}
 
 						// Generate a new archive that should be identical to the original.
@@ -346,9 +358,17 @@ describe(`Tests with real game files (if present)`, function() {
 						// Now try re-reading the new one.  It won't matter whether any
 						// compression algorithms produce different data because we'll be
 						// comparing the file content after decompression.
-						for (const targetFile of Object.keys(targetFiles)) {
-							const file = archive2.files.find(f => f.name.toLowerCase() === targetFile.toLowerCase());
-							assert.ok(file, `Unable to find "${targetFile}" inside the `
+						for (const targetFilename of Object.keys(targetFiles)) {
+							let file;
+							if (targetFilename[0] === '@') {
+								// Test filename is of style "@123", so look by index.
+								const index = parseInt(targetFilename.substr(1), 10);
+								file = archive2.files[index];
+							} else {
+								// Look by filename.
+								file = archive2.files.find(f => f.name.toLowerCase() === targetFilename.toLowerCase());
+							}
+							assert.ok(file, `Unable to find "${targetFilename}" inside the `
 								+ `regenerated version of "${archiveFilename}"`);
 
 							// Use decompressed/decrypted content so that differences in
@@ -359,7 +379,7 @@ describe(`Tests with real game files (if present)`, function() {
 							// which also passed the hash check.  This way if the content is
 							// wrong, we get a hex dump of the differences rather than just
 							// a "hash doesn't match" error.
-							TestUtil.buffersEqual(origContent[targetFile], content);
+							TestUtil.buffersEqual(origContent[targetFilename], content);
 						}
 					});
 				}
