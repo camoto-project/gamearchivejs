@@ -248,6 +248,14 @@ const gameFiles = {
 			'mzztop.mni': 'CfsTVENVO16mqSCcP4DajWbGNkM=',
 		},
 	},
+	'arc-wad-doom': {
+		'doom1.wad': {
+			'p/p1/exit1': '0Fh5LSD6JvVq3xpBJiK0fiJHUDs=',
+		},
+		'remote1.rts': {
+			'remo/r_gotcha': 'Mt4pzLgd1ERkBzTVy9/+RQThMl8=',
+		},
+	},
 };
 
 // How long to wait (in seconds) for the slow archive regeneration tests to

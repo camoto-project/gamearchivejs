@@ -23,3 +23,5 @@ test/arc-lbr-vinyl/goddess.lbr
 test/arc-pod-tv/startup.pod
 test/arc-rff-blood-v301/gui.rff
 test/arc-vol-cosmo/cosmo1.vol
+test/arc-wad-doom/doom1.wad
+test/arc-wad-doom/remote1.rts
