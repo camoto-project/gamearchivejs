@@ -188,7 +188,14 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 
-			const isStart = (fatEntry.size === 0) && (fatEntry.name.substr(-6) === '_START');
+			let isStart = 0;
+			if (fatEntry.size === 0) {
+				if (fatEntry.name.substr(-6) === '_START') {
+					isStart = 6;
+				} else if (fatEntry.name.substr(-4) === 'STRT') {
+					isStart = 4;
+				}
+			}
 			const isStartMap =
 				(fatEntry.size === 0)
 				&& (fatEntry.name.length === 4)
@@ -200,7 +207,10 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 			;
 			const isEnd =
 				(fatEntry.size === 0)
-				&& fatEntry.name.substr(-4) === '_END'
+				&& (
+					(fatEntry.name.substr(-4) === '_END')
+					|| (fatEntry.name.substr(-4) === 'STOP')
+				)
 			;
 			if (isStartMap) {
 				inLevel = true;
@@ -215,7 +225,7 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 			}
 
 			if (isStart) {
-				folder.push(fatEntry.name.substr(0, fatEntry.name.length - 6));
+				folder.push(fatEntry.name.substr(0, fatEntry.name.length - isStart));
 			} else if (isStartMap) {
 				folder.push(fatEntry.name);
 			}
@@ -281,7 +291,11 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 					if (level) {
 						startEntry.name = name;
 					} else {
-						startEntry.name = name + '_START';
+						if (name === 'REMO') {
+							startEntry.name = 'REMOSTRT';
+						} else {
+							startEntry.name = name + '_START';
+						}
 					}
 					startEntry.nativeSize = 0;
 					startEntry.getRaw = () => new Uint8Array();
@@ -291,7 +305,11 @@ export default class Archive_WAD_Doom extends ArchiveHandler
 
 					if (!level) {
 						let endEntry = new File();
-						endEntry.name = name + '_END';
+						if (name === 'REMO') {
+							endEntry.name = name + 'STOP';
+						} else {
+							endEntry.name = name + '_END';
+						}
 						endEntry.nativeSize = 0;
 						endEntry.getRaw = () => new Uint8Array();
 						flatList.push(endEntry);
