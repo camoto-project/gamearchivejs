@@ -45,13 +45,18 @@ const uncompressedFiles = [
 
 // cmp_lzss parameters to compress/decompress files.
 const cmpParams = {
-	sizeLength: 4,
-	minLen: 3,
-	prefillByte: 0,
-	windowStartAt0: true,
-	littleEndian: true,
+	bitstream: false,
+	invertFlag: true,
 	lengthHigh: true,
-	offsetRotate: 0,
+	littleEndian: true,
+	minDistance: 0,
+	minLength: 3,
+	prefillByte: 0x00,
+	relativeDistance: false,
+	rotateDistance: 0,
+	sizeDistance: 12,
+	sizeLength: 4,
+	windowStartAt0: true,
 };
 
 export default class Archive_DAT_LostVikings extends ArchiveHandler

@@ -34,12 +34,18 @@ import File from '../interface/file.js';
 import { replaceExtension } from '../util/supp.js';
 
 const cmpParams = {
-	sizeLength: 4,
-	minLen: 3,
-	prefillByte: 0x20,
-	littleEndian: false,
+	bitstream: false,
+	invertFlag: true,
 	lengthHigh: false,
-	offsetRotate: 8,
+	littleEndian: false,
+	minDistance: 0,
+	minLength: 3,
+	prefillByte: 0x20,
+	relativeDistance: false,
+	rotateDistance: 8,
+	sizeDistance: 12,
+	sizeLength: 4,
+	windowStartAt0: false,
 };
 
 export default class Archive_Indy500 extends ArchiveHandler

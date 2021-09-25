@@ -57,12 +57,18 @@ const PDAT_COMPRESSED = 0x0100;
 const PDAT_NOPREFIXWORDS = 0x0004;
 
 const cmpParams = {
-	sizeLength: 4,
-	minLen: 3,
-	prefillByte: 0x20,
-	littleEndian: true,
+	bitstream: false,
+	invertFlag: true,
 	lengthHigh: true,
-	offsetRotate: 0,
+	littleEndian: true,
+	minDistance: 0,
+	minLength: 3,
+	prefillByte: 0x20,
+	relativeDistance: false,
+	rotateDistance: 0,
+	sizeDistance: 12,
+	sizeLength: 4,
+	windowStartAt0: false,
 };
 
 export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
