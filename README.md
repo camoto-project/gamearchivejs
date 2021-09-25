@@ -42,6 +42,7 @@ formats.
 | NASCAR Racing 3           | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
 | Nomad                     | *.dat      | Papyrus Data File (V1)    | arc-dat-papyrus-v1  |
 | Operation Body Count      | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
+| Prehistorik               | *.cur      | Prehistorik Data File     | arc-cur-prehistorik |
 | Raptor                    | *.glb      | Raptor Game Library       | arc-glb-raptor      |
 | Rescue Rover 2            | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
 | Redneck Rampage           | *.grp      | BUILD Group File          | arc-grp-build       |

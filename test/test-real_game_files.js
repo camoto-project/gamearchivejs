@@ -37,6 +37,11 @@ const gameFiles = {
 			'rasti1.bpk': 'uO/QATW2iRwsJjepOWZOCN57xtA=',
 		},
 	},
+	'arc-cur-prehistorik': {
+		'filesa.cur': {
+			'rik8.mdi': 'Jf0b32V0w/WxPAl0U6vNoBfa7NI=',
+		},
+	},
 	'arc-dat-fast': {
 		'bash1.dat': {
 			'main.imf': 'vrkhbVklGu+zXJ50yx8kFbERCQM=',
