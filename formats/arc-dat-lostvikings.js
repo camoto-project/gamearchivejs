@@ -120,7 +120,7 @@ export default class Archive_DAT_LostVikings extends ArchiveHandler
 
 		if (lenArchive < 4) {
 			return {
-				valid: true,
+				valid: false,
 				reason: `Not enough space for FAT.`,
 			};
 		}
