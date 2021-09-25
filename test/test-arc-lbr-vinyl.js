@@ -34,6 +34,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 				'short',
 				'short_fat',
 				'file_past_eof',
+				'empty_trailing',
 			]);
 		});
 
@@ -63,6 +64,15 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['file_past_eof'].main.filename
 				);
 				assert.equal(result.reason, 'File offset (116) is past the end of the archive (116).');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject empty archive with trailing data', function() {
+				const result = handler.identify(
+					content['empty_trailing'].main,
+					content['empty_trailing'].main.filename
+				);
+				assert.equal(result.reason, `Empty archive can't have data.`);
 				assert.equal(result.valid, false);
 			});
 

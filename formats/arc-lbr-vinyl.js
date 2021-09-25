@@ -409,6 +409,13 @@ export default class Archive_LBR_Vinyl extends ArchiveHandler
 			}
 		}
 
+		if ((header.fileCount === 0) && (lenArchive !== 2)) {
+			return {
+				valid: false,
+				reason: `Empty archive can't have data.`,
+			};
+		}
+
 		return {
 			valid: true,
 			reason: `Header OK.`,
