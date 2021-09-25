@@ -47,6 +47,11 @@ const gameFiles = {
 			'main.imf': 'vrkhbVklGu+zXJ50yx8kFbERCQM=',
 		},
 	},
+	'arc-dat-indy500': {
+		'indy.1': {
+			'@10': '2ii+WWzfLKNtd4P0y4xknGBcRQA=',
+		},
+	},
 	'arc-dat-wacky': {
 		'wacky.dat': {
 			'giggles.sp': 'K8LYN1pXWnP/xiM4S7YM5l4nKQM=',
