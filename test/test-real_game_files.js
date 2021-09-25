@@ -250,6 +250,11 @@ const gameFiles = {
 	},
 };
 
+// How long to wait (in seconds) for the slow archive regeneration tests to
+// complete.  These are slow for large archives because they recompress all the
+// files contained within.
+const regenTimeout = 60;
+
 describe(`Tests with real game files (if present)`, function() {
 
 	let format = {};
@@ -323,13 +328,13 @@ describe(`Tests with real game files (if present)`, function() {
 
 			}); // identify()
 
-			describe('parse()/generate()', function() {
+			describe(`parse()/generate() - can be very slow, ${regenTimeout} s timeout`, function() {
 
 				for (const [ archiveFilename, targetFiles ] of Object.entries(files)) {
 					it(`should read and rewrite ${archiveFilename}`, function() {
 						// The native JS compression is a bit slow so we need to allow a
 						// bit more time to process the whole archive file.
-						this.timeout(10 * 1000);
+						this.timeout(regenTimeout * 1000);
 
 						const { handler, content } = format[idFormat];
 						if (!content) this.skip();
