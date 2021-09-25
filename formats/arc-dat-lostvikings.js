@@ -1,5 +1,5 @@
 /*
- * Descent .HOG format handler.
+ * The Lost Vikings .DAT format handler.
  *
  * This file format is fully documented on the ModdingWiki:
  *   https://moddingwiki.shikadi.net/wiki/DAT_Format_(The_Lost_Vikings)
