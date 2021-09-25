@@ -94,6 +94,7 @@ export default class Archive_DAT_Wacky extends ArchiveHandler
 			};
 		}
 
+		let finalEndOffset = 2;
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 
@@ -105,12 +106,20 @@ export default class Archive_DAT_Wacky extends ArchiveHandler
 				};
 			}
 
-			if (fatEntry.offset + HEADER_LEN + fatEntry.size > lenArchive) {
+			finalEndOffset = fatEntry.offset + HEADER_LEN + fatEntry.size;
+			if (finalEndOffset > lenArchive) {
 				return {
 					valid: false,
 					reason: `File ${i} ends beyond the end of the archive.`,
 				};
 			}
+		}
+
+		if (finalEndOffset < lenArchive) {
+			return {
+				valid: false,
+				reason: `Trailing data at end of archive.`,
+			};
 		}
 
 		return {

@@ -35,6 +35,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 				'fat_trunc',
 				'file_in_fat',
 				'file_past_eof',
+				'trailing_data',
 			]);
 		});
 
@@ -73,6 +74,15 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['file_past_eof'].main.filename
 				);
 				assert.equal(result.reason, `File 3 ends beyond the end of the archive.`);
+				assert.equal(result.valid, false);
+			});
+
+			it('should be unsure of archive with trailing data', function() {
+				const result = handler.identify(
+					content['trailing_data'].main,
+					content['trailing_data'].main.filename
+				);
+				assert.equal(result.reason, `Trailing data at end of archive.`);
 				assert.equal(result.valid, false);
 			});
 
