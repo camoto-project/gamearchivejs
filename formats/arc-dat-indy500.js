@@ -193,6 +193,7 @@ export default class Archive_Indy500 extends ArchiveHandler
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 			file.getContent = () => cmp_lzss.reveal(file.getRaw(), cmpParams);
 
+			archive.setOriginalFile(file);
 			archive.files.push(file);
 		}
 
@@ -235,22 +236,38 @@ export default class Archive_Indy500 extends ArchiveHandler
 			// Save the offset of this file so that the FAT can be written later
 			fileOffsets[i] = buffer.pos;
 
-			let content = file.getContent();
+			let diskData;
 
-			// Safety check.
-			if (content.length !== file.nativeSize) {
-				throw new Error(`Length of data (${content.length}) and nativeSize `
-					+ `(${file.nativeSize}) field do not match for file @${i}!`);
+			if (archive.isFileModified(file)) {
+				// Content has been replaced, (or it's unchanged but the compression
+				// attribute was changed), so compress it.
+
+				// Load the content, which may decompress the source file.
+				const nativeData = file.getContent();
+
+				// Safety check.
+				if (nativeData.length != file.nativeSize) {
+					throw new Error(`Length of data (${nativeData.length}) and nativeSize `
+						+ `(${file.nativeSize}) field do not match for ${file.name}!`);
+				}
+
+				// Compress the file.
+				diskData = cmp_lzss.obscure(nativeData, cmpParams);
+
+			} else {
+				// The content for this file hasn't been replaced, so for performance
+				// reasons, avoid decompressing and then recompressing it, and just use
+				// the original data as-is.
+				diskData = file.getRaw();
 			}
 
-			content = cmp_lzss.obscure(content, cmpParams);
-			file.diskSize = content.length;
+			file.diskSize = diskData.length;
 
 			// each file's data is prefixed with a 32-bit word containing its native size
 			buffer.write(RecordType.int.u32le, file.nativeSize);
-			buffer.put(content);
+			buffer.put(diskData);
 
-			nextOffset += content.length + 4;
+			nextOffset += diskData.length + 4;
 		}
 
 		// The original game archives have one final FAT entry that points to EOF.

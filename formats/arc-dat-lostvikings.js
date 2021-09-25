@@ -189,6 +189,7 @@ export default class Archive_DAT_LostVikings extends ArchiveHandler
 			file.getRaw = () => buffer.getU8(file.offset, file.diskSize);
 			file.attributes.compressed = !uncompressedFiles.includes(i);
 
+			archive.setOriginalFile(file);
 			archive.files.push(file);
 
 			lastOffset = nextOffset;
@@ -209,6 +210,7 @@ export default class Archive_DAT_LostVikings extends ArchiveHandler
 						// length in the header.
 						.slice(0, file.nativeSize)
 				);
+				archive.setOriginalFile(file);
 			}
 		}
 
@@ -237,26 +239,40 @@ export default class Archive_DAT_LostVikings extends ArchiveHandler
 			buffer.write(RecordType.int.u32le, nextOffset);
 			buffer.seekAbs(nextOffset);
 
-			const isCompressed = !uncompressedFiles.includes(i);
-
-			let fileContent = file.getContent();
-
-			// Safety check.
-			if (fileContent.length != file.nativeSize) {
-				throw new Error(`Length of data (${fileContent.length}) and nativeSize `
-					+ `(${file.nativeSize}) field do not match for file @${i}!`);
-			}
+			file.attributes.compressed = !uncompressedFiles.includes(i);
 
 			let diskData;
-			if (isCompressed) {
-				diskData = cmp_lzss.obscure(fileContent, cmpParams);
-				file.diskSize = diskData.length;
+			if (archive.isFileModified(file)) {
+				// Content has been replaced, (or it's unchanged but the compression
+				// attribute was changed), so compress it.
 
+				// Load the content, which may decompress the source file.
+				let fileContent = file.getContent();
+
+				// Safety check.
+				if (fileContent.length != file.nativeSize) {
+					throw new Error(`Length of data (${fileContent.length}) and nativeSize `
+						+ `(${file.nativeSize}) field do not match for file @${i}!`);
+				}
+
+				if (file.attributes.compressed) {
+					diskData = cmp_lzss.obscure(fileContent, cmpParams);
+				} else {
+					diskData = fileContent;
+				}
+
+			} else {
+				// The content for this file hasn't been replaced, so for performance
+				// reasons, avoid decompressing and then recompressing it, and just use
+				// the original data as-is.
+				diskData = file.getRaw();
+			}
+
+			file.diskSize = diskData.length;
+			if (file.attributes.compressed) {
 				// Write the decompressed size at the start of the file data.
 				buffer.write(RecordType.int.u16le, file.nativeSize);
 				nextOffset += 2;
-			} else {
-				diskData = fileContent;
 			}
 
 			buffer.put(diskData);

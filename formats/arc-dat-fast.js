@@ -206,6 +206,7 @@ export default class Archive_DAT_FAST extends ArchiveHandler
 				};
 			}
 
+			archive.setOriginalFile(file);
 			archive.files.push(file);
 
 			// All done, go to the next file.
@@ -249,30 +250,45 @@ export default class Archive_DAT_FAST extends ArchiveHandler
 				});
 			}
 
-			const nativeData = file.getContent();
+			let diskData;
 
-			// Safety check.
-			if (nativeData.length != file.nativeSize) {
-				throw new Error(`Length of data (${nativeData.length}) and nativeSize `
-					+ `(${file.nativeSize}) field do not match for ${file.name}!`);
+			if (archive.isFileModified(file)) {
+				// Content has been replaced, (or it's unchanged but the compression
+				// attribute was changed), so compress it.
+
+				// Load the content, which may decompress the source file.
+				const nativeData = file.getContent();
+
+				// Safety check.
+				if (nativeData.length != file.nativeSize) {
+					throw new Error(`Length of data (${nativeData.length}) and nativeSize `
+						+ `(${file.nativeSize}) field do not match for ${file.name}!`);
+				}
+
+				if (file.attributes.compressed === false) { // compression not wanted
+					diskData = nativeData;
+				} else { // compression wanted or don't care/default
+					// Compress the file.
+					diskData = cmp_lzw.obscure(
+						cmp_rle_bash.obscure(nativeData),
+						cmpDefaultParams
+					);
+				}
+
+			} else {
+				// The content for this file hasn't been replaced, so for performance
+				// reasons, avoid decompressing and then recompressing it, and just use
+				// the original data as-is.
+				diskData = file.getRaw();
 			}
 
-			let diskData;
 			if (file.attributes.compressed === false) { // compression not wanted
-				diskData = nativeData;
-
-				// Files that aren't compressed have the decompressed size set to 0 in
-				// this archive format.
+				// Files that aren't compressed have the decompressed size set to 0
+				// in this archive format.
 				entry.decompressedSize = 0;
 				entry.compressedSize = file.nativeSize;
 			} else { // compression wanted or don't care/default
-				// Compress the file
-				diskData = cmp_lzw.obscure(
-					cmp_rle_bash.obscure(nativeData),
-					cmpDefaultParams
-				);
-
-				// Set the size of the decompressed data in the header
+				// Set the size of the decompressed data in the header.
 				entry.decompressedSize = file.nativeSize;
 				entry.compressedSize = diskData.length;
 			}

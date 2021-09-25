@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { getLUID } from '../util/uuid.js';
+
 /**
  * Base class describing the interface to an archive.
  *
@@ -40,5 +42,45 @@ export default class Archive
 		 * Each element in the array is an Archive.File object.
 		 */
 		this.files = [];
+
+		// Internal unique ID.
+		this.luid = getLUID();
+	}
+
+	/**
+	 * Add a file to the archive and mark it as unmodified.
+	 *
+	 * This allows `isFileModified()` to later check whether the file has been
+	 * changed.  It allows for certain optimisations, such as avoiding a
+	 * decompression/recompression cycle for files that have not been modified.
+	 */
+	setOriginalFile(file) {
+		// Mark this file's content as unique to this archive.  The idea is that
+		// if getContent() is changed, or a new File instance is used, the LUID
+		// won't match the archive and we'll know it's no longer original content.
+		file.getContent.luid = this.luid;
+
+		// Also save the compressed state so we can tell if the compression
+		// atttribute was changed without actually modifying the data.
+		file._original = {
+			attributes: file.attributes,
+		};
+	}
+
+	/**
+	 * Find out whether the file has been changed.
+	 *
+	 * This examines the flags set by `setOriginalFile()` and returns true if the
+	 * file is different to what was originally found in the archive.
+	 */
+	isFileModified(file) {
+		return (
+			(this.luid === undefined)
+			|| (file.getContent.luid !== this.luid)
+			|| (!file._original)
+			|| (!file._original.attributes)
+			|| (file._original.attributes.compressed !== file.attributes.compressed)
+			|| (file._original.attributes.encrypted !== file.attributes.encrypted)
+		);
 	}
 }

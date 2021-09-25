@@ -31,6 +31,7 @@ import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
 import { replaceExtension } from '../util/supp.js';
+import { getLUID } from '../util/uuid.js';
 
 const recordTypes = {
 	header: {
@@ -129,6 +130,9 @@ export default class Archive_EPF_EastPoint extends ArchiveHandler
 
 	static parse({main: content}) {
 		let archive = new Archive();
+		// Allocate and save a unique ID for this archive instance.
+		archive.luid = getLUID();
+
 		let buffer = new RecordBuffer(content);
 
 		const header = buffer.readRecord(recordTypes.header);
@@ -151,6 +155,10 @@ export default class Archive_EPF_EastPoint extends ArchiveHandler
 			} else {
 				file.attributes.compressed = false;
 			}
+
+			// Mark this file's content as unique to this archive, so that if the
+			// content is later changed, we can recognise that fact.
+			file.getContent.luid = archive.luid;
 
 			archive.files.push(file);
 			offset += fatEntry.diskSize;
@@ -177,19 +185,33 @@ export default class Archive_EPF_EastPoint extends ArchiveHandler
 		buffer.seekAbs(HEADER_LEN);
 
 		for (const file of archive.files) {
-			// Compress if attribute is either on or "don't care".
-			const isCompressed = file.attributes.compressed !== false;
+			let content;
+			if (
+				(archive.luid !== undefined)
+				&& (file.getContent.luid === archive.luid)
+			) {
+				// The content for this file hasn't been replaced, so for performance
+				// reasons, avoid decompressing and then recompressing it, and just use
+				// the original data as-is.
+				content = file.getRaw();
 
-			let content = file.getContent();
+			} else {
+				// Content has been replaced, compress it.
 
-			// Safety check.
-			if (content.length != file.nativeSize) {
-				throw new Error(`Length of data (${content.length}) and nativeSize `
-					+ `(${file.nativeSize}) field do not match for ${file.name}!`);
-			}
+				// Load the content, which may decompress the source file.
+				content = file.getContent();
 
-			if (isCompressed) {
-				content = cmp_lzw.obscure(content, cmpParams);
+				// Safety check.
+				if (content.length != file.nativeSize) {
+					throw new Error(`Length of data (${content.length}) and nativeSize `
+						+ `(${file.nativeSize}) field do not match for ${file.name}!`);
+				}
+
+				// Compress if attribute is either on or "don't care".
+				const isCompressed = file.attributes.compressed !== false;
+				if (isCompressed) {
+					content = cmp_lzw.obscure(content, cmpParams);
+				}
 			}
 			file.diskSize = content.length;
 			buffer.put(content);
