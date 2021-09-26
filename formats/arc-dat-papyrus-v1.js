@@ -186,7 +186,7 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 
 				buffer.seekAbs(offsetInFAT);
 			} else {
-				file.attributes.uncompressedPrefixWords = null;
+				file.attributes.uncompressedPrefixWords = {};
 			}
 
 			// use LZSS decompression only if the 'compressed' flag is set
