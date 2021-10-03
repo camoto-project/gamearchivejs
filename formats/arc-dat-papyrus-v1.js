@@ -197,6 +197,7 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 				file.attributes.compressed = false;
 			}
 
+			archive.setOriginalFile(file);
 			archive.files.push(file);
 		}
 
@@ -234,20 +235,36 @@ export default class Archive_DAT_PapyrusV1 extends ArchiveHandler
 				buffer.writeRecord(recordTypes.prefixWords, file.attributes.uncompressedPrefixWords);
 			}
 
-			let content = file.getContent();
+			let diskData;
+			if (archive.isFileModified(file)) {
+				// Content has been replaced, (or it's unchanged but the compression
+				// attribute was changed), so compress it.
 
-			// Safety check.
-			if (content.length != file.nativeSize) {
-				throw new Error(`Length of data (${content.length}) and nativeSize `
-					+ `(${file.nativeSize}) field do not match for ${file.name}!`);
+				// Load the content, which may decompress the source file.
+				const nativeData = file.getContent();
+
+				// Safety check.
+				if (nativeData.length != file.nativeSize) {
+					throw new Error(`Length of data (${nativeData.length}) and nativeSize `
+						+ `(${file.nativeSize}) field do not match for ${file.name}!`);
+				}
+
+				if (file.attributes.compressed === true) {
+					// Compression wanted.
+					diskData = cmp_lzss.obscure(nativeData, cmpParams);
+				} else {
+					// Compression not wanted or don't care/default.
+					diskData = nativeData;
+				}
+			} else {
+				// The content for this file hasn't been replaced, so for performance
+				// reasons, avoid decompressing and then recompressing it, and just use
+				// the original data as-is.
+				diskData = file.getRaw();
 			}
 
-			if (file.attributes.compressed === true) {
-				content = cmp_lzss.obscure(content, cmpParams);
-			}
-			file.diskSize = content.length;
-
-			buffer.put(content);
+			file.diskSize = diskData.length;
+			buffer.put(diskData);
 		}
 
 		// now, go back and write the FAT
