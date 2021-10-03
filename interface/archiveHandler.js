@@ -218,7 +218,11 @@ export default class ArchiveHandler
 	 *   number of different file formats.
 	 *
 	 * @param {Uint8Array} content
-	 *   The archive to examine.
+	 *   The archive to examine.  If the archive is an executable, it must be
+	 *   decompressed before being passed to this function.  This is to avoid
+	 *   the inefficiency of each .exe handler trying to perform the same
+	 *   decompression over and over.  See decompress_exe from @camoto/gamecomp
+	 *   for a utility function that can perform this process.
 	 *
 	 * @param {string} filename
 	 *   The archive's filename in case it is relevant, for those formats where

@@ -30,6 +30,8 @@ import {
 	findHandler as gamearchiveFindHandler,
 } from '../index.js';
 
+import { decompress_exe } from '@camoto/gamecomp';
+
 // https://stackoverflow.com/a/20732091/308237
 function humanFileSize(size) {
 	if (size === undefined) return '?';
@@ -183,6 +185,11 @@ class Operations
 		const content = {
 			main: fs.readFileSync(params.target),
 		};
+
+		// If it's an .exe, decompress it now so each file format handler doesn't
+		// have to decompress it repeatedly.
+		content.main = decompress_exe(content.main);
+
 		let handlers = gamearchiveFindHandler(content.main, params.target);
 
 		console.log(handlers.length + ' format handler(s) matched');
