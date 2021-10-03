@@ -266,14 +266,15 @@ export default class Archive_DAT_FAST extends ArchiveHandler
 						+ `(${file.nativeSize}) field do not match for ${file.name}!`);
 				}
 
-				if (file.attributes.compressed === false) { // compression not wanted
-					diskData = nativeData;
-				} else { // compression wanted or don't care/default
-					// Compress the file.
+				if (file.attributes.compressed) {
+					// Compression wanted.
 					diskData = cmp_lzw.obscure(
 						cmp_rle_bash.obscure(nativeData),
 						cmpDefaultParams
 					);
+				} else {
+					// Compression not wanted or don't care/default.
+					diskData = nativeData;
 				}
 
 			} else {
@@ -282,16 +283,19 @@ export default class Archive_DAT_FAST extends ArchiveHandler
 				// the original data as-is.
 				diskData = file.getRaw();
 			}
+			file.diskSize = diskData.length;
 
-			if (file.attributes.compressed === false) { // compression not wanted
+			if (file.attributes.compressed) {
+				// Compression wanted.
+				// Set the size of the decompressed data in the header.
+				entry.decompressedSize = file.nativeSize;
+				entry.compressedSize = file.diskSize;
+			} else {
+				// Compression not wanted or don't care/default.
 				// Files that aren't compressed have the decompressed size set to 0
 				// in this archive format.
 				entry.decompressedSize = 0;
 				entry.compressedSize = file.nativeSize;
-			} else { // compression wanted or don't care/default
-				// Set the size of the decompressed data in the header.
-				entry.decompressedSize = file.nativeSize;
-				entry.compressedSize = diskData.length;
 			}
 
 			buffer.writeRecord(recordTypes.fatEntry, entry);
