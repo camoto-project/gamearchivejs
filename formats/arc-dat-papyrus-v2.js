@@ -104,6 +104,7 @@ export default class Archive_DAT_PapyrusV2 extends ArchiveHandler {
 		}
 
 		// Read each offset and length and ensure it is valid.
+		let lastEOF = HEADER_LEN;
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = buffer.readRecord(recordTypes.fatEntry);
 
@@ -119,7 +120,8 @@ export default class Archive_DAT_PapyrusV2 extends ArchiveHandler {
 					reason: `File ${i} @ offset ${fatEntry.offset} starts beyond the end of the archive.`,
 				};
 			}
-			if (fatEntry.offset + fatEntry.diskSize > content.length) {
+			lastEOF = fatEntry.offset + fatEntry.diskSize;
+			if (lastEOF > content.length) {
 				return {
 					valid: false,
 					reason: `File ${i} ends beyond the end of the archive.`,
@@ -131,6 +133,13 @@ export default class Archive_DAT_PapyrusV2 extends ArchiveHandler {
 					reason: `File ${i} lists a different diskSize and nativeSize, despite compression being unsupported.`,
 				};
 			}
+		}
+
+		if (lastEOF !== content.length) {
+			return {
+				valid: false,
+				reason: `Trailing data after last file.`,
+			};
 		}
 
 		return {

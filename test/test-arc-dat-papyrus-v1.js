@@ -36,6 +36,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 				'short_fat',
 				'file_starts_past_eof',
 				'file_ends_past_eof',
+				'trailing_data',
 			]);
 		});
 
@@ -74,6 +75,15 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['file_ends_past_eof'].main.filename
 				);
 				assert.equal(result.reason, 'File 3 ends beyond the end of the archive.');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file with trailing data', function() {
+				const result = handler.identify(
+					content['trailing_data'].main,
+					content['trailing_data'].main.filename
+				);
+				assert.equal(result.reason, 'Trailing data after last file.');
 				assert.equal(result.valid, false);
 			});
 

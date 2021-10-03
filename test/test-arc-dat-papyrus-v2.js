@@ -37,6 +37,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 				'file_starts_past_eof',
 				'file_ends_past_eof',
 				'size_mismatch',
+				'trailing_data',
 			]);
 		});
 
@@ -93,6 +94,15 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 					content['size_mismatch'].main.filename
 				);
 				assert.equal(result.reason, 'File 0 lists a different diskSize and nativeSize, despite compression being unsupported.');
+				assert.equal(result.valid, false);
+			});
+
+			it('should reject file with trailing data', function() {
+				const result = handler.identify(
+					content['trailing_data'].main,
+					content['trailing_data'].main.filename
+				);
+				assert.equal(result.reason, 'Trailing data after last file.');
 				assert.equal(result.valid, false);
 			});
 
