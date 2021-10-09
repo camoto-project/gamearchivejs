@@ -73,6 +73,12 @@ const gameFiles = {
 			'level1.map': '86gn5r9wamypIqu8QVOfRpl4KB8=',
 		},
 	},
+	'arc-exe-ddave': {
+		'dave.exe': {
+			'level01.dav': 'p3lhBx/mYqB8UWbV7IgVyBRNMsA=',
+			'vgadave.dav': 'tpHYAQ4TX4gx5SFZRS3Zp7kbiek=',
+		},
+	},
 	'arc-exe-keen4-cga_1v0': {
 		'keen4c-1.0.exe': {
 			'cgahead.ck4' : 'V5GVAmzN4NM6tXefBbXo6qKBnrE=',
