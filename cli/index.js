@@ -285,6 +285,11 @@ class Operations
 		let content = {
 			main: fs.readFileSync(params.target),
 		};
+
+		// If it's an .exe, decompress it now so each file format handler doesn't
+		// have to decompress it repeatedly.
+		content.main = decompress_exe(content.main);
+
 		if (!handler) {
 			let handlers = gamearchiveFindHandler(content.main, params.target);
 			if (handlers.length === 0) {
