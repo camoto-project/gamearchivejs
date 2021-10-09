@@ -11,6 +11,7 @@ formats.
 
 | Game                      | Files      | Format                    | Code                |
 |---------------------------|------------|---------------------------|---------------------|
+| Alien Carnage **[!C]**    | *.-0       | Alien Carnage Data Bank   | arc-bnk-carnage     |
 | Blood                     | *.rff      | Monolith Resource File Format v2.0/3.0/3.1 | arc-rff-blood-* |
 | Bio Menace                | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
 | Blake Stone               | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
@@ -56,6 +57,8 @@ formats.
 | Wacky Wheels              | *.dat      | Wacky Wheels Data File    | arc-dat-wacky       |
 | Wolfenstein 3-D v1.0      | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id  |
 | Wolfenstein 3-D v1.1+     | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+
+* **[!C]** Compression/decompression is not yet implemented.
 
 ## Installation as an end-user
 

@@ -28,6 +28,9 @@ import {
 
 // The standard tests for these formats are skipped entirely.
 const skipFormats = [
+	// Decompression currently unimplemented so can't run any tests.
+	'arc-bnk-carnage',
+
 	// Can't do any standard tests with game .exe files as we'd have to
 	// distribute the actual game files.  These all have tests in
 	// test-real_game_files.js which are only run if the real game files are
