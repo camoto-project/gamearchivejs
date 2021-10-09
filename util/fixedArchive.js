@@ -42,6 +42,11 @@ export default class FixedArchive
 				ef.name = `data${extraFileCount}.bin`;
 				ef.offset = nextOffset;
 				ef.diskSize = ef.nativeSize = file.offset - nextOffset;
+				if (ef.diskSize < 0) {
+					throw new Error(`FixedArchive files are out of order, they must be `
+						+ `supplied in order with the lowest offset first.  Offending `
+						+ `file: ${file.name}`);
+				}
 				ef.getRaw = () => buffer.getU8(ef.offset, ef.diskSize);
 				ef.getRaw.fixedArchive = true;
 				ef.getContent.fixedArchive = true;
