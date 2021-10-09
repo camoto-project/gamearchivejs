@@ -23,6 +23,7 @@
  */
 
 import assert from 'assert';
+import { decompress_exe } from '@camoto/gamecomp';
 import TestUtil from './util.js';
 import { all as allFormats } from '../index.js';
 
@@ -99,7 +100,7 @@ const gameFiles = {
 	'arc-exe-keen4-ega_1v0d': {
 		'keen4e-1.0-demo.exe': {
 			'egahead.ck4' : 'onXd8Dz98uuldUySPvt8jsKvXU0=',
-			'maphead.ck4' : '7/NjOjrzbUGmH3BAb2lBElVHkQM=',
+			'maphead.ck4' : 'Jc9Uxu7p68A3pO1ThFfZlWTZaps=',
 		},
 	},
 	'arc-exe-keen4-ega_1v1': {
@@ -288,7 +289,17 @@ describe(`Tests with real game files (if present)`, function() {
 		for (const [ idFormat, files ] of Object.entries(gameFiles)) {
 			const { testutil, handler } = format[idFormat];
 			try {
-				format[idFormat].content = testutil.loadDirect(handler, Object.keys(files));
+				let content = testutil.loadDirect(handler, Object.keys(files));
+
+				// Process each file that was just loaded.
+				for (const filename of Object.keys(files)) {
+					if (content[filename] && content[filename].main) {
+						// Remove LZEXE/PKLite compression if present.
+						content[filename].main = decompress_exe(content[filename].main);
+					}
+				}
+
+				format[idFormat].content = content;
 			} catch (e) {
 				console.log(e.message);
 			}

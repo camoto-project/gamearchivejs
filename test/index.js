@@ -28,6 +28,10 @@ import {
 
 // The standard tests for these formats are skipped entirely.
 const skipFormats = [
+	// Can't do any standard tests with game .exe files as we'd have to
+	// distribute the actual game files.  These all have tests in
+	// test-real_game_files.js which are only run if the real game files are
+	// copied into the relevant test folder.
 	'arc-exe-ddave',
 	'arc-exe-keen4-cga_1v0',
 	'arc-exe-keen4-cga_1v1',

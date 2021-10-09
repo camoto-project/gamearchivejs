@@ -26,7 +26,6 @@ import Debug from '../util/debug.js';
 const debug = Debug.extend(FORMAT_ID);
 
 import { RecordBuffer, RecordType } from '@camoto/record-io-buffer';
-import { cmp_lzexe } from '@camoto/gamecomp';
 import ArchiveHandler from '../interface/archiveHandler.js';
 import FixedArchive from '../util/fixedArchive.js';
 import { replaceExtension } from '../util/supp.js';
@@ -58,27 +57,16 @@ class Archive_EXE_Keen4 extends ArchiveHandler
 		};
 	}
 
+	// Assumed file is already decompresed, e.g. with gamecomp/decompress_exe().
 	static identify(content) {
-		// UNLZEXE the file if required.
-		let output = content;
-		if (cmp_lzexe.identify(content).valid) {
-			output = cmp_lzexe.reveal(content);
-		}
-		// Early versions use PKLITE instead.
-		/*
-		if (cmp_pklite.identify(content).valid) {
-			output = cmp_pklite.reveal(content);
-		}
-		*/
-
-		if (output.length < 0x3220C + 8) {
+		if (content.length < 0x3220C + 8) {
 			return {
 				valid: false,
 				reason: `File too short.`,
 			};
 		}
 
-		let buffer = new RecordBuffer(output);
+		let buffer = new RecordBuffer(content);
 
 		const sig = this.getSignature();
 		buffer.seekAbs(sig.offset);
@@ -96,16 +84,11 @@ class Archive_EXE_Keen4 extends ArchiveHandler
 		};
 	}
 
+	// Assumed file is already decompresed, e.g. with gamecomp/decompress_exe().
 	static parse(content) {
-		// UNLZEXE the file if required.
-		let decomp = content.main;
-		if (cmp_lzexe.identify(content.main).valid) {
-			decomp = cmp_lzexe.reveal(content.main);
-		}
-
 		const files = this.fileList();
 
-		return FixedArchive.parse(decomp, files);
+		return FixedArchive.parse(content.main, files);
 	}
 
 	static generate(archive)
@@ -218,8 +201,8 @@ export class Archive_EXE_Keen4_EGA_1v0d extends Archive_EXE_Keen4
 	static fileList() {
 		return [
 			// audiohed.ck4 not embedded
-			{ name: 'egahead.ck4',  offset: 0x27000, diskSize: 0x495C },
 			{ name: 'maphead.ck4',  offset: 0x21490, diskSize: 0x192 + 0x59DC },
+			{ name: 'egahead.ck4',  offset: 0x27000, diskSize: 0x495C },
 			{ name: 'egadict.ck4',  offset: 0x38006, diskSize: 0x400  },
 		];
 	}
