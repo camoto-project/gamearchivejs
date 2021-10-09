@@ -36,6 +36,7 @@ const skipFormats = [
 	// test-real_game_files.js which are only run if the real game files are
 	// copied into the relevant test folder.
 	'arc-exe-ddave',
+	'arc-exe-doofus',
 	'arc-exe-keen4-cga_1v0',
 	'arc-exe-keen4-cga_1v1',
 	'arc-exe-keen4-cga_1v4f',

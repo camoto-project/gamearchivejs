@@ -79,6 +79,11 @@ const gameFiles = {
 			'vgadave.dav': 'tpHYAQ4TX4gx5SFZRS3Zp7kbiek=',
 		},
 	},
+	'arc-exe-doofus': {
+		'doofus.exe': {
+			'gamedata.fat': 'gRJpr0fu55PnIzZ0Kowby0ET+9g=',
+		},
+	},
 	'arc-exe-keen4-cga_1v0': {
 		'keen4c-1.0.exe': {
 			'cgahead.ck4' : 'V5GVAmzN4NM6tXefBbXo6qKBnrE=',
