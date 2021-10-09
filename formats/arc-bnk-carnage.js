@@ -195,7 +195,7 @@ export default class Archive_BNK_Carnage extends ArchiveHandler
 				// Safety check.
 				if (fileContent.length != file.nativeSize) {
 					throw new Error(`Length of data (${fileContent.length}) and nativeSize `
-						+ `(${file.nativeSize}) field do not match for file @${i}!`);
+						+ `(${file.nativeSize}) field do not match for file @${file.name}!`);
 				}
 
 				if (file.attributes.compressed) {
@@ -228,7 +228,7 @@ export default class Archive_BNK_Carnage extends ArchiveHandler
 			buffer.writeRecord(recordTypes.fileHeader, fileHeader);
 			buffer.put(diskData);
 
-			nextOffset += fatEntry.diskSize;
+			nextOffset += file.diskSize;
 		}
 
 		return {

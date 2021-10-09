@@ -12,7 +12,6 @@ test/arc-dat-lostvikings/data.dat
 test/arc-dat-wacky/wacky.dat
 test/arc-epf-eastpoint/lionking.epf
 test/arc-exe-*/*.exe
-test/arc-exe-ddave/dave.cmp-lzexe.revealed
 test/arc-gamemaps-id/*.bm1
 test/arc-gamemaps-id/*.wl1
 test/arc-gamemaps-id-carmack/*.ck4
