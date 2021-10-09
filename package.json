@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/camoto-project/gamearchivejs#readme",
   "dependencies": {
-    "@camoto/gamecomp": "^4.2.0",
+    "@camoto/gamecomp": "^4.3.1",
     "@camoto/record-io-buffer": "^3.2.0",
     "debug": "^4.3.1"
   },
