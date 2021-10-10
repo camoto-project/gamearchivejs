@@ -58,6 +58,7 @@ formats.
 | Wacky Wheels              | *.dat      | Wacky Wheels Data File    | arc-dat-wacky       |
 | Wolfenstein 3-D v1.0      | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id  |
 | Wolfenstein 3-D v1.1+     | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| ''N/A''                   | *.exe      | Generic MS-DOS Executable | arc-exe-generic     |
 
 * **[!C]** Compression/decompression is not yet implemented.
 

@@ -34,6 +34,8 @@ export { default as arc_exe_doofus } from './arc-exe-doofus.js';
 export * from './arc-exe-keen4.js';
 export * from './arc-exe-keen5.js';
 export * from './arc-exe-keen6.js';
+// This one is last because it will also match the other .exe files.
+export { default as arc_exe_generic } from './arc-exe-generic.js';
 
 // These files have supps so they'll be discounted quickly if the extra files
 // are unavailable.
