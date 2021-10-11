@@ -31,6 +31,7 @@ export { default as arc_rff_blood_v301 } from './arc-rff-blood-v301.js';
 export { default as arc_wad_doom } from './arc-wad-doom.js';
 export { default as arc_exe_ddave } from './arc-exe-ddave.js';
 export { default as arc_exe_doofus } from './arc-exe-doofus.js';
+export * from './arc-exe-hocus.js';
 export * from './arc-exe-keen4.js';
 export * from './arc-exe-keen5.js';
 export * from './arc-exe-keen6.js';
@@ -56,3 +57,6 @@ export { default as arc_bpa_drally } from './arc-bpa-drally.js';
 export { default as arc_vol_cosmo } from './arc-vol-cosmo.js';
 export { default as arc_lbr_vinyl } from './arc-lbr-vinyl.js';
 export { default as arc_dat_lostvikings } from './arc-dat-lostvikings.js';
+
+// These files cannot be autodetected at all.
+export { default as arc_dat_hocus } from './arc-dat-hocus.js';

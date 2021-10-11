@@ -40,6 +40,11 @@ const skipFormats = [
 	// copied into the relevant test folder.
 	'arc-exe-ddave',
 	'arc-exe-doofus',
+	'arc-exe-hocus-beta',
+	'arc-exe-hocus-sw1.0',
+	'arc-exe-hocus-sw1.1',
+	'arc-exe-hocus-reg1.0',
+	'arc-exe-hocus-reg1.1',
 	'arc-exe-keen4-cga_1v0',
 	'arc-exe-keen4-cga_1v1',
 	'arc-exe-keen4-cga_1v4f',

@@ -53,6 +53,11 @@ const gameFiles = {
 			'SONG21': 'aivh3Fp9wgYM9KPUaMsnOx7EjTg=',
 		},
 	},
+	'arc-dat-hocus': {
+		'hocus.dat': { // v1.1
+			'@651': 'MAfNPbJuNFEzoX4vuTC0j2wf3lY=',
+		},
+	},
 	'arc-dat-indy500': {
 		'indy.1': {
 			'@10': '2ii+WWzfLKNtd4P0y4xknGBcRQA=',
@@ -82,6 +87,31 @@ const gameFiles = {
 	'arc-exe-doofus': {
 		'doofus.exe': {
 			'gamedata.fat': 'gRJpr0fu55PnIzZ0Kowby0ET+9g=',
+		},
+	},
+	'arc-exe-hocus-beta': {
+		'hocus.exe': {
+			'hocus.fat': 'fQ6HRw4K+HUY9eyokYpi6RB+yow=',
+		},
+	},
+	'arc-exe-hocus-sw1.0': {
+		'hocus.exe': {
+			'hocus.fat': 'PQeDlpVOxnorXl7rNdkQ6sMoGJg=',
+		},
+	},
+	'arc-exe-hocus-sw1.1': {
+		'hocus.exe': {
+			'hocus.fat': 'ZQqZQC3qqd7mlOIM4/TJfmftBN4=',
+		},
+	},
+	'arc-exe-hocus-reg1.0': {
+		'hocus.exe': {
+			'hocus.fat': 'hOx1tPnmSm7YEnX3fqn2434GMjU=',
+		},
+	},
+	'arc-exe-hocus-reg1.1': {
+		'hocus.exe': {
+			'hocus.fat': 'C5hsnJwRTHPS2A1eDXiE2hjDWpM=',
 		},
 	},
 	'arc-exe-keen4-cga_1v0': {
@@ -356,7 +386,7 @@ describe(`Tests with real game files (if present)`, function() {
 								content2[archiveFilename2].main,
 								content2[archiveFilename2].main.filename
 							);
-							assert.equal(result.valid, false);
+							assert.ok((result.valid === false) || (result.value === undefined));
 						});
 					}
 				}
