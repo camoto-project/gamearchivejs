@@ -27,6 +27,7 @@ formats.
 | Death Rally               | *.bpa      | Death Rally BPA File      | arc-bpa-drally      |
 | Descent                   | *.hog      | Descent HOG File          | arc-hog-descent     |
 | Doofus                    | *.exe      | Doofus .exe               | arc-exe-doofus      |
+| Doofus                    | *.g-d      | Doofus Game Data          | arc-gd-doofus       |
 | Doom                      | *.wad      | Where's All the Data File | arc-wad-doom        |
 | Duke Nukem 3D             | *.grp      | BUILD Group File          | arc-grp-build       |
 | Duke Nukem II             | *.cmp      | Cosmo Data Volume         | arc-vol-cosmo       |

@@ -167,6 +167,9 @@ for (const handler of gamearchiveFormats) {
 						file.nativeSize = 14; // fixed length
 						file.getRaw = () => TestUtil.u8FromString('This is file 1');
 						break;
+					case 'arc-gd-doofus':
+						file.name = 'file0.bin';
+						break;
 					default:
 						break;
 				}
@@ -197,6 +200,9 @@ for (const handler of gamearchiveFormats) {
 						file.name = '00/plane1';
 						file.nativeSize = 14; // fixed length
 						file.getRaw = () => TestUtil.u8FromString('This is file 2');
+						break;
+					case 'arc-gd-doofus':
+						file.name = 'file1.bin';
 						break;
 					default:
 						break;
@@ -235,6 +241,9 @@ for (const handler of gamearchiveFormats) {
 						file.nativeSize = 14; // fixed length
 						file.getRaw = () => TestUtil.u8FromString('This is file 3');
 						break;
+					case 'arc-gd-doofus':
+						file.name = 'file2.bin';
+						break;
 					default:
 						break;
 				}
@@ -263,6 +272,9 @@ for (const handler of gamearchiveFormats) {
 							7, 0x00, 1, 0x00,
 							...TestUtil.u8FromString('This is the info')
 						]);
+						break;
+					case 'arc-gd-doofus':
+						file.name = 'file3.bin';
 						break;
 					default:
 						break;
@@ -494,6 +506,7 @@ for (const handler of gamearchiveFormats) {
 					&& (md.id !== 'arc-gamemaps-id')
 					&& (md.id !== 'arc-gamemaps-id-carmack')
 					&& (md.id !== 'arc-gamemaps-id-huffman')
+					&& (md.id !== 'arc-gd-doofus')
 				) {
 					it('maximum filename length is correct', function() {
 						let archive = new Archive();
@@ -531,6 +544,7 @@ for (const handler of gamearchiveFormats) {
 					&& (md.id !== 'arc-gamemaps-id')
 					&& (md.id !== 'arc-gamemaps-id-carmack')
 					&& (md.id !== 'arc-gamemaps-id-huffman')
+					&& (md.id !== 'arc-gd-doofus')
 				) {
 					it('filenames without extensions work', function() {
 						let archive = new Archive();
@@ -566,6 +580,21 @@ for (const handler of gamearchiveFormats) {
 					file.name = 'TEST1';
 					file.nativeSize = 2;
 					file.getRaw = () => TestUtil.u8FromString('test1');
+
+					switch (md.id) {
+						case 'arc-gamemaps-id': // fall through
+						case 'arc-gamemaps-id-carmack': // fall through
+						case 'arc-gamemaps-id-huffman':
+							// Only certain filenames allowed
+							file.name = '00/plane0';
+							break;
+						case 'arc-gd-doofus':
+							file.name = 'file0.bin';
+							break;
+						default:
+							break;
+					}
+
 					archive.files.push(file);
 
 					assert.throws(() => {

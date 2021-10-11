@@ -260,6 +260,11 @@ const gameFiles = {
 			'00/plane0': '1yFmmL3MtrvlM82jsHws0Uu7piA=',
 		},
 	},
+	'arc-gd-doofus': {
+		'gamedata.g-d': {
+			'file61.bsa': 'ZV4pJs1JSxasbhINWSxNe+0t0nc=',
+		},
+	},
 	'arc-grp-build': {
 		'duke3d.grp': {
 			'stalker.mid': 'IMvGH7NFxcIq19h3yMK3Vhg9CiM=',

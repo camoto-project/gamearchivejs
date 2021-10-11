@@ -17,6 +17,7 @@ test/arc-gamemaps-id/*.bm1
 test/arc-gamemaps-id/*.wl1
 test/arc-gamemaps-id-carmack/*.ck4
 test/arc-gamemaps-id-carmack/*.wl6
+test/arc-gd-doofus/gamedata.*
 test/arc-glb-raptor/file0000.glb
 test/arc-grp-build/duke3d.grp
 test/arc-hog-descent/descent.hog
