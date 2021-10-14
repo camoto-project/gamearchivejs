@@ -117,7 +117,7 @@ describe(`Extra tests for ${md.title} [${md.id}]`, function() {
 				TestUtil.buffersEqual(Uint8Array.from(exp), archive.files[0].getContent());
 			});
 
-		}); // generate()
+		}); // reveal()
 
 		describe('generate()', function() {
 
