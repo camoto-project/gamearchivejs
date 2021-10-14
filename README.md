@@ -31,6 +31,7 @@ formats.
 | Doom                      | *.wad      | Where's All the Data File | arc-wad-doom        |
 | Duke Nukem 3D             | *.grp      | BUILD Group File          | arc-grp-build       |
 | Duke Nukem II             | *.cmp      | Cosmo Data Volume         | arc-vol-cosmo       |
+| Gateworld                 | *.gw[123]  | HomeBrew File Folder      | arc-gw-homebrew     |
 | God of Thunder            | *.dat      | God of Thunder Data File  | arc-dat-got         |
 | Grand Prix Legends        | *.dat      | Papyrus Data File (V2)    | arc-dat-papyrus-v2  |
 | Halloween Harry           | *.bnk      | SubZero Data Bank         | arc-bnk-harry       |

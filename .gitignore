@@ -20,6 +20,7 @@ test/arc-gamemaps-id-carmack/*.wl6
 test/arc-gd-doofus/gamedata.*
 test/arc-glb-raptor/file0000.glb
 test/arc-grp-build/duke3d.grp
+test/arc-gw-homebrew/xmidata.gw1
 test/arc-hog-descent/descent.hog
 test/arc-lbr-vinyl/goddess.lbr
 test/arc-pod-tv/startup.pod

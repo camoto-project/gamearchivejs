@@ -275,6 +275,11 @@ const gameFiles = {
 			'file_id_diz': 'bV4tAoHmqCFQ4JF/OcewRIJLZgc=',
 		},
 	},
+	'arc-gw-homebrew': {
+		'xmidata.gw1': {
+			'gwv1menu.xmi': '1pIV0lZGs/Y65iJ++Qt1dOdfJo8=',
+		},
+	},
 	'arc-hog-descent': {
 		'descent.hog': {
 			'mars01.pcx': '1I2GeA+DJMCezPFwdRGk19HDT/o=',
