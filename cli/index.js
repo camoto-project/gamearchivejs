@@ -127,6 +127,8 @@ class Operations
 				) || (
 					file.name
 					&& minimatch(file.name, params.target, { matchBase: true, nocase: true })
+				) || (
+					file.name === params.target // needed for names with backslashes
 				)
 			) {
 				targetFiles.push({

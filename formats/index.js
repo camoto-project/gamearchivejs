@@ -21,6 +21,7 @@
 // are listed first.
 export { default as arc_bnk_harry } from './arc-bnk-harry.js';
 export { default as arc_bnk_carnage } from './arc-bnk-carnage.js';
+export { default as arc_dlt_stargunner } from './arc-dlt-stargunner.js';
 export { default as arc_epf_eastpoint } from './arc-epf-eastpoint.js';
 export { default as arc_glb_raptor } from './arc-glb-raptor.js';
 export { default as arc_grp_build } from './arc-grp-build.js';

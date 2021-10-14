@@ -73,6 +73,11 @@ const gameFiles = {
 			'giggles.sp': 'K8LYN1pXWnP/xiM4S7YM5l4nKQM=',
 		},
 	},
+	'arc-dlt-stargunner': {
+		'stargun.dlt': {
+			'newdata\\menu.pcx': 'DuEQ8QJQlKgXpwkHKOrE418Cwpk=',
+		},
+	},
 	'arc-epf-eastpoint': {
 		'lionking.epf': {
 			'level1.map': '86gn5r9wamypIqu8QVOfRpl4KB8=',

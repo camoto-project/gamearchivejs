@@ -56,6 +56,7 @@ formats.
 | Scubaventure              | *.dat      | F.A.S.T. Data File        | arc-dat-fast        |
 | Shadow Warrior            | *.grp      | BUILD Group File          | arc-grp-build       |
 | Spear of Destiny          | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Stargunner                | *.dlt      | Stargunner DLT Archive    | arc-dlt-stargunner  |
 | Super 3-D Noah's Ark      | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
 | Terminal Velocity         | *.pod      | Terminal Reality POD File | arc-pod-tv          |
 | Vinyl Goddess From Mars   | *.lbr      | Vinyl Library File        | arc-lbr-vinyl       |

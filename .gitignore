@@ -11,6 +11,7 @@ test/arc-dat-hocus/hocus.*
 test/arc-dat-indy500/indy.1
 test/arc-dat-lostvikings/data.dat
 test/arc-dat-wacky/wacky.dat
+test/arc-dlt-stargunner/stargun.dlt
 test/arc-epf-eastpoint/lionking.epf
 test/arc-exe-*/*.exe
 test/arc-gamemaps-id/*.bm1
