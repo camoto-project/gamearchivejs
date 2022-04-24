@@ -30,6 +30,7 @@ import ArchiveHandler from '../interface/archiveHandler.js';
 import Archive from '../interface/archive.js';
 import File from '../interface/file.js';
 import { replaceExtension } from '../util/supp.js';
+import { fromUnixTime, toUnixTime } from '../util/datetime.js';
 
 const recordTypes = {
 	header: {
@@ -154,8 +155,6 @@ export default class Archive_RFF_Blood extends ArchiveHandler
 		}
 		fat = new RecordBuffer(fat);
 
-		const tzOffset = new Date().getTimezoneOffset() * 60;
-
 		for (let i = 0; i < header.fileCount; i++) {
 			const fatEntry = fat.readRecord(recordTypes.fatEntry);
 			if (fatEntry.offset > lenArchive) {
@@ -170,13 +169,7 @@ export default class Archive_RFF_Blood extends ArchiveHandler
 			file.diskSize = fatEntry.diskSize;
 			file.nativeSize = fatEntry.diskSize;
 			if (fatEntry.ext) file.name += '.' + fatEntry.ext;
-
-			// The file's last-modified time is in local time, but when we create
-			// a date object from a UNIX timestamp it's assumed to be in UTC.  So
-			// we have to add the local timezone onto it to keep it as local time.
-			const unixTimeUTC = fatEntry.lastModified + tzOffset;
-			file.lastModified = new Date(unixTimeUTC * 1000);
-
+			file.lastModified = fromUnixTime(fatEntry.lastModified);
 			file.getRaw = () => buffer.getU8(fatEntry.offset, fatEntry.diskSize);
 			file.attributes.compressed = false;
 			file.attributes.encrypted = false;
@@ -223,13 +216,7 @@ export default class Archive_RFF_Blood extends ArchiveHandler
 
 		let fat = new RecordBuffer(lenFAT);
 
-		// Since the archive does not store a timezone, we assume, like DOS, that
-		// the times are local time on the current PC.
-		// Since Date.now() returns time since UTC 1970, we need to add the local
-		// timezone onto that so that to convert it into seconds since 1970 local
-		// time.
-		const tzOffset = new Date().getTimezoneOffset() * 60;
-		let now = Math.round(Date.now() / 1000) - tzOffset;
+		let now = toUnixTime(new Date());
 
 		for (const file of archive.files) {
 			let content = file.getContent();
@@ -244,7 +231,7 @@ export default class Archive_RFF_Blood extends ArchiveHandler
 			if (file.lastModified) {
 				// Again we have to include the current timezone so that we are writing
 				// local time rather than UTC to the file.
-				rffFile.lastModified = file.lastModified.valueOf() / 1000 - tzOffset;
+				rffFile.lastModified = toUnixTime(file.lastModified);
 			} else {
 				rffFile.lastModified = now;
 			}
