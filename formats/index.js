@@ -27,6 +27,7 @@ export { default as arc_glb_raptor } from './arc-glb-raptor.js';
 export { default as arc_grp_build } from './arc-grp-build.js';
 export { default as arc_gw_homebrew } from './arc-gw-homebrew.js';
 export { default as arc_hog_descent } from './arc-hog-descent.js';
+export { default as arc_gxlib } from './arc-gxlib.js';
 export { default as arc_rff_blood_v200 } from './arc-rff-blood-v200.js';
 export { default as arc_rff_blood_v300 } from './arc-rff-blood-v300.js';
 export { default as arc_rff_blood_v301 } from './arc-rff-blood-v301.js';

@@ -1,5 +1,5 @@
 # gamearchive.js
-Copyright 2010-2021 Adam Nielsen <<malvineous@shikadi.net>>  
+Copyright 2010-2022 Adam Nielsen <<malvineous@shikadi.net>>  
 
 This is a Javascript library that can read and write archive files used by a
 number of MS-DOS games from the 1990s.  Archive files are like `.zip` files,
@@ -63,6 +63,7 @@ formats.
 | Wacky Wheels              | *.dat      | Wacky Wheels Data File    | arc-dat-wacky       |
 | Wolfenstein 3-D v1.0      | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
 | Wolfenstein 3-D v1.1+     | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Word Rescue               | wr?.[12]   | GX Library                | arc-gxlib           |
 | ''N/A''                   | *.exe      | Generic MS-DOS Executable | arc-exe-generic     |
 
 * **[!C]** Compression/decompression is not yet implemented.
