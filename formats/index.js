@@ -38,6 +38,9 @@ export * from './arc-exe-hocus.js';
 export * from './arc-exe-keen4.js';
 export * from './arc-exe-keen5.js';
 export * from './arc-exe-keen6.js';
+export { default as arc_exe_ccaves1 } from './arc-exe-ccaves1.js';
+export { default as arc_exe_ccaves2 } from './arc-exe-ccaves2.js';
+export { default as arc_exe_ccaves3 } from './arc-exe-ccaves3.js';
 // This one is last because it will also match the other .exe files.
 export { default as arc_exe_generic } from './arc-exe-generic.js';
 

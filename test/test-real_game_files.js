@@ -83,6 +83,21 @@ const gameFiles = {
 			'level1.map': '86gn5r9wamypIqu8QVOfRpl4KB8=',
 		},
 	},
+	'arc-exe-ccaves1': {
+		'cc1.exe': {
+			'e1l16.ccl': 'RDeM5UPZqWA7B5hrSFm2s/Mp1ss=',
+		},
+	},
+	'arc-exe-ccaves2': {
+		'cc2.exe': {
+			'e2l16.ccl': '7WzgHGFxtOLSKeqZV8yNkjrcqyo=',
+		},
+	},
+	'arc-exe-ccaves3': {
+		'cc3.exe': {
+			'e3l16.ccl': 'vWPkgmMfuIMYmtWHAM63YnksQms=',
+		},
+	},
 	'arc-exe-ddave': {
 		'dave.exe': {
 			'level01.dav': 'p3lhBx/mYqB8UWbV7IgVyBRNMsA=',

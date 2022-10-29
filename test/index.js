@@ -38,6 +38,9 @@ const skipFormats = [
 	// distribute the actual game files.  These all have tests in
 	// test-real_game_files.js which are only run if the real game files are
 	// copied into the relevant test folder.
+	'arc-exe-ccaves1',
+	'arc-exe-ccaves2',
+	'arc-exe-ccaves3',
 	'arc-exe-ddave',
 	'arc-exe-doofus',
 	'arc-exe-hocus-beta',

@@ -23,6 +23,7 @@ formats.
 | Commander Keen 4-6        | *.exe      | Keen 4/5/6 .exe           | arc-exe-keen[456]   |
 | Commander Keen 4-6        | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
 | Cosmo's Cosmic Adventures | *.vol, *.stn | Cosmo Data Volume       | arc-vol-cosmo       |
+| Crystal Caves             | cc?.exe    | Crystal Caves .exe        | arc-exe-ccaves[123] |
 | Dangerous Dave            | dave.exe   | Dangerous Dave .exe       | arc-exe-ddave       |
 | Death Rally               | *.bpa      | Death Rally BPA File      | arc-bpa-drally      |
 | Descent                   | *.hog      | Descent HOG File          | arc-hog-descent     |
