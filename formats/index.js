@@ -46,6 +46,7 @@ export { default as arc_exe_generic } from './arc-exe-generic.js';
 
 // These files have supps so they'll be discounted quickly if the extra files
 // are unavailable.
+export { default as arc_dat_centurion } from './arc-dat-centurion.js';
 export { default as arc_gd_doofus } from './arc-gd-doofus.js';
 export { default as arc_gamemaps_id } from './arc-gamemaps-id.js';
 export { default as arc_gamemaps_id_carmack } from './arc-gamemaps-id-carmack.js';

@@ -43,6 +43,11 @@ const gameFiles = {
 			'rik8.mdi': 'Jf0b32V0w/WxPAl0U6vNoBfa7NI=',
 		},
 	},
+	'arc-dat-centurion': {
+		'cent.dat': {
+			'adlib.lzw': 'xDYAO0ie6I0ijf8pfWxHmoQV2EA=',
+		},
+	},
 	'arc-dat-fast': {
 		'bash1.dat': {
 			'main.imf': 'vrkhbVklGu+zXJ50yx8kFbERCQM=',

@@ -19,6 +19,7 @@ formats.
 | Catacomb Abyss            | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
 | Catacomb Armageddon       | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
 | Catacomb Apocalypse       | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
+| Centurion **[!C]**        | *.dat      | Centurion Data File       | arc-dat-centurion   |
 | Corridor 7                | gamemaps.* | id Software Gamemaps (RLEW) | arc-gamemaps-id   |
 | Commander Keen 4-6        | *.exe      | Keen 4/5/6 .exe           | arc-exe-keen[456]   |
 | Commander Keen 4-6        | gamemaps.* | id Software Gamemaps (RLEW + Carmack) | arc-gamemaps-id-carmack |
