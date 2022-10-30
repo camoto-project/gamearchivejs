@@ -47,7 +47,7 @@ export default class Archive_EXE_CCaves2 extends ArchiveHandler
 		return md;
 	}
 
-	static supps(filename) {
+	static supps() {
 		return {
 			main: 'cc2.exe',
 		};
