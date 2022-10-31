@@ -45,7 +45,7 @@ const gameFiles = {
 	},
 	'arc-dat-centurion': {
 		'cent.dat': {
-			'adlib.lzw': 'xDYAO0ie6I0ijf8pfWxHmoQV2EA=',
+			'adlib.lzw': 'Yc6hM/6jBB49JRtqrfEqFBc/GkQ=',
 		},
 	},
 	'arc-dat-fast': {

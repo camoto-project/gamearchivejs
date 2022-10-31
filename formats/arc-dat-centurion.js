@@ -33,8 +33,8 @@ import { replaceExtension } from '../util/supp.js';
 
 const recordTypes = {
 	fatEntry: {
-		size: RecordType.int.u32le,
-		offset: RecordType.int.u16le,
+		offset: RecordType.int.u32le,
+		size: RecordType.int.u16le,
 		name: RecordType.string.fixed.reqTerm(13),
 		attributes: RecordType.int.u8,
 	},
@@ -56,6 +56,11 @@ export default class Archive_DAT_Centurion extends ArchiveHandler
 				'*.dat',
 			],
 		};
+
+		// 32-bit offsets.
+		md.caps.maxArchiveLen = Math.pow(2, 32) - 1;
+		// 16-bit sizes.
+		md.caps.file.maxFileSize = Math.pow(2, 16) - 1;
 
 		// Files can optionally be compressed.
 		md.caps.file.attributes.compressed = true;

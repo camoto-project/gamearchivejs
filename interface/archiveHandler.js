@@ -62,6 +62,10 @@ export default class ArchiveHandler
 			 *   Maximum number of files that can be stored in the archive file, or
 			 *   `undefined` if there is no maximum limit.
 			 *
+			 * @property {Number} caps.maxArchiveLen
+			 *   Maximum length of the archive file in bytes, or
+			 *   `undefined` if there is no maximum limit.
+			 *
 			 * @property {Object} caps.file
 			 *   Capabilities relating to files inside the archive.
 			 *
@@ -99,6 +103,9 @@ export default class ArchiveHandler
 			 *   be `12`.  If the format does not contain filenames, set this to `0`.
 			 *   If set to `undefined` there is no restriction on filename length.
 			 *
+			 * @property {Number} caps.file.maxFileSize
+			 *   Maximum file size, in bytes, or `undefined` if there is no limit.
+			 *
 			 * @property {Object} caps.tags
 			 *   Key=Value list of tags this format supports, e.g.
 			 *   `{ desc: 'Description' }`.
@@ -109,6 +116,7 @@ export default class ArchiveHandler
 			glob: [],
 			caps: {
 				maxFileCount: undefined,
+				maxArchiveLen: undefined,
 				file: {
 					lastModified: false,
 					attributes: {
@@ -116,6 +124,7 @@ export default class ArchiveHandler
 						encrypted: false,
 					},
 					maxFilenameLen: undefined,
+					maxFileSize: undefined,
 				},
 				tags: {},
 			},
